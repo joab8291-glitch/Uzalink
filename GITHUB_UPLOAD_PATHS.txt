@@ -1,0 +1,38 @@
+UzaLink GitHub upload paths
+
+Upload ALL files/folders below to the ROOT of your GitHub repository.
+Do NOT upload node_modules/, dist/, .env, or production secrets.
+
+.env.example
+.gitignore
+MPESA-INTEGRATION.md
+index.html
+package-lock.json
+package.json
+src/App.tsx
+src/components/Commission.tsx
+src/components/Footer.tsx
+src/components/Header.tsx
+src/components/Icon.tsx
+src/components/PhoneMock.tsx
+src/components/ProductCard.tsx
+src/components/ShareSheet.tsx
+src/components/ui.tsx
+src/index.css
+src/lib/data.ts
+src/lib/mpesa.ts
+src/lib/router.tsx
+src/lib/store.ts
+src/main.tsx
+src/pages/About.tsx
+src/pages/Checkout.tsx
+src/pages/Dashboard.tsx
+src/pages/Explore.tsx
+src/pages/Home.tsx
+src/pages/HowItWorks.tsx
+src/pages/MagicProduct.tsx
+src/pages/SellToday.tsx
+src/pages/SellerLogin.tsx
+src/utils/cn.ts
+tsconfig.json
+vite.config.ts
