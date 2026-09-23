@@ -4,7 +4,7 @@ import { PRODUCTS, commissionOf, formatKsh, productByCode, sellerOf, type Produc
 import { findAnyProduct } from "@/lib/store";
 import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
-import { getMpesaOrder, startMpesaPayment, type UzaLinkOrder } from "@/lib/mpesa";
+import { api } from "@/lib/api";
 import {
   Badge,
   Container,
@@ -31,11 +31,12 @@ export function Checkout({ code }: { code: string }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   const [method, setMethod] = useState<"stk" | "paybill">("stk");
   const [vStep, setVStep] = useState(0);
   const [countdown, setCountdown] = useState(120);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [mpesaOrder, setMpesaOrder] = useState<UzaLinkOrder | null>(null);
+  const [mpesaOrder, setMpesaOrder] = useState<any>(null);
   const [mpesaError, setMpesaError] = useState("");
   const [polling, setPolling] = useState(false);
   const [ref] = useState(
@@ -44,29 +45,17 @@ export function Checkout({ code }: { code: string }) {
 
   const pay = async () => {
     const e: Record<string, string> = {};
-    if (name.trim().length < 3) e.name = "Enter the name on your M-Pesa.";
+    if (name.trim().length < 3) e.name = "Enter your name.";
     if (digitsOnly(phone).length !== 10) e.phone = "Enter the M-Pesa number paying for this order.";
+    
     setErrors(e);
     if (Object.keys(e).length || method !== "stk") return;
-
-    setMpesaError("");
-    setMpesaOrder(null);
-    setCountdown(120);
-    setPolling(true);
-    setStage("paying");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
+    setMpesaError(""); setMpesaOrder(null); setCountdown(120); setPolling(true); setStage("paying");
     try {
-      const result = await startMpesaPayment({
-        phone,
-        amount: product.price,
-        productName: product.name,
-      });
-      setMpesaOrder(result.order);
-    } catch (error) {
-      setPolling(false);
-      setMpesaError(error instanceof Error ? error.message : "Could not start M-Pesa payment.");
-    }
+      const created = await api.createOrder({ productCode: product.code, name, phone, email: email || undefined, address: address || undefined });
+      const paid = await api.payOrder(created.order.id);
+      setMpesaOrder({ orderId: created.order.id, publicId: created.order.publicId, status: "pending", checkoutRequestId: paid.checkoutRequestId });
+    } catch (error) { setPolling(false); setMpesaError(error instanceof Error ? error.message : "Could not start payment."); }
   };
 
   /* Poll the same server-side order used by the reference integration. */
@@ -78,18 +67,19 @@ export function Checkout({ code }: { code: string }) {
 
     const check = async () => {
       try {
-        const order = await getMpesaOrder(mpesaOrder.orderId);
+        const result = await api.order(mpesaOrder.orderId);
+        const order = result.order;
         if (stopped) return;
         setMpesaOrder(order);
 
-        if (order.status === "paid") {
+        if (order.status === "PAID" || order.status === "FULFILLED") {
           setPolling(false);
           setVStep(VERIFY_STEPS.length);
           setStage("success");
           return;
         }
 
-        if (order.status === "failed") {
+        if (order.status === "FAILED") {
           setPolling(false);
           setMpesaError(order.failureReason || "M-Pesa payment was not completed.");
           setStage("paying");
