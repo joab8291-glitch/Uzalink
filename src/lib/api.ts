@@ -1,4 +1,4 @@
-const API_BASE = (import.meta.env.VITE_UZALINK_API || "https://uzalink.onrender.com").replace(/\/$/, "");
+const API_BASE = (import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com").replace(/\/$/, "");
 
 async function request<T>(path:string, init:RequestInit={}) : Promise<T> {
   const response=await fetch(`${API_BASE}${path}`,{...init,credentials:"include",headers:{...(init.body instanceof FormData?{}:{"Content-Type":"application/json"}),...(init.headers||{})}});
