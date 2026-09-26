@@ -54,9 +54,7 @@ export function SellerLogin() {
     /**
      * Make sure this is the seller-login route.
      */
-    if (
-      !hash.startsWith("#/seller-login")
-    ) {
+    if (!hash.startsWith("#/seller-login")) {
       return;
     }
 
@@ -65,8 +63,7 @@ export function SellerLogin() {
      *
      * #/seller-login?token=xxxxx
      */
-    const questionMarkIndex =
-      hash.indexOf("?");
+    const questionMarkIndex = hash.indexOf("?");
 
     if (questionMarkIndex === -1) {
       console.log(
@@ -79,22 +76,17 @@ export function SellerLogin() {
     /**
      * Extract everything after ?.
      */
-    const queryString =
-      hash.substring(
-        questionMarkIndex + 1
-      );
+    const queryString = hash.substring(
+      questionMarkIndex + 1
+    );
 
     console.log(
       "[SellerLogin] Query string detected."
     );
 
-    const params =
-      new URLSearchParams(
-        queryString
-      );
+    const params = new URLSearchParams(queryString);
 
-    const token =
-      params.get("token");
+    const token = params.get("token");
 
     /**
      * No token means this is a normal seller
@@ -171,8 +163,7 @@ export function SellerLogin() {
           "[SellerLogin] Refreshing authentication..."
         );
 
-        const refreshed =
-          await refresh();
+        const refreshed = await refresh();
 
         console.log(
           "[SellerLogin] Authentication refresh result:",
@@ -188,10 +179,7 @@ export function SellerLogin() {
             "[SellerLogin] Authentication successful."
           );
 
-          if (
-            refreshed.role ===
-            "ADMIN"
-          ) {
+          if (refreshed.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/dashboard");
@@ -208,13 +196,11 @@ export function SellerLogin() {
           "[SellerLogin] First refresh returned no user. Retrying..."
         );
 
-        await new Promise(
-          (resolve) =>
-            setTimeout(resolve, 500)
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500)
         );
 
-        const retry =
-          await refresh();
+        const retry = await refresh();
 
         console.log(
           "[SellerLogin] Authentication retry result:",
@@ -222,10 +208,7 @@ export function SellerLogin() {
         );
 
         if (retry) {
-          if (
-            retry.role ===
-            "ADMIN"
-          ) {
+          if (retry.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/dashboard");
@@ -253,8 +236,7 @@ export function SellerLogin() {
          * Allow another link to be processed if the
          * user receives a new one.
          */
-        verificationStarted.current =
-          false;
+        verificationStarted.current = false;
       } finally {
         setVerifying(false);
       }
@@ -266,10 +248,7 @@ export function SellerLogin() {
    * ALREADY LOGGED IN
    * ======================================================
    */
-  if (
-    user &&
-    !verifying
-  ) {
+  if (user && !verifying) {
     return (
       <section className="min-h-screen bg-mint/50 pt-32">
         <Container className="max-w-lg">
@@ -369,12 +348,10 @@ export function SellerLogin() {
       const result =
         await api.requestMagic({
           email:
-            email.trim() ||
-            undefined,
+            email.trim() || undefined,
 
           phone:
-            phone.trim() ||
-            undefined,
+            phone.trim() || undefined,
 
           intent: "seller",
         });
@@ -490,13 +467,11 @@ export function SellerLogin() {
                 <input
                   value={email}
                   onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
+                    setEmail(e.target.value)
                   }
                   type="email"
                   placeholder="you@example.com"
-                  className={`${inputClass} mt-2`}
+                  className={inputClass + " mt-2"}
                   disabled={busy}
                 />
 
@@ -520,7 +495,7 @@ export function SellerLogin() {
                   type="tel"
                   inputMode="numeric"
                   placeholder="0712345678"
-                  className={`${inputClass} mt-2`}
+                  className={inputClass + " mt-2"}
                   disabled={busy}
                 />
 
