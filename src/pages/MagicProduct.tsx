@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import {
   PRODUCTS,
   productByCode,
   formatKsh,
   type Product,
 } from "@/lib/data";
+import { api } from "@/lib/api";
 import { findAnyProduct } from "@/lib/store";
 import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
@@ -14,8 +16,73 @@ import { ShareChannels } from "@/components/ShareSheet";
 const FALLBACK = PRODUCTS[0];
 
 export function MagicProduct({ code }: { code: string }) {
-  const book: Product =
-    productByCode(code) ?? findAnyProduct(code) ?? FALLBACK;
+  const [book, setBook] = useState<Product | null>(() =>
+    productByCode(code) ?? findAnyProduct(code) ?? null
+  );
+  const [loading, setLoading] = useState(!book);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBook = async () => {
+      try {
+        const result = await api.product(code);
+        const product = result?.product;
+        if (!product || cancelled) return;
+
+        const sellerName =
+          product?.seller?.user?.name ||
+          product?.seller?.handle ||
+          "UzaLink Author";
+        const initials = sellerName
+          .split(/\\s+/)
+          .filter(Boolean)
+          .map((part: string) => part[0])
+          .join("")
+          .slice(0, 2)
+          .toUpperCase();
+
+        setBook({
+          code: product.code,
+          name: product.name,
+          seller: sellerName,
+          handle: product?.seller?.handle || "",
+          sellerAvatarSeed: initials || "AU",
+          type: "Digital Product",
+          category: product.category,
+          description: product.description,
+          longDescription: product.description,
+          price: Number(product.priceCents || 0) / 100,
+          image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=900&q=80",
+          delivery: product.deliveryText || "Digital book",
+          rating: 0,
+          sales: 0,
+          instant: Boolean(product.instant),
+        });
+      } catch {
+        // Keep an already-known/local book if the API is temporarily unavailable.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void loadBook();
+    return () => { cancelled = true; };
+  }, [code]);
+
+  if (!book) {
+    return (
+      <section className="min-h-screen bg-mint/40 pt-32">
+        <Container className="max-w-2xl text-center">
+          <h1 className="text-3xl text-deep">{loading ? "Loading book…" : "Book not found"}</h1>
+          <p className="mt-3 text-forest/65">
+            {loading ? "Fetching the published book from UzaLink." : "This book link is no longer available."}
+          </p>
+          <Link to="/explore" className={btnClass("gold", "lg", "mt-6")}>Discover Books</Link>
+        </Container>
+      </section>
+    );
+  }
 
   const related = PRODUCTS.filter(
     (item) => item.code !== book.code,
