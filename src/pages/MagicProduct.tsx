@@ -10,6 +10,7 @@ import { ShareChannels } from "@/components/ShareSheet";
 export function MagicProduct({ code }: { code: string }) {
   const [book, setBook] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [related, setRelated] = useState<Product[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -25,7 +26,7 @@ export function MagicProduct({ code }: { code: string }) {
           product?.seller?.handle ||
           "UzaLink Author";
         const initials = sellerName
-          .split(/\\s+/)
+          .split(/\s+/)
           .filter(Boolean)
           .map((part: string) => part[0])
           .join("")
@@ -66,19 +67,32 @@ export function MagicProduct({ code }: { code: string }) {
           .filter((item: any) => item.code !== code)
           .slice(0, 3)
           .map((item: any): Product => {
-            const seller = item?.seller?.user?.name || item?.seller?.handle || "UzaLink Author";
+            const seller =
+              item?.seller?.user?.name ||
+              item?.seller?.handle ||
+              "UzaLink Author";
             return {
               code: item.code,
               name: item.name,
               seller,
               handle: item?.seller?.handle || "",
-              sellerAvatarSeed: seller.split(/\s+/).map((x: string) => x[0]).join("").slice(0, 2).toUpperCase(),
+              sellerAvatarSeed: seller
+                .split(/\s+/)
+                .map((x: string) => x[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase(),
               type: "Digital Product",
               category: item.category,
               description: item.description,
               longDescription: item.description,
               price: Number(item.priceCents || 0) / 100,
-              image: (import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com") + "/api/products/" + encodeURIComponent(item.code) + "/cover",
+              image:
+                (import.meta.env.VITE_UZALINK_API ||
+                  "https://uzalink-backend.onrender.com") +
+                "/api/products/" +
+                encodeURIComponent(item.code) +
+                "/cover",
               delivery: item.deliveryText || "Digital book",
               rating: Number(item.rating || 0),
               sales: Number(item.salesCount || 0),
@@ -92,36 +106,41 @@ export function MagicProduct({ code }: { code: string }) {
     };
 
     void loadRelated();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [code]);
 
   if (!book) {
     return (
       <section className="min-h-screen bg-mint/40 pt-32">
         <Container className="max-w-2xl text-center">
-          <h1 className="text-3xl text-deep">{loading ? "Loading book…" : "Book not found"}</h1>
+          <h1 className="text-3xl text-deep">
+            {loading ? "Loading book…" : "Book not found"}
+          </h1>
           <p className="mt-3 text-forest/65">
-            {loading ? "Fetching the published book from UzaLink." : "This book link is no longer available."}
+            {loading
+              ? "Fetching the published book from UzaLink."
+              : "This book link is no longer available."}
           </p>
-          <Link to="/explore" className={btnClass("gold", "lg", "mt-6")}>Discover Books</Link>
+          <Link
+            to="/explore"
+            className={btnClass("gold", "lg", "mt-6")}
+          >
+            Discover Books
+          </Link>
         </Container>
       </section>
     );
   }
 
-  const [related, setRelated] = useState<Product[]>([]);
-
   return (
     <>
-      {/* =========================================================
-          BOOK DETAIL HERO
-      ========================================================== */}
       <section className="relative overflow-hidden bg-mint/60 pb-14 pt-28 sm:pt-32">
         <div className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-gold/25 blur-3xl" />
         <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-brandlight/15 blur-3xl" />
 
         <Container className="relative">
-          {/* Breadcrumb */}
           <div className="flex flex-wrap items-center gap-3 text-[13px] font-semibold text-forest/60">
             <Link
               to="/"
@@ -136,10 +155,7 @@ export function MagicProduct({ code }: { code: string }) {
               className="h-4 w-4 text-forest/30"
             />
 
-            <Link
-              to="/explore"
-              className="hover:text-brand"
-            >
+            <Link to="/explore" className="hover:text-brand">
               Discover Books
             </Link>
 
@@ -154,9 +170,6 @@ export function MagicProduct({ code }: { code: string }) {
           </div>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            {/* =====================================================
-                BOOK COVER
-            ====================================================== */}
             <Reveal>
               <div className="overflow-hidden rounded-[32px] border border-forest/10 bg-white shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)]">
                 <div className="relative aspect-[4/3] bg-mint">
@@ -167,50 +180,29 @@ export function MagicProduct({ code }: { code: string }) {
                   />
 
                   <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-forest shadow">
-                    <Icon
-                      name="book"
-                      className="h-3.5 w-3.5"
-                    />
+                    <Icon name="book" className="h-3.5 w-3.5" />
                     Digital Book
                   </span>
 
                   {book.instant && (
                     <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full gold-gradient px-3 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-deep shadow">
-                      <Icon
-                        name="bolt"
-                        className="h-3.5 w-3.5"
-                        strokeWidth={0}
-                      />
+                      <Icon name="bolt" className="h-3.5 w-3.5" strokeWidth={0} />
                       Instant access
                     </span>
                   )}
                 </div>
 
-                {/* Book trust indicators */}
                 <div className="grid grid-cols-3 divide-x divide-forest/10 border-t border-forest/10">
                   {[
-                    {
-                      icon: "shield",
-                      label: "Verified payment",
-                    },
-                    {
-                      icon: "receipt",
-                      label: "Digital receipt",
-                    },
-                    {
-                      icon: "download",
-                      label: "Secure delivery",
-                    },
+                    { icon: "shield", label: "Verified payment" },
+                    { icon: "receipt", label: "Digital receipt" },
+                    { icon: "download", label: "Secure delivery" },
                   ].map((item) => (
                     <div
                       key={item.label}
                       className="flex flex-col items-center gap-1.5 py-4 text-center"
                     >
-                      <Icon
-                        name={item.icon}
-                        className="h-5 w-5 text-brand"
-                      />
-
+                      <Icon name={item.icon} className="h-5 w-5 text-brand" />
                       <span className="px-1 text-[11px] font-bold leading-tight text-forest/70">
                         {item.label}
                       </span>
@@ -220,12 +212,8 @@ export function MagicProduct({ code }: { code: string }) {
               </div>
             </Reveal>
 
-            {/* =====================================================
-                BOOK INFORMATION
-            ====================================================== */}
             <Reveal delay={90}>
               <div className="flex h-full flex-col">
-                {/* Author */}
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full gold-gradient text-[14px] font-extrabold text-deep">
                     {book.sellerAvatarSeed}
@@ -237,21 +225,16 @@ export function MagicProduct({ code }: { code: string }) {
                     </p>
 
                     <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-forest/60">
-                      <Icon
-                        name="checkCircle"
-                        className="h-3.5 w-3.5 text-brand"
-                      />
+                      <Icon name="checkCircle" className="h-3.5 w-3.5 text-brand" />
                       Author on UZALINK · {book.handle}
                     </p>
                   </div>
                 </div>
 
-                {/* Title */}
                 <h1 className="mt-5 text-[30px] leading-[1.08] text-deep sm:text-[40px]">
                   {book.name}
                 </h1>
 
-                {/* Price / category / rating */}
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <span className="text-[34px] font-extrabold leading-none text-deep">
                     {formatKsh(book.price)}
@@ -262,27 +245,20 @@ export function MagicProduct({ code }: { code: string }) {
                   </span>
 
                   <span className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-forest/70">
-                    <Icon
-                      name="star"
-                      className="h-4 w-4 text-gold"
-                      strokeWidth={0}
-                    />
+                    <Icon name="star" className="h-4 w-4 text-gold" strokeWidth={0} />
                     {book.rating.toFixed(1)} rating
                   </span>
                 </div>
 
-                {/* Description */}
                 <div className="mt-6">
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/45">
                     About this book
                   </p>
-
                   <p className="mt-2 text-[16px] leading-relaxed text-forest/80">
                     {book.longDescription || book.description}
                   </p>
                 </div>
 
-                {/* Purchase benefits */}
                 <div className="mt-6 space-y-2.5">
                   {[
                     {
@@ -307,12 +283,8 @@ export function MagicProduct({ code }: { code: string }) {
                       className="flex items-center gap-3 rounded-2xl border border-forest/10 bg-white px-4 py-3.5"
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mint text-brand">
-                        <Icon
-                          name={item.icon}
-                          className="h-4.5 w-4.5"
-                        />
+                        <Icon name={item.icon} className="h-4.5 w-4.5" />
                       </span>
-
                       <span className="text-[13.5px] font-semibold leading-snug text-forest/80">
                         {item.label}
                       </span>
@@ -320,30 +292,20 @@ export function MagicProduct({ code }: { code: string }) {
                   ))}
                 </div>
 
-                {/* Checkout */}
                 <div className="mt-7 rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_20px_50px_-40px_rgba(4,40,26,0.6)]">
                   <Link
                     to={`/magic/${book.code}/checkout`}
                     className={btnClass("gold", "xl", "w-full")}
                   >
-                    <Icon
-                      name="bolt"
-                      className="h-5.5 w-5.5"
-                      strokeWidth={0}
-                    />
-
+                    <Icon name="bolt" className="h-5.5 w-5.5" strokeWidth={0} />
                     Buy Book · {formatKsh(book.price)}
                   </Link>
 
                   <p className="mt-3 flex items-center justify-center gap-2 text-center text-[12.5px] font-semibold text-forest/65">
-                    <Icon
-                      name="checkCircle"
-                      className="h-4 w-4 shrink-0 text-brand"
-                    />
+                    <Icon name="checkCircle" className="h-4 w-4 shrink-0 text-brand" />
                     No reader account required — pay and get secure access
                   </p>
 
-                  {/* Share */}
                   <div className="mt-5 border-t border-forest/10 pt-4">
                     <p className="mb-3 text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/50">
                       Share this book
@@ -352,26 +314,15 @@ export function MagicProduct({ code }: { code: string }) {
                     <ShareChannels
                       compact
                       link={`uzalink.co.ke/magic/${book.code}`}
-                      message={`${book.name} — ${formatKsh(
-                        book.price,
-                      )} on UZALINK:`}
+                      message={`${book.name} — ${formatKsh(book.price)} on UZALINK:`}
                     />
                   </div>
                 </div>
 
-                {/* Trust badges */}
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <Badge tone="card" icon="lock">
-                    Secure checkout
-                  </Badge>
-
-                  <Badge tone="card" icon="download">
-                    Digital delivery
-                  </Badge>
-
-                  <Badge tone="card" icon="refresh">
-                    95% goes to the author
-                  </Badge>
+                  <Badge tone="card" icon="lock">Secure checkout</Badge>
+                  <Badge tone="card" icon="download">Digital delivery</Badge>
+                  <Badge tone="card" icon="refresh">95% goes to the author</Badge>
                 </div>
               </div>
             </Reveal>
@@ -379,9 +330,6 @@ export function MagicProduct({ code }: { code: string }) {
         </Container>
       </section>
 
-      {/* =========================================================
-          HOW PURCHASE WORKS
-      ========================================================== */}
       <section className="border-y border-forest/10 bg-white py-12 sm:py-16">
         <Container>
           <Reveal>
@@ -389,14 +337,11 @@ export function MagicProduct({ code }: { code: string }) {
               <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-brand">
                 Simple reader experience
               </p>
-
               <h2 className="mt-3 text-[27px] leading-tight text-deep sm:text-[34px]">
                 Buy this book in a few simple steps
               </h2>
-
               <p className="mt-3 text-[15px] leading-relaxed text-forest/70">
-                No account creation and no complicated checkout. Your
-                book is made available after your payment is confirmed.
+                No account creation and no complicated checkout. Your book is made available after your payment is confirmed.
               </p>
             </div>
           </Reveal>
@@ -427,18 +372,10 @@ export function MagicProduct({ code }: { code: string }) {
                   <span className="absolute right-5 top-5 text-[11px] font-extrabold tracking-[0.14em] text-brand/50">
                     {step.number}
                   </span>
-
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">
-                    <Icon
-                      name={step.icon}
-                      className="h-6 w-6"
-                    />
+                    <Icon name={step.icon} className="h-6 w-6" />
                   </span>
-
-                  <h3 className="mt-5 text-[18px] text-deep">
-                    {step.title}
-                  </h3>
-
+                  <h3 className="mt-5 text-[18px] text-deep">{step.title}</h3>
                   <p className="mt-2 text-[14px] leading-relaxed text-forest/70">
                     {step.text}
                   </p>
@@ -449,9 +386,6 @@ export function MagicProduct({ code }: { code: string }) {
         </Container>
       </section>
 
-      {/* =========================================================
-          RELATED BOOKS
-      ========================================================== */}
       <section className="py-14 sm:py-18">
         <Container>
           <div className="flex items-end justify-between gap-4">
@@ -459,7 +393,6 @@ export function MagicProduct({ code }: { code: string }) {
               <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-brand">
                 Keep exploring
               </p>
-
               <h2 className="mt-2 text-[24px] text-deep sm:text-[30px]">
                 More books to discover
               </h2>
@@ -470,32 +403,20 @@ export function MagicProduct({ code }: { code: string }) {
               className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-extrabold text-brand hover:underline"
             >
               Discover Books
-              <Icon
-                name="arrowRight"
-                className="h-4 w-4"
-              />
+              <Icon name="arrowRight" className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item, index) => (
-              <Reveal
-                key={item.code}
-                delay={index * 70}
-              >
-                <ProductCard
-                  product={item}
-                  className="h-full"
-                />
+              <Reveal key={item.code} delay={index * 70}>
+                <ProductCard product={item} className="h-full" />
               </Reveal>
             ))}
           </div>
         </Container>
       </section>
 
-      {/* =========================================================
-          AUTHOR CTA
-      ========================================================== */}
       <section className="bg-mint/60 py-14 sm:py-18">
         <Container>
           <Reveal>
@@ -505,32 +426,20 @@ export function MagicProduct({ code }: { code: string }) {
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
                     Are you an author?
                   </p>
-
                   <h2 className="mt-3 max-w-2xl text-[28px] leading-tight sm:text-[36px]">
                     Turn your book into a digital business.
                   </h2>
-
                   <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/75">
-                    Publish your digital book on UZALINK, set your own
-                    price and share your unique book link with readers.
-                    Keep 95% of every sale.
+                    Publish your digital book on UZALINK, set your own price and share your unique book link with readers. Keep 95% of every sale.
                   </p>
                 </div>
 
                 <Link
                   to="/sell"
-                  className={btnClass(
-                    "gold",
-                    "xl",
-                    "w-full shrink-0 lg:w-auto",
-                  )}
+                  className={btnClass("gold", "xl", "w-full shrink-0 lg:w-auto")}
                 >
                   Sell Your Book
-                  <Icon
-                    name="arrowRight"
-                    className="h-5 w-5"
-                    strokeWidth={2.4}
-                  />
+                  <Icon name="arrowRight" className="h-5 w-5" strokeWidth={2.4} />
                 </Link>
               </div>
             </div>
