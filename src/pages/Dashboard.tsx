@@ -13,7 +13,7 @@ import {
   Logo,
 } from "@/components/Icon";
 
-import { api } from "@/lib/api";
+import { api, API_BASE } from "@/lib/api";
 
 import {
   useAuth,
@@ -103,7 +103,9 @@ export function Dashboard() {
     data?.orders || [];
 
   const products =
-    data?.products || [];
+    data?.products ||
+    data?.seller?.products ||
+    [];
 
   const premium =
     Boolean(data?.premium);
@@ -360,11 +362,29 @@ export function Dashboard() {
                     className="group rounded-2xl border border-forest/10 bg-mint/30 p-5 transition hover:-translate-y-0.5 hover:border-brand/20"
                   >
 
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-deep text-gold">
-                      <Icon
-                        name="book"
-                        className="h-7 w-7"
-                      />
+                    <div className="h-40 w-full overflow-hidden rounded-2xl bg-mint">
+                      {product.code ? (
+                        <img
+                          src={`${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`}
+                          alt={`Cover of ${product.name || "book"}`}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          onError={(event) => {
+                            event.currentTarget.style.display = "none";
+                            const fallback = event.currentTarget.nextElementSibling;
+                            if (fallback) {
+                              fallback.classList.remove("hidden");
+                            }
+                          }}
+                        />
+                      ) : null}
+
+                      <div className="hidden h-full w-full items-center justify-center bg-deep text-gold">
+                        <Icon
+                          name="book"
+                          className="h-8 w-8"
+                        />
+                      </div>
                     </div>
 
                     <h3 className="mt-4 line-clamp-2 text-lg font-extrabold text-deep">
