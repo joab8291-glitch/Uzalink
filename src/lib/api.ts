@@ -1,4 +1,4 @@
-const API_BASE = (
+export const API_BASE = (
   import.meta.env.VITE_UZALINK_API ||
   "https://uzalink-backend.onrender.com"
 ).replace(/\/$/, "");
