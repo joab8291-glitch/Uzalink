@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { navigate } from "@/lib/router";
 
-export function SellerLogin() {
+function SellerLogin() {
   const { user, refresh } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -16,23 +16,12 @@ export function SellerLogin() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
 
-  /**
-   * Prevent the magic-link verification from running
-   * multiple times during the same page load.
-   */
   const verificationStarted = useRef(false);
 
   /**
    * ======================================================
    * MAGIC LINK DETECTION + VERIFICATION
    * ======================================================
-   *
-   * Expected URL:
-   *
-   * https://uzalink.vercel.app/#/seller-login?token=xxxxx
-   *
-   * Because UzaLink uses hash routing, the token is
-   * contained inside window.location.hash.
    */
   useEffect(() => {
     if (verificationStarted.current) {
@@ -51,18 +40,10 @@ export function SellerLogin() {
       hash
     );
 
-    /**
-     * Make sure this is the seller-login route.
-     */
     if (!hash.startsWith("#/seller-login")) {
       return;
     }
 
-    /**
-     * Find the ? in:
-     *
-     * #/seller-login?token=xxxxx
-     */
     const questionMarkIndex = hash.indexOf("?");
 
     if (questionMarkIndex === -1) {
@@ -73,25 +54,16 @@ export function SellerLogin() {
       return;
     }
 
-    /**
-     * Extract everything after ?.
-     */
     const queryString = hash.substring(
       questionMarkIndex + 1
     );
 
-    console.log(
-      "[SellerLogin] Query string detected."
+    const params = new URLSearchParams(
+      queryString
     );
-
-    const params = new URLSearchParams(queryString);
 
     const token = params.get("token");
 
-    /**
-     * No token means this is a normal seller
-     * login page visit.
-     */
     if (!token) {
       console.log(
         "[SellerLogin] No magic-link token found."
@@ -100,16 +72,10 @@ export function SellerLogin() {
       return;
     }
 
-    /**
-     * We have a token.
-     */
     console.log(
       "[SellerLogin] Magic-link token detected."
     );
 
-    /**
-     * Never print the complete token.
-     */
     console.log(
       "[SellerLogin] Token length:",
       token.length
@@ -122,10 +88,6 @@ export function SellerLogin() {
 
     /**
      * Remove the token from the visible URL.
-     *
-     * The token has already been extracted into memory.
-     *
-     * This does NOT change the current route.
      */
     window.history.replaceState(
       null,
@@ -135,12 +97,6 @@ export function SellerLogin() {
 
     void (async () => {
       try {
-        /**
-         * ==================================================
-         * STEP A
-         * Send token to backend
-         * ==================================================
-         */
         console.log(
           "[SellerLogin] Verifying magic link..."
         );
@@ -153,12 +109,6 @@ export function SellerLogin() {
           result
         );
 
-        /**
-         * ==================================================
-         * STEP B
-         * Refresh authenticated user
-         * ==================================================
-         */
         console.log(
           "[SellerLogin] Refreshing authentication..."
         );
@@ -170,10 +120,6 @@ export function SellerLogin() {
           refreshed
         );
 
-        /**
-         * If the user was successfully authenticated,
-         * navigate to the correct dashboard.
-         */
         if (refreshed) {
           console.log(
             "[SellerLogin] Authentication successful."
@@ -188,10 +134,6 @@ export function SellerLogin() {
           return;
         }
 
-        /**
-         * If refresh didn't immediately return the user,
-         * give the browser a short moment and retry.
-         */
         console.log(
           "[SellerLogin] First refresh returned no user. Retrying..."
         );
@@ -232,10 +174,6 @@ export function SellerLogin() {
             : "Login link is invalid or expired."
         );
 
-        /**
-         * Allow another link to be processed if the
-         * user receives a new one.
-         */
         verificationStarted.current = false;
       } finally {
         setVerifying(false);
@@ -334,7 +272,7 @@ export function SellerLogin() {
   const send = async () => {
     setError("");
 
-    if (!email && !phone) {
+    if (!email.trim() && !phone.trim()) {
       setError(
         "Enter your email or phone number."
       );
@@ -358,9 +296,6 @@ export function SellerLogin() {
 
       setSent(true);
 
-      /**
-       * Development-only magic link.
-       */
       if (result.devLink) {
         console.info(
           "[SellerLogin] Development magic link:",
@@ -575,4 +510,6 @@ export function SellerLogin() {
     </section>
   );
 }
+
+export { SellerLogin };
 ```
