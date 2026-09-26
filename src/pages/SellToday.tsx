@@ -425,15 +425,11 @@ export function SellToday() {
       );
 
       /*
-       * Book cover is sent separately for future
-       * backend support.
+       * The current backend accepts one multipart file:
+       * the private digital book. The cover UI is retained
+       * for the next cover-persistence update, but it is not
+       * submitted yet because multer only accepts "file".
        */
-      if (coverFile) {
-        fd.append(
-          "cover",
-          coverFile
-        );
-      }
 
       const result =
         await api.createProduct(fd);
