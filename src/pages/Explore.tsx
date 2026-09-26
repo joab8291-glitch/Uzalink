@@ -90,7 +90,9 @@ export function Explore() {
     };
 
     void loadBooks();
-    return () => { cancelled = true; };
-  }, [allBooks]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const allBooks = liveProducts;
