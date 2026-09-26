@@ -1,4 +1,10 @@
-import { px } from "@/utils/px";
+/* =========================================================
+   BOOK COVER IMAGES
+   ========================================================= */
+
+function bookCover(id: string) {
+  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=900&q=80`;
+}
 
 /* =========================================================
    BOOK TYPES
@@ -84,9 +90,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Learn how to turn an idea into a sustainable small business. This practical guide covers planning, pricing, customers, marketing, record keeping and everyday business decisions for Kenyan entrepreneurs.",
     price: 350,
-    image: px(
-      "book cover small business entrepreneurship Kenya professional",
-    ),
+    image: bookCover("1544947950-fa07a98d237f"),
     delivery: "Digital book",
     rating: 4.8,
     sales: 126,
@@ -107,9 +111,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "From choosing a business idea to understanding customers, setting prices and building a simple marketing strategy, this book provides practical steps for aspiring Kenyan entrepreneurs.",
     price: 300,
-    image: px(
-      "African entrepreneur business book cover Kenya startup",
-    ),
+    image: bookCover("1512820790803-83ca734da794"),
     delivery: "Digital book",
     rating: 4.7,
     sales: 94,
@@ -130,9 +132,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "A practical introduction to personal finance for young adults. Learn how to create a budget, control unnecessary spending, build savings and make better financial decisions.",
     price: 250,
-    image: px(
-      "personal finance money habits book cover African young adults",
-    ),
+    image: bookCover("1455885666463-9e7d2a3d2f5a"),
     delivery: "Digital book",
     rating: 4.9,
     sales: 181,
@@ -153,9 +153,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "A collection of practical reflections designed to encourage readers through ordinary seasons of life, work, relationships and personal growth.",
     price: 200,
-    image: px(
-      "Christian inspirational faith book cover African author",
-    ),
+    image: bookCover("1509021436665-8f07e3f0f39c"),
     delivery: "Digital book",
     rating: 4.9,
     sales: 73,
@@ -175,9 +173,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Set against the energy of Nairobi, this contemporary romance follows two young professionals whose lives unexpectedly cross as they pursue their dreams.",
     price: 280,
-    image: px(
-      "romance novel book cover Nairobi Kenya love story",
-    ),
+    image: bookCover("1543002588-bfa74002ed7e"),
     delivery: "Digital book",
     rating: 4.6,
     sales: 112,
@@ -198,9 +194,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Designed for beginners who want confidence using modern technology. Topics include computer basics, internet safety, online communication, productivity tools and digital opportunities.",
     price: 300,
-    image: px(
-      "digital skills computer technology book cover Africa",
-    ),
+    image: bookCover("1516979187457-7f5c0f6c3d4a"),
     delivery: "Digital book",
     rating: 4.8,
     sales: 87,
@@ -220,9 +214,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Discover 25 practical recipes inspired by Kenyan home cooking, with simple ingredients and easy-to-follow preparation steps.",
     price: 180,
-    image: px(
-      "Kenyan food cookbook recipe book cover African cuisine",
-    ),
+    image: bookCover("1495446815903-90c2f9a7a8d8"),
     delivery: "Digital book",
     rating: 4.7,
     sales: 143,
@@ -243,9 +235,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "A colourful and encouraging story created to help young readers develop confidence, curiosity and the courage to dream about their future.",
     price: 150,
-    image: px(
-      "African children storybook colorful illustration book cover",
-    ),
+    image: bookCover("1544947950-fa07a98d237f"),
     delivery: "Digital book",
     rating: 4.9,
     sales: 65,
@@ -265,9 +255,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "A hands-on guide for readers who want to build stronger habits, improve consistency, set meaningful goals and make steady personal progress.",
     price: 320,
-    image: px(
-      "personal development self improvement book cover African author",
-    ),
+    image: bookCover("1519682337058-a94d519337bc"),
     delivery: "Digital book",
     rating: 4.8,
     sales: 102,
@@ -287,9 +275,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "A general wellness guide covering everyday routines, movement, rest, nutrition principles and practical ways to build sustainable healthy habits.",
     price: 280,
-    image: px(
-      "health wellness lifestyle book cover African author",
-    ),
+    image: bookCover("1511108690759-3e1b1b4d4b3f"),
     delivery: "Digital book",
     rating: 4.6,
     sales: 58,
@@ -309,9 +295,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Learn how to prepare for employment, build useful skills, present yourself professionally and navigate the transition from campus into the working world.",
     price: 250,
-    image: px(
-      "graduate career development book cover African student",
-    ),
+    image: bookCover("1455885666463-9e7d2a3d2f5a"),
     delivery: "Digital book",
     rating: 4.8,
     sales: 79,
@@ -332,9 +316,7 @@ export const PRODUCTS: Product[] = [
     longDescription:
       "Explore practical ideas for identifying opportunities, solving local problems, building resilience and developing a sustainable entrepreneurial mindset.",
     price: 400,
-    image: px(
-      "African entrepreneur mindset business book cover",
-    ),
+    image: bookCover("undefined"),
     delivery: "Digital book",
     rating: 4.9,
     sales: 134,
