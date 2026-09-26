@@ -57,6 +57,41 @@ export function MagicProduct({ code }: { code: string }) {
     };
 
     void loadBook();
+
+    const loadRelated = async () => {
+      try {
+        const result = await api.products();
+        const items = Array.isArray(result?.products) ? result.products : [];
+        const mapped = items
+          .filter((item: any) => item.code !== code)
+          .slice(0, 3)
+          .map((item: any): Product => {
+            const seller = item?.seller?.user?.name || item?.seller?.handle || "UzaLink Author";
+            return {
+              code: item.code,
+              name: item.name,
+              seller,
+              handle: item?.seller?.handle || "",
+              sellerAvatarSeed: seller.split(/\s+/).map((x: string) => x[0]).join("").slice(0, 2).toUpperCase(),
+              type: "Digital Product",
+              category: item.category,
+              description: item.description,
+              longDescription: item.description,
+              price: Number(item.priceCents || 0) / 100,
+              image: (import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com") + "/api/products/" + encodeURIComponent(item.code) + "/cover",
+              delivery: item.deliveryText || "Digital book",
+              rating: Number(item.rating || 0),
+              sales: Number(item.salesCount || 0),
+              instant: Boolean(item.instant),
+            };
+          });
+        if (!cancelled) setRelated(mapped);
+      } catch {
+        if (!cancelled) setRelated([]);
+      }
+    };
+
+    void loadRelated();
     return () => { cancelled = true; };
   }, [code]);
 
