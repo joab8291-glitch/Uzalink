@@ -65,6 +65,8 @@ export function Checkout({ code }: { code: string }) {
 
   const [mpesaError, setMpesaError] = useState("");
   const [polling, setPolling] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState("");
+  const [downloadError, setDownloadError] = useState("");
 
   const seller = sellerOf(book);
   const commission = commissionOf(book.price);
@@ -112,12 +114,32 @@ export function Checkout({ code }: { code: string }) {
         if (status === "PAID" || status === "FULFILLED") {
           setVStep(VERIFY_STEPS.length - 1);
 
-          window.setTimeout(() => {
+          try {
+            const access = await api.downloadAccess(
+              mpesaOrder.orderId,
+              digitsOnly(phone)
+            );
+
+            if (!access?.url) {
+              throw new Error("Secure book access could not be created.");
+            }
+
             if (!cancelled) {
+              setDownloadUrl(access.url);
+              setDownloadError("");
               setStage("success");
               setPolling(false);
             }
-          }, 700);
+          } catch (error: any) {
+            if (!cancelled) {
+              setDownloadError(
+                error?.message ||
+                  "Payment was confirmed, but secure book access could not be prepared yet."
+              );
+              setStage("success");
+              setPolling(false);
+            }
+          }
 
           return;
         }
@@ -252,6 +274,8 @@ export function Checkout({ code }: { code: string }) {
     setStage("form");
     setMpesaOrder(null);
     setMpesaError("");
+    setDownloadUrl("");
+    setDownloadError("");
     setPolling(false);
     setVStep(0);
     setCountdown(60);
@@ -281,6 +305,8 @@ export function Checkout({ code }: { code: string }) {
                 email={email}
                 authorEarnings={authorEarnings}
                 commission={commission}
+                downloadUrl={downloadUrl}
+                downloadError={downloadError}
               />
             ) : (
               <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
@@ -726,6 +752,8 @@ function SuccessState({
   email,
   authorEarnings,
   commission,
+  downloadUrl,
+  downloadError,
 }: {
   book: Product;
   seller: string;
@@ -734,6 +762,8 @@ function SuccessState({
   email: string;
   authorEarnings: number;
   commission: number;
+  downloadUrl: string;
+  downloadError: string;
 }) {
   return (
     <div className="mx-auto max-w-3xl">
@@ -804,23 +834,29 @@ function SuccessState({
                 </p>
 
                 <p className="mt-1 text-sm leading-relaxed text-deep/65">
-                  Your payment has been confirmed. The digital book access
-                  stage is now unlocked.
+                  Your payment has been confirmed. Your secure download link
+                  is valid for a limited time and follows the book's download limit.
                 </p>
               </div>
             </div>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            <a
-              href={book.image}
-              target="_blank"
-              rel="noreferrer"
-              className={btnClass("deep", "lg", "justify-center")}
-            >
-              <Icon name="bookOpen" className="h-5 w-5 text-gold" />
-              Open Book Access
-            </a>
+            {downloadUrl ? (
+              <a
+                href={downloadUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={btnClass("deep", "lg", "justify-center")}
+              >
+                <Icon name="download" className="h-5 w-5 text-gold" />
+                Download Your Book
+              </a>
+            ) : (
+              <div className="rounded-2xl border border-gold/30 bg-gold/10 p-4 text-sm font-semibold leading-relaxed text-deep/75">
+                {downloadError || "Preparing your secure book download..."}
+              </div>
+            )}
 
             <Link
               to="/explore"
