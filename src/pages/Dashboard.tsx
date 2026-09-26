@@ -360,7 +360,17 @@ export function Dashboard() {
                     className="group rounded-2xl border border-forest/10 bg-mint/30 p-5 transition hover:-translate-y-0.5 hover:border-brand/20"
                   >
 
-                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-deep text-gold">\n                      {product.code ? (\n                        <img\n                          src={`${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`}\n                          alt={product.name || "Book cover"}\n                          className="h-full w-full object-cover"\n                        />\n                      ) : (\n                        <Icon name="book" className="h-7 w-7" />\n                      )}\n                    </div>v>
+                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-deep text-gold">
+                      {product.code ? (
+                        <img
+                          src={`${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`}
+                          alt={product.name || "Book cover"}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Icon name="book" className="h-7 w-7" />
+                      )}
+                    </div>
 
                     <h3 className="mt-4 line-clamp-2 text-lg font-extrabold text-deep">
                       {product.name ||
