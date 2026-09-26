@@ -11,7 +11,7 @@ import { MagicProduct } from "@/pages/MagicProduct";
 import { Checkout } from "@/pages/Checkout";
 import { HowItWorks } from "@/pages/HowItWorks";
 import { About } from "@/pages/About";
-import { SellerLogin } from "@/pages/SellerLogin";
+import SellerLogin from "@/pages/SellerLogin";
 import { Dashboard } from "@/pages/Dashboard";
 import { AdminDashboard } from "@/pages/AdminDashboard";
 
