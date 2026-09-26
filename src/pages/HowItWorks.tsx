@@ -27,6 +27,7 @@ function Flow({
           tone === "dark" ? "bg-white/12" : "bg-forest/12",
         )}
       />
+
       <ol className="space-y-3.5">
         {steps.map((s, i) => (
           <Reveal key={s.title} delay={i * 60}>
@@ -34,14 +35,22 @@ function Flow({
               <span
                 className={cn(
                   "relative z-10 flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-2xl shadow-lg sm:h-[62px] sm:w-[62px]",
-                  tone === "dark" ? "gold-gradient text-deep" : "bg-white text-forest shadow-forest/10",
+                  tone === "dark"
+                    ? "gold-gradient text-deep"
+                    : "bg-white text-forest shadow-forest/10",
                 )}
               >
-                <Icon name={s.icon} className="h-6 w-6 sm:h-7 sm:w-7" />
+                <Icon
+                  name={s.icon}
+                  className="h-6 w-6 sm:h-7 sm:w-7"
+                />
+
                 <span
                   className={cn(
                     "absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-extrabold",
-                    tone === "dark" ? "bg-deep text-gold ring-2 ring-deep" : "bg-deep text-white",
+                    tone === "dark"
+                      ? "bg-deep text-gold ring-2 ring-deep"
+                      : "bg-deep text-white",
                   )}
                 >
                   {i + 1}
@@ -65,20 +74,26 @@ function Flow({
                   >
                     {s.title}
                   </p>
+
                   {i < steps.length - 1 && (
                     <Icon
                       name="chevronDown"
                       className={cn(
                         "h-5 w-5 shrink-0",
-                        tone === "dark" ? "text-white/25" : "text-forest/25",
+                        tone === "dark"
+                          ? "text-white/25"
+                          : "text-forest/25",
                       )}
                     />
                   )}
                 </div>
+
                 <p
                   className={cn(
                     "mt-1.5 text-[13.5px] leading-relaxed",
-                    tone === "dark" ? "text-white/65" : "text-forest/70",
+                    tone === "dark"
+                      ? "text-white/65"
+                      : "text-forest/70",
                   )}
                 >
                   {s.text}
@@ -98,27 +113,40 @@ export function HowItWorks() {
       {/* HERO */}
       <section className="relative overflow-hidden brand-gradient pb-14 pt-28 text-white sm:pb-16 sm:pt-32">
         <div className="pointer-events-none absolute inset-0 grid-pattern opacity-70" />
+
         <Container className="relative">
           <div className="max-w-2xl">
             <Eyebrow tone="light" icon="info">
               How UZALINK works
             </Eyebrow>
+
             <h1 className="mt-5 text-[38px] leading-[1.02] sm:text-[54px]">
-              Two flows.
+              From your book
               <br />
-              <span className="text-gold">Zero sign up screens.</span>
+              <span className="text-gold">to more readers.</span>
             </h1>
+
             <p className="mt-5 text-[16.5px] leading-relaxed text-white/75">
-              Sellers build a product and share a Magic Link. Buyers open the link, pay and receive.
-              Neither side has to create an account to get started.
+              UZALINK gives authors a simple way to publish and sell digital
+              books online. Create your author account, upload your book,
+              set your price and share your unique book link with readers.
             </p>
+
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/sell" className={btnClass("gold", "lg")}>
-                Sell Today
+                Sell Your Book
                 <Icon name="arrowRight" className="h-5 w-5" />
               </Link>
-              <Link to="/explore" className={btnClass("white", "lg", "border-2 border-white/25")}>
-                Explore Us
+
+              <Link
+                to="/explore"
+                className={btnClass(
+                  "white",
+                  "lg",
+                  "border-2 border-white/25",
+                )}
+              >
+                Explore Books
                 <Icon name="compass" className="h-5 w-5" />
               </Link>
             </div>
@@ -126,39 +154,58 @@ export function HowItWorks() {
         </Container>
       </section>
 
-      {/* SELLER FLOW */}
+      {/* AUTHOR FLOW */}
       <section className="relative overflow-hidden bg-deep py-16 text-white sm:py-20">
         <div className="pointer-events-none absolute inset-0 grid-pattern opacity-60" />
+
         <Container className="relative">
           <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div className="lg:sticky lg:top-28">
               <Reveal>
                 <Eyebrow tone="light" icon="bolt">
-                  For sellers
+                  For authors
                 </Eyebrow>
+
                 <h2 className="mt-5 text-[32px] leading-[1.06] sm:text-[42px]">
-                  Product in, Magic Link out
+                  Your manuscript in.
+                  <br />
+                  Your book link out.
                 </h2>
+
                 <p className="mt-4 text-[16px] leading-relaxed text-white/70">
-                  Eight steps, one sitting. The whole flow runs on your phone and takes about two
-                  minutes.
+                  Turn your digital book into something readers can buy
+                  directly from you. Upload once, choose your price and
+                  share your UZALINK book link anywhere.
                 </p>
 
                 <ul className="mt-7 space-y-3">
                   {[
-                    "No account, email or password",
-                    "Payment number verified, then locked",
-                    "You keep 95% of every sale",
+                    "Create a dedicated author account",
+                    "Upload your digital book and cover",
+                    "You keep 95% of every verified sale",
                   ].map((t) => (
-                    <li key={t} className="flex items-center gap-3 text-[14.5px] text-white/80">
-                      <Icon name="checkCircle" className="h-5 w-5 shrink-0 text-gold" />
+                    <li
+                      key={t}
+                      className="flex items-center gap-3 text-[14.5px] text-white/80"
+                    >
+                      <Icon
+                        name="checkCircle"
+                        className="h-5 w-5 shrink-0 text-gold"
+                      />
                       {t}
                     </li>
                   ))}
                 </ul>
 
-                <Link to="/sell" className={btnClass("gold", "lg", "mt-8 w-full sm:w-auto")}>
-                  Start selling
+                <Link
+                  to="/sell"
+                  className={btnClass(
+                    "gold",
+                    "lg",
+                    "mt-8 w-full sm:w-auto",
+                  )}
+                >
+                  Start Selling Your Book
                   <Icon name="arrowRight" className="h-5 w-5" />
                 </Link>
               </Reveal>
@@ -183,37 +230,55 @@ export function HowItWorks() {
           <Reveal>
             <div className="grid items-center gap-8 rounded-[32px] border-2 border-gold bg-goldsoft p-6 sm:p-10 lg:grid-cols-[1fr_1fr]">
               <div>
-                <Eyebrow icon="lock">Step 4 matters most</Eyebrow>
+                <Eyebrow icon="lock">
+                  Your author payout setup
+                </Eyebrow>
+
                 <h2 className="mt-5 text-[28px] leading-[1.08] text-deep sm:text-[36px]">
-                  Set Your Payment Number — once.
+                  Set your payment number once.
                 </h2>
+
                 <p className="mt-4 text-[15.5px] leading-relaxed text-[#6d4f00]">
-                  Enter your M-Pesa/payment number exactly as registered and intended for receiving
-                  your UZALINK settlements. Where technically supported, UZALINK verifies ownership
-                  with a short code before the number locks.
+                  Enter the M-Pesa/payment number you want to use for
+                  receiving your UZALINK author earnings. Where technically
+                  supported, UZALINK verifies ownership before the number
+                  is locked.
                 </p>
+
                 <div className="mt-6 flex items-start gap-3 rounded-2xl border border-[#e3b800] bg-white/70 p-4">
-                  <Icon name="alert" className="mt-0.5 h-5 w-5 shrink-0 text-golddeep" />
+                  <Icon
+                    name="alert"
+                    className="mt-0.5 h-5 w-5 shrink-0 text-golddeep"
+                  />
+
                   <p className="text-[14px] font-bold leading-relaxed text-[#6d4f00]">
-                    Payment numbers cannot be changed after setup. Please double-check the number
-                    before continuing.
+                    Double-check your payment number before continuing.
+                    It is used when your verified book-sale earnings are
+                    settled.
                   </p>
                 </div>
               </div>
+
               <div className="rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_25px_55px_-40px_rgba(4,40,26,0.5)]">
                 <p className="text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/50">
-                  Verified Payment Number
+                  Author Payment Number
                 </p>
+
                 <p className="mt-2 flex flex-wrap items-center gap-2.5 text-[26px] font-extrabold text-deep">
                   07XX XXX XXX
+
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-deep px-3 py-1.5 text-[12px] font-extrabold uppercase tracking-wide text-white">
-                    <Icon name="lock" className="h-3.5 w-3.5 text-gold" />
+                    <Icon
+                      name="lock"
+                      className="h-3.5 w-3.5 text-gold"
+                    />
                     Locked
                   </span>
                 </p>
+
                 <p className="mt-3 text-[13px] leading-relaxed text-forest/70">
-                  Locked numbers protect your settlements. There is deliberately no "change payment
-                  number" button — support verifies identity first.
+                  Your payment number is used for author settlements after
+                  successful payment verification.
                 </p>
               </div>
             </div>
@@ -221,7 +286,7 @@ export function HowItWorks() {
         </Container>
       </section>
 
-      {/* BUYER FLOW */}
+      {/* READER FLOW */}
       <section className="bg-mint/60 py-16 sm:py-20">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
@@ -229,18 +294,29 @@ export function HowItWorks() {
 
             <div className="lg:sticky lg:top-28">
               <Reveal>
-                <Eyebrow icon="compass">For buyers</Eyebrow>
+                <Eyebrow icon="compass">
+                  For readers
+                </Eyebrow>
+
                 <h2 className="mt-5 text-[32px] leading-[1.06] text-deep sm:text-[42px]">
-                  Link → product → pay → receive
+                  Discover → pay → read
                 </h2>
+
                 <p className="mt-4 text-[16px] leading-relaxed text-forest/75">
-                  Buyers don't need to create an account. Sellers share their UZALINK Magic Links
-                  through WhatsApp, Facebook, TikTok, Instagram, SMS, QR codes, websites and other
-                  channels.
+                  Readers can open an author's UZALINK book link, review
+                  the book details, pay securely with M-Pesa and receive
+                  access without creating a buyer account.
                 </p>
 
                 <div className="mt-7 grid grid-cols-2 gap-2.5">
-                  {["WhatsApp", "Facebook", "TikTok", "Instagram", "SMS", "QR Code"].map((c) => (
+                  {[
+                    "WhatsApp",
+                    "Facebook",
+                    "TikTok",
+                    "Instagram",
+                    "SMS",
+                    "QR Code",
+                  ].map((c) => (
                     <span
                       key={c}
                       className="rounded-2xl border border-forest/10 bg-white px-4 py-3 text-[13.5px] font-bold text-forest"
@@ -250,8 +326,15 @@ export function HowItWorks() {
                   ))}
                 </div>
 
-                <Link to="/explore" className={btnClass("deep", "lg", "mt-8 w-full sm:w-auto")}>
-                  Explore Us
+                <Link
+                  to="/explore"
+                  className={btnClass(
+                    "deep",
+                    "lg",
+                    "mt-8 w-full sm:w-auto",
+                  )}
+                >
+                  Explore Books
                   <Icon name="compass" className="h-5 w-5" />
                 </Link>
               </Reveal>
@@ -265,9 +348,9 @@ export function HowItWorks() {
         <Container>
           <Reveal>
             <SectionHeading
-              eyebrow="Commission & settlement"
-              title="5% UZALINK Commission. 95% Goes to the Seller."
-              text="Clear maths on every sale, with fast settlement to your locked payment number."
+              eyebrow="Author earnings & settlement"
+              title="5% UZALINK Commission. 95% Goes to the Author."
+              text="The author keeps 95% of every verified book sale, with the platform commission clearly shown."
             />
           </Reveal>
 
@@ -281,18 +364,31 @@ export function HowItWorks() {
             <Reveal>
               <div className="h-full rounded-3xl border border-forest/10 bg-mint/60 p-6 sm:p-7">
                 <p className="flex items-center gap-2.5 text-[16px] font-extrabold text-deep">
-                  <Icon name="clock" className="h-5 w-5 text-brand" />
-                  Seller settlement
+                  <Icon
+                    name="clock"
+                    className="h-5 w-5 text-brand"
+                  />
+                  Author settlement
                 </p>
-                <p className="mt-4 text-[15.5px] leading-relaxed text-forest/80">{SETTLEMENT_NOTE}</p>
+
+                <p className="mt-4 text-[15.5px] leading-relaxed text-forest/80">
+                  {SETTLEMENT_NOTE}
+                </p>
+
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   {[
                     { k: "Same day", v: "Settlement window" },
                     { k: "6 hrs", v: "Business working hours" },
                     { k: "M-Pesa", v: "Payout channel" },
                   ].map((s) => (
-                    <div key={s.k} className="rounded-2xl border border-forest/10 bg-white p-4">
-                      <p className="text-[19px] font-extrabold text-deep">{s.k}</p>
+                    <div
+                      key={s.k}
+                      className="rounded-2xl border border-forest/10 bg-white p-4"
+                    >
+                      <p className="text-[19px] font-extrabold text-deep">
+                        {s.k}
+                      </p>
+
                       <p className="mt-1 text-[12px] font-semibold uppercase tracking-wide text-forest/55">
                         {s.v}
                       </p>
@@ -301,6 +397,7 @@ export function HowItWorks() {
                 </div>
               </div>
             </Reveal>
+
             <Reveal delay={120}>
               <CommissionCalculator />
             </Reveal>
@@ -319,32 +416,45 @@ export function HowItWorks() {
               >
                 <div>
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
-                    Sellers
+                    Authors
                   </p>
-                  <p className="mt-2 text-[24px] font-extrabold sm:text-[28px]">Sell Today</p>
+
+                  <p className="mt-2 text-[24px] font-extrabold sm:text-[28px]">
+                    Sell Your Book
+                  </p>
+
                   <p className="mt-2 text-[13.5px] text-white/70">
-                    Create a product and get your Magic Link.
+                    Publish your digital book and start reaching readers.
                   </p>
                 </div>
+
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl gold-gradient text-deep transition-transform group-hover:translate-x-1">
-                  <Icon name="arrowRight" className="h-6 w-6" strokeWidth={2.4} />
+                  <Icon
+                    name="arrowRight"
+                    className="h-6 w-6"
+                    strokeWidth={2.4}
+                  />
                 </span>
               </Link>
+
               <Link
                 to="/explore"
                 className="group flex items-center justify-between gap-4 rounded-[28px] border border-forest/10 bg-mint/70 p-6 transition-transform hover:-translate-y-1 sm:p-7"
               >
                 <div>
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-brand">
-                    Buyers
+                    Readers
                   </p>
+
                   <p className="mt-2 text-[24px] font-extrabold text-deep sm:text-[28px]">
-                    Explore Us
+                    Explore Books
                   </p>
+
                   <p className="mt-2 text-[13.5px] text-forest/70">
-                    Discover products from sellers.
+                    Discover digital books from UZALINK authors.
                   </p>
                 </div>
+
                 <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-deep text-gold transition-transform group-hover:translate-x-1">
                   <Icon name="compass" className="h-6 w-6" />
                 </span>
