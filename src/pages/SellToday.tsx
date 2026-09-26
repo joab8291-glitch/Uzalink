@@ -1,18 +1,28 @@
-import { useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import {
   Container,
   Field,
   btnClass,
   inputClass,
 } from "@/components/ui";
+
 import { Icon } from "@/components/Icon";
+
 import {
   PRODUCT_TYPES,
   CATEGORIES,
   type ProductType,
 } from "@/lib/data";
+
 import { api } from "@/lib/api";
+
 import { useAuth } from "@/lib/auth";
+
 import { navigate } from "@/lib/router";
 
 const kind = (t: ProductType) =>
@@ -35,6 +45,9 @@ export function SellToday() {
   const [handle, setHandle] = useState("");
   const [paymentNumber, setPaymentNumber] =
     useState("");
+
+  const [profileLoading, setProfileLoading] =
+    useState(false);
 
   const [type, setType] =
     useState<ProductType | null>(null);
@@ -62,6 +75,69 @@ export function SellToday() {
 
   const ref =
     useRef<HTMLInputElement>(null);
+
+  /**
+   * Load the current seller profile.
+   *
+   * This allows sellers who already have a
+   * profile to continue without re-entering
+   * their details.
+   */
+  useEffect(() => {
+    if (
+      loading ||
+      !user ||
+      (user.role !== "SELLER" &&
+        user.role !== "ADMIN")
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadSellerProfile = async () => {
+      setProfileLoading(true);
+
+      try {
+        const result =
+          await api.sellerDashboard();
+
+        if (cancelled) {
+          return;
+        }
+
+        const seller = result?.seller;
+
+        if (seller?.handle) {
+          setHandle(seller.handle);
+        }
+
+        if (seller?.paymentNumber) {
+          setPaymentNumber(
+            seller.paymentNumber
+          );
+        }
+      } catch {
+        /*
+         * Do not block the seller page if the
+         * profile cannot be loaded.
+         *
+         * The seller can still enter the
+         * information manually.
+         */
+      } finally {
+        if (!cancelled) {
+          setProfileLoading(false);
+        }
+      }
+    };
+
+    void loadSellerProfile();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, user]);
 
   if (loading) {
     return (
@@ -151,16 +227,39 @@ export function SellToday() {
   const saveProfile = async () => {
     setError("");
 
-    if (!/^[a-z0-9_]{3,30}$/.test(handle)) {
+    const cleanHandle =
+      handle.trim().toLowerCase();
+
+    const cleanPaymentNumber =
+      paymentNumber
+        .replace(/\D/g, "")
+        .trim();
+
+    if (
+      !/^[a-z0-9_]{3,30}$/.test(
+        cleanHandle
+      )
+    ) {
       setError(
         "Your seller handle must be 3–30 characters using lowercase letters, numbers or underscores."
       );
       return;
     }
 
-    if (!paymentNumber) {
+    if (!cleanPaymentNumber) {
       setError(
         "Enter the M-Pesa number where your seller payouts will be settled."
+      );
+      return;
+    }
+
+    if (
+      !/^(07\d{8}|01\d{8})$/.test(
+        cleanPaymentNumber
+      )
+    ) {
+      setError(
+        "Enter a valid Kenyan M-Pesa number, for example 0712345678."
       );
       return;
     }
@@ -168,10 +267,25 @@ export function SellToday() {
     setBusy(true);
 
     try {
-      await api.sellerProfile({
-        handle,
-        paymentNumber,
-      });
+      const result =
+        await api.sellerProfile({
+          handle: cleanHandle,
+          paymentNumber:
+            cleanPaymentNumber,
+        });
+
+      const saved =
+        result?.seller;
+
+      if (saved?.handle) {
+        setHandle(saved.handle);
+      }
+
+      if (saved?.paymentNumber) {
+        setPaymentNumber(
+          saved.paymentNumber
+        );
+      }
 
       setStep(2);
     } catch (e) {
@@ -206,18 +320,32 @@ export function SellToday() {
     try {
       const fd = new FormData();
 
-      fd.append("name", name);
+      fd.append(
+        "name",
+        name.trim()
+      );
+
       fd.append(
         "description",
-        description
+        description.trim()
       );
-      fd.append("category", category);
-      fd.append("kind", kind(type));
+
+      fd.append(
+        "category",
+        category
+      );
+
+      fd.append(
+        "kind",
+        kind(type)
+      );
 
       fd.append(
         "priceCents",
         String(
-          Math.round(Number(price) * 100)
+          Math.round(
+            Number(price) * 100
+          )
         )
       );
 
@@ -365,11 +493,11 @@ export function SellToday() {
           </p>
         </div>
 
-        <div className="mt-8 rounded-[32px] bg-white p-6 border border-forest/10 sm:p-8">
+        <div className="mt-8 rounded-[32px] border border-forest/10 bg-white p-6 sm:p-8">
           {step === 1 && (
             <>
               <div className="mb-8 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep text-gold font-extrabold">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep font-extrabold text-gold">
                   1
                 </span>
 
@@ -384,6 +512,12 @@ export function SellToday() {
                   </p>
                 </div>
               </div>
+
+              {profileLoading && (
+                <div className="mb-5 rounded-2xl bg-mint/60 p-4 text-sm font-semibold text-forest">
+                  Loading your existing seller profile…
+                </div>
+              )}
 
               <div className="grid gap-5">
                 <Field label="Seller handle">
@@ -402,6 +536,11 @@ export function SellToday() {
                     placeholder="myshop"
                     className={inputClass}
                   />
+
+                  <p className="mt-2 text-xs text-forest/55">
+                    Your seller handle identifies your
+                    seller account on UzaLink.
+                  </p>
                 </Field>
 
                 <Field label="M-Pesa payout number">
@@ -420,8 +559,8 @@ export function SellToday() {
                   />
 
                   <p className="mt-2 text-xs text-forest/55">
-                    This is where your available
-                    seller balance will be paid out.
+                    This is where your available seller
+                    balance will be paid out.
                   </p>
                 </Field>
               </div>
@@ -433,7 +572,10 @@ export function SellToday() {
               )}
 
               <button
-                disabled={busy}
+                disabled={
+                  busy ||
+                  profileLoading
+                }
                 onClick={saveProfile}
                 className={btnClass(
                   "gold",
@@ -452,7 +594,7 @@ export function SellToday() {
             <>
               <div className="mb-8 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep text-gold font-extrabold">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep font-extrabold text-gold">
                     2
                   </span>
 
@@ -514,7 +656,9 @@ export function SellToday() {
                   <input
                     value={name}
                     onChange={(e) =>
-                      setName(e.target.value)
+                      setName(
+                        e.target.value
+                      )
                     }
                     className={inputClass}
                   />
