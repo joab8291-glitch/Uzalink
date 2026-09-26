@@ -138,7 +138,7 @@ export function SellerLogin() {
     window.history.replaceState(
       null,
       "",
-      `${window.location.pathname}#/seller-login`
+      window.location.pathname + "#/seller-login"
     );
 
     void (async () => {
