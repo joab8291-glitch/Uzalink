@@ -13,45 +13,45 @@ const VALUES = [
   {
     icon: "sparkles",
     title: "Simplicity",
-    text: "One link, one screen, one payment. If it needs a manual, we rebuild it.",
+    text: "Upload your book, set your price and share one simple link with your readers.",
   },
   {
     icon: "globe",
-    title: "Accessibility",
-    text: "Any phone, any network, any hustle. No laptop, no developer, no monthly contract.",
+    title: "Reach more readers",
+    text: "Your book link can be shared anywhere your readers already are — WhatsApp, social media, SMS and websites.",
   },
   {
     icon: "phone",
-    title: "Mobile-first commerce",
-    text: "Designed thumb-first for Android and iPhone users on Kenyan data bundles.",
+    title: "Mobile-first",
+    text: "Built for authors and readers using phones every day, without requiring complicated software.",
   },
   {
     icon: "mpesa",
     title: "M-Pesa-first payments",
-    text: "M-Pesa is the default rail, with settlements to your verified number.",
+    text: "Readers can pay for books using M-Pesa, with payment verification handled before access is released.",
   },
   {
     icon: "share",
     title: "Easy sharing",
-    text: "Your link works everywhere Kenyans already are: WhatsApp, TikTok, Instagram, SMS.",
+    text: "Every book can have a dedicated link that authors can share directly with their audience.",
   },
   {
     icon: "shield",
     title: "Secure digital delivery",
-    text: "Payments are verified server-side before anything is released or settled.",
+    text: "Payments are verified server-side before digital book access is released.",
   },
   {
     icon: "trend",
-    title: "Seller growth",
-    text: "Start free and accountless. Grow into Premium dashboards, analytics and settlements.",
+    title: "Author growth",
+    text: "Start publishing your books and build a direct relationship with the people who read your work.",
   },
 ];
 
 const STATS = [
-  { k: "2,400+", v: "Sellers sharing links" },
-  { k: "5%", v: "Flat commission" },
-  { k: "95%", v: "To the seller" },
-  { k: "6 hrs", v: "Settlement window" },
+  { k: "95%", v: "Author earnings" },
+  { k: "5%", v: "UZALINK commission" },
+  { k: "M-Pesa", v: "Reader payments" },
+  { k: "24/7", v: "Book link access" },
 ];
 
 export function About() {
@@ -61,24 +61,31 @@ export function About() {
       <section className="relative overflow-hidden bg-mint/60 pb-14 pt-28 sm:pb-16 sm:pt-32">
         <div className="pointer-events-none absolute -left-24 top-6 h-80 w-80 rounded-full bg-brandlight/25 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-gold/25 blur-3xl" />
+
         <Container className="relative">
           <div className="max-w-3xl">
             <Eyebrow icon="info">About UZALINK</Eyebrow>
+
             <h1 className="mt-5 text-[38px] leading-[1.02] text-deep sm:text-[54px]">
-              Selling online should be as simple as{" "}
-              <span className="text-brand">sharing a link.</span>
+              Your book deserves
+              <br />
+              <span className="text-brand">more readers.</span>
             </h1>
+
             <p className="mt-6 text-[17px] leading-relaxed text-forest/80 sm:text-[18.5px]">
-              UZALINK makes it simple for anyone to sell products and services online without
-              complicated account setup.
+              UZALINK helps authors sell digital books online through a
+              simple book link, secure M-Pesa payments and direct access for
+              readers — without requiring readers to create an account.
             </p>
+
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link to="/sell" className={btnClass("gold", "lg")}>
-                Sell Today
+                Sell Your Book
                 <Icon name="arrowRight" className="h-5 w-5" />
               </Link>
+
               <Link to="/explore" className={btnClass("outline", "lg")}>
-                Explore Us
+                Explore Books
                 <Icon name="compass" className="h-5 w-5" />
               </Link>
             </div>
@@ -88,7 +95,10 @@ export function About() {
             {STATS.map((s, i) => (
               <Reveal key={s.v} delay={i * 70}>
                 <div className="rounded-3xl border border-forest/10 bg-white p-5">
-                  <p className="text-[30px] font-extrabold leading-none text-deep">{s.k}</p>
+                  <p className="text-[30px] font-extrabold leading-none text-deep">
+                    {s.k}
+                  </p>
+
                   <p className="mt-2 text-[13px] font-semibold uppercase tracking-wide text-forest/55">
                     {s.v}
                   </p>
@@ -106,18 +116,23 @@ export function About() {
             <div className="relative overflow-hidden rounded-[36px] brand-gradient p-8 text-white sm:p-12">
               <div className="pointer-events-none absolute inset-0 grid-pattern opacity-60" />
               <div className="pointer-events-none absolute -right-16 top-0 h-64 w-64 rounded-full bg-gold/25 blur-3xl" />
+
               <div className="relative max-w-3xl">
                 <Eyebrow tone="light" icon="bolt">
                   Our mission
                 </Eyebrow>
+
                 <p className="mt-6 text-[28px] font-extrabold leading-[1.15] sm:text-[40px]">
-                  “To make online selling as simple as sharing a link.”
+                  “To make selling a digital book as simple as sharing a
+                  link.”
                 </p>
+
                 <p className="mt-6 text-[16px] leading-relaxed text-white/75">
-                  Millions of Kenyans already sell every day — from a stall, a salon chair, a
-                  kitchen table or a group chat. What they lack is not talent or products, it is the
-                  paperwork that sits between them and a payment. UZALINK removes that paperwork and
-                  replaces it with one Magic Link.
+                  Authors put time, knowledge and creativity into their
+                  books. UZALINK is built to make the final step — getting
+                  those books into readers' hands — simple. Upload your
+                  digital book, set your price, share your link and let
+                  readers pay securely through M-Pesa.
                 </p>
               </div>
             </div>
@@ -133,35 +148,48 @@ export function About() {
               <SectionHeading
                 align="left"
                 eyebrow="Why we built it"
-                title="Built for the Kenyan hustle, not the Silicon Valley playbook"
+                title="Built for authors who want a simpler way to sell"
               />
+
               <div className="mt-6 space-y-4 text-[15.5px] leading-relaxed text-forest/78">
                 <p>
-                  A student selling study notes, a mama making Sunday chapati, a barber with a
-                  waiting list, a photographer booked through DMs — all of them already have
-                  customers. What they don't have is a checkout that works as fast as a WhatsApp
-                  reply.
+                  An author may have written an eBook, study guide,
+                  devotional, novel, business book or educational resource,
+                  but turning that work into a simple online purchase can
+                  become complicated.
                 </p>
+
                 <p>
-                  Traditional platforms ask sellers to register an account, verify an email, set up
-                  a store, configure shipping and learn a dashboard before their first shilling
-                  arrives. UZALINK flips it: create the product, set the price, lock your payment
-                  number, share the link.
+                  UZALINK focuses on the essentials: create your author
+                  account, upload your digital book, add the book details,
+                  choose your price and receive a unique link that you can
+                  share with your readers.
                 </p>
+
                 <p>
-                  We charge a flat 5% commission, settle 95% within 6 business working hours of the
-                  same day, and keep the public selling and buying flows completely account-free.
-                  Seller management — earnings, analytics, settlements — lives separately behind a
-                  passwordless Premium login.
+                  Readers can open the book link, review the information,
+                  pay through M-Pesa and receive access after the payment is
+                  verified. They do not need to create a UZALINK account
+                  simply to buy a book.
+                </p>
+
+                <p>
+                  UZALINK keeps 5% of each verified sale while the author
+                  receives 95%. The goal is to give authors a straightforward
+                  digital sales channel without forcing them to build and
+                  maintain their own e-commerce system.
                 </p>
               </div>
+
               <div className="mt-7 flex flex-wrap gap-2">
                 <Badge tone="mint" icon="checkCircle">
-                  Kenya-first
+                  Author-first
                 </Badge>
+
                 <Badge tone="mint" icon="phone">
                   Mobile-first
                 </Badge>
+
                 <Badge tone="mint" icon="mpesa">
                   M-Pesa-first
                 </Badge>
@@ -171,18 +199,42 @@ export function About() {
             <Reveal delay={120}>
               <div className="grid gap-4 sm:grid-cols-2">
                 {[
-                  { k: "01", t: "A market vendor", d: "Sells produce with a QR code taped to the stall." },
-                  { k: "02", t: "A tutor", d: "Sells revision packs and books sessions by link." },
-                  { k: "03", t: "A designer", d: "Delivers logo files the second payment verifies." },
-                  { k: "04", t: "An event host", d: "Sells tickets and scans QR codes at the gate." },
+                  {
+                    k: "01",
+                    t: "Independent author",
+                    d: "Publishes an eBook and shares the book link directly with readers.",
+                  },
+                  {
+                    k: "02",
+                    t: "Teacher or tutor",
+                    d: "Publishes revision books, study guides or educational resources.",
+                  },
+                  {
+                    k: "03",
+                    t: "Writer or storyteller",
+                    d: "Turns a completed manuscript into a digital book readers can buy.",
+                  },
+                  {
+                    k: "04",
+                    t: "Business author",
+                    d: "Sells practical guides, manuals and knowledge resources online.",
+                  },
                 ].map((c) => (
                   <div
                     key={c.k}
                     className="rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_20px_45px_-38px_rgba(4,40,26,0.5)]"
                   >
-                    <span className="text-[13px] font-extrabold text-golddeep">{c.k}</span>
-                    <p className="mt-2 text-[15.5px] font-extrabold text-deep">{c.t}</p>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-forest/70">{c.d}</p>
+                    <span className="text-[13px] font-extrabold text-golddeep">
+                      {c.k}
+                    </span>
+
+                    <p className="mt-2 text-[15.5px] font-extrabold text-deep">
+                      {c.t}
+                    </p>
+
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-forest/70">
+                      {c.d}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -198,9 +250,10 @@ export function About() {
             <SectionHeading
               tone="light"
               eyebrow="What we stand for"
-              title="Seven principles behind every Magic Link"
+              title="Seven principles behind every UZALINK book"
             />
           </Reveal>
+
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {VALUES.map((v, i) => (
               <Reveal key={v.title} delay={i * 60}>
@@ -208,8 +261,14 @@ export function About() {
                   <span className="flex h-12 w-12 items-center justify-center rounded-2xl gold-gradient text-deep">
                     <Icon name={v.icon} className="h-6 w-6" />
                   </span>
-                  <h3 className="mt-5 text-[18px] text-white">{v.title}</h3>
-                  <p className="mt-2.5 text-[14px] leading-relaxed text-white/65">{v.text}</p>
+
+                  <h3 className="mt-5 text-[18px] text-white">
+                    {v.title}
+                  </h3>
+
+                  <p className="mt-2.5 text-[14px] leading-relaxed text-white/65">
+                    {v.text}
+                  </p>
                 </div>
               </Reveal>
             ))}
@@ -223,18 +282,26 @@ export function About() {
           <Reveal>
             <div className="overflow-hidden rounded-[36px] border border-forest/10 bg-mint/70 p-8 text-center sm:p-12">
               <h2 className="mx-auto max-w-2xl text-[30px] leading-[1.08] text-deep sm:text-[40px]">
-                Ready to put your hustle on a link?
+                Ready to put your book in front of more readers?
               </h2>
+
               <p className="mx-auto mt-4 max-w-xl text-[16px] text-forest/75">
-                No account. No setup fees. Just your product, your price and your Magic Link.
+                Upload your digital book, set your price and get a unique
+                UZALINK link you can share with your audience.
               </p>
+
               <div className="mx-auto mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
                 <Link to="/sell" className={btnClass("gold", "xl")}>
-                  SELL TODAY
-                  <Icon name="arrowRight" className="h-5 w-5" strokeWidth={2.4} />
+                  SELL YOUR BOOK
+                  <Icon
+                    name="arrowRight"
+                    className="h-5 w-5"
+                    strokeWidth={2.4}
+                  />
                 </Link>
+
                 <Link to="/explore" className={btnClass("deep", "xl")}>
-                  EXPLORE US
+                  EXPLORE BOOKS
                   <Icon name="compass" className="h-5 w-5" />
                 </Link>
               </div>
