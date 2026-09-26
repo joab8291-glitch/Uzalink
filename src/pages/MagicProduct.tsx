@@ -1,4 +1,9 @@
-import { PRODUCTS, productByCode, formatKsh, type Product } from "@/lib/data";
+import {
+  PRODUCTS,
+  productByCode,
+  formatKsh,
+  type Product,
+} from "@/lib/data";
 import { findAnyProduct } from "@/lib/store";
 import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
@@ -9,50 +14,115 @@ import { ShareChannels } from "@/components/ShareSheet";
 const FALLBACK = PRODUCTS[0];
 
 export function MagicProduct({ code }: { code: string }) {
-  const product: Product = productByCode(code) ?? findAnyProduct(code) ?? FALLBACK;
-  const related = PRODUCTS.filter((p) => p.code !== product.code).slice(0, 3);
+  const book: Product =
+    productByCode(code) ?? findAnyProduct(code) ?? FALLBACK;
+
+  const related = PRODUCTS.filter(
+    (item) => item.code !== book.code,
+  ).slice(0, 3);
 
   return (
     <>
+      {/* =========================================================
+          BOOK DETAIL HERO
+      ========================================================== */}
       <section className="relative overflow-hidden bg-mint/60 pb-14 pt-28 sm:pt-32">
         <div className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-gold/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-brandlight/15 blur-3xl" />
+
         <Container className="relative">
+          {/* Breadcrumb */}
           <div className="flex flex-wrap items-center gap-3 text-[13px] font-semibold text-forest/60">
-            <Link to="/" className="inline-flex items-center gap-1.5 hover:text-brand">
-              <Icon name="home" className="h-4 w-4" /> UZALINK
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 hover:text-brand"
+            >
+              <Icon name="home" className="h-4 w-4" />
+              UZALINK
             </Link>
-            <Icon name="chevronRight" className="h-4 w-4 text-forest/30" />
-            <span className="text-forest/45">Magic Link</span>
-            <Icon name="chevronRight" className="h-4 w-4 text-forest/30" />
-            <span className="font-mono font-bold text-deep">/{product.code}</span>
+
+            <Icon
+              name="chevronRight"
+              className="h-4 w-4 text-forest/30"
+            />
+
+            <Link
+              to="/explore"
+              className="hover:text-brand"
+            >
+              Discover Books
+            </Link>
+
+            <Icon
+              name="chevronRight"
+              className="h-4 w-4 text-forest/30"
+            />
+
+            <span className="font-mono font-bold text-deep">
+              /{book.code}
+            </span>
           </div>
 
           <div className="mt-6 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+            {/* =====================================================
+                BOOK COVER
+            ====================================================== */}
             <Reveal>
               <div className="overflow-hidden rounded-[32px] border border-forest/10 bg-white shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)]">
                 <div className="relative aspect-[4/3] bg-mint">
-                  <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                  <img
+                    src={book.image}
+                    alt={`${book.name} book cover`}
+                    className="h-full w-full object-cover"
+                  />
+
                   <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-forest shadow">
-                    <Icon name="tag" className="h-3.5 w-3.5" />
-                    {product.type}
+                    <Icon
+                      name="book"
+                      className="h-3.5 w-3.5"
+                    />
+                    Digital Book
                   </span>
-                  {product.instant && (
+
+                  {book.instant && (
                     <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full gold-gradient px-3 py-1.5 text-[11.5px] font-extrabold uppercase tracking-wide text-deep shadow">
-                      <Icon name="bolt" className="h-3.5 w-3.5" strokeWidth={0} />
-                      Instant delivery
+                      <Icon
+                        name="bolt"
+                        className="h-3.5 w-3.5"
+                        strokeWidth={0}
+                      />
+                      Instant access
                     </span>
                   )}
                 </div>
+
+                {/* Book trust indicators */}
                 <div className="grid grid-cols-3 divide-x divide-forest/10 border-t border-forest/10">
                   {[
-                    { icon: "shield", label: "Verified payment" },
-                    { icon: "receipt", label: "Digital receipt" },
-                    { icon: "users", label: `${product.sales.toLocaleString()} sold` },
-                  ].map((b) => (
-                    <div key={b.label} className="flex flex-col items-center gap-1.5 py-4 text-center">
-                      <Icon name={b.icon} className="h-5 w-5 text-brand" />
+                    {
+                      icon: "shield",
+                      label: "Verified payment",
+                    },
+                    {
+                      icon: "receipt",
+                      label: "Digital receipt",
+                    },
+                    {
+                      icon: "download",
+                      label: "Secure delivery",
+                    },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex flex-col items-center gap-1.5 py-4 text-center"
+                    >
+                      <Icon
+                        name={item.icon}
+                        className="h-5 w-5 text-brand"
+                      />
+
                       <span className="px-1 text-[11px] font-bold leading-tight text-forest/70">
-                        {b.label}
+                        {item.label}
                       </span>
                     </div>
                   ))}
@@ -60,93 +130,157 @@ export function MagicProduct({ code }: { code: string }) {
               </div>
             </Reveal>
 
+            {/* =====================================================
+                BOOK INFORMATION
+            ====================================================== */}
             <Reveal delay={90}>
               <div className="flex h-full flex-col">
+                {/* Author */}
                 <div className="flex items-center gap-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full gold-gradient text-[14px] font-extrabold text-deep">
-                    {product.sellerAvatarSeed}
+                    {book.sellerAvatarSeed}
                   </span>
+
                   <div className="leading-tight">
-                    <p className="text-[15px] font-extrabold text-deep">{product.seller}</p>
+                    <p className="text-[15px] font-extrabold text-deep">
+                      {book.seller}
+                    </p>
+
                     <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-forest/60">
-                      <Icon name="checkCircle" className="h-3.5 w-3.5 text-brand" />
-                      Verified UZALINK seller · {product.handle}
+                      <Icon
+                        name="checkCircle"
+                        className="h-3.5 w-3.5 text-brand"
+                      />
+                      Author on UZALINK · {book.handle}
                     </p>
                   </div>
                 </div>
 
+                {/* Title */}
                 <h1 className="mt-5 text-[30px] leading-[1.08] text-deep sm:text-[40px]">
-                  {product.name}
+                  {book.name}
                 </h1>
 
+                {/* Price / category / rating */}
                 <div className="mt-4 flex flex-wrap items-center gap-3">
                   <span className="text-[34px] font-extrabold leading-none text-deep">
-                    {formatKsh(product.price)}
+                    {formatKsh(book.price)}
                   </span>
+
                   <span className="rounded-full bg-mint px-3 py-1.5 text-[12px] font-extrabold uppercase tracking-wide text-forest">
-                    {product.category}
+                    {book.category}
                   </span>
+
                   <span className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-forest/70">
-                    <Icon name="star" className="h-4 w-4 text-gold" strokeWidth={0} />
-                    {product.rating.toFixed(1)} rating
+                    <Icon
+                      name="star"
+                      className="h-4 w-4 text-gold"
+                      strokeWidth={0}
+                    />
+                    {book.rating.toFixed(1)} rating
                   </span>
                 </div>
 
-                <p className="mt-5 text-[16px] leading-relaxed text-forest/80">
-                  {product.longDescription || product.description}
-                </p>
+                {/* Description */}
+                <div className="mt-6">
+                  <p className="text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/45">
+                    About this book
+                  </p>
 
+                  <p className="mt-2 text-[16px] leading-relaxed text-forest/80">
+                    {book.longDescription || book.description}
+                  </p>
+                </div>
+
+                {/* Purchase benefits */}
                 <div className="mt-6 space-y-2.5">
                   {[
-                    { icon: "download", label: product.delivery },
-                    { icon: "phone", label: "Pay with M-Pesa — no card, no account" },
-                    { icon: "lock", label: "Payment verified before delivery" },
-                  ].map((r) => (
+                    {
+                      icon: "download",
+                      label:
+                        book.delivery ||
+                        "Digital book delivered securely after payment",
+                    },
+                    {
+                      icon: "phone",
+                      label:
+                        "Pay with M-Pesa — no card or reader account required",
+                    },
+                    {
+                      icon: "lock",
+                      label:
+                        "Payment is verified before your book is released",
+                    },
+                  ].map((item) => (
                     <div
-                      key={r.label}
+                      key={item.label}
                       className="flex items-center gap-3 rounded-2xl border border-forest/10 bg-white px-4 py-3.5"
                     >
                       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mint text-brand">
-                        <Icon name={r.icon} className="h-4.5 w-4.5" />
+                        <Icon
+                          name={item.icon}
+                          className="h-4.5 w-4.5"
+                        />
                       </span>
+
                       <span className="text-[13.5px] font-semibold leading-snug text-forest/80">
-                        {r.label}
+                        {item.label}
                       </span>
                     </div>
                   ))}
                 </div>
 
+                {/* Checkout */}
                 <div className="mt-7 rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_20px_50px_-40px_rgba(4,40,26,0.6)]">
                   <Link
-                    to={`/magic/${product.code}/checkout`}
+                    to={`/magic/${book.code}/checkout`}
                     className={btnClass("gold", "xl", "w-full")}
                   >
-                    <Icon name="bolt" className="h-5.5 w-5.5" strokeWidth={0} />
-                    Buy Now · {formatKsh(product.price)}
+                    <Icon
+                      name="bolt"
+                      className="h-5.5 w-5.5"
+                      strokeWidth={0}
+                    />
+
+                    Buy Book · {formatKsh(book.price)}
                   </Link>
-                  <p className="mt-3 flex items-center justify-center gap-2 text-[12.5px] font-semibold text-forest/65">
-                    <Icon name="checkCircle" className="h-4 w-4 text-brand" />
-                    No buyer account required — pay and receive instantly
+
+                  <p className="mt-3 flex items-center justify-center gap-2 text-center text-[12.5px] font-semibold text-forest/65">
+                    <Icon
+                      name="checkCircle"
+                      className="h-4 w-4 shrink-0 text-brand"
+                    />
+                    No reader account required — pay and get secure access
                   </p>
 
+                  {/* Share */}
                   <div className="mt-5 border-t border-forest/10 pt-4">
                     <p className="mb-3 text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/50">
-                      Share this product
+                      Share this book
                     </p>
+
                     <ShareChannels
                       compact
-                      link={`uzalink.co.ke/magic/${product.code}`}
-                      message={`${product.name} — ${formatKsh(product.price)} on UZALINK:`}
+                      link={`uzalink.co.ke/magic/${book.code}`}
+                      message={`${book.name} — ${formatKsh(
+                        book.price,
+                      )} on UZALINK:`}
                     />
                   </div>
                 </div>
 
+                {/* Trust badges */}
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Badge tone="card" icon="lock">
                     Secure checkout
                   </Badge>
+
+                  <Badge tone="card" icon="download">
+                    Digital delivery
+                  </Badge>
+
                   <Badge tone="card" icon="refresh">
-                    95% goes to the seller
+                    95% goes to the author
                   </Badge>
                 </div>
               </div>
@@ -155,25 +289,162 @@ export function MagicProduct({ code }: { code: string }) {
         </Container>
       </section>
 
+      {/* =========================================================
+          HOW PURCHASE WORKS
+      ========================================================== */}
+      <section className="border-y border-forest/10 bg-white py-12 sm:py-16">
+        <Container>
+          <Reveal>
+            <div className="mx-auto max-w-3xl text-center">
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-brand">
+                Simple reader experience
+              </p>
+
+              <h2 className="mt-3 text-[27px] leading-tight text-deep sm:text-[34px]">
+                Buy this book in a few simple steps
+              </h2>
+
+              <p className="mt-3 text-[15px] leading-relaxed text-forest/70">
+                No account creation and no complicated checkout. Your
+                book is made available after your payment is confirmed.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
+            {[
+              {
+                number: "01",
+                icon: "phone",
+                title: "Enter your details",
+                text: "Provide the information needed to complete your purchase.",
+              },
+              {
+                number: "02",
+                icon: "checkCircle",
+                title: "Pay with M-Pesa",
+                text: "Complete the payment securely from your phone.",
+              },
+              {
+                number: "03",
+                icon: "download",
+                title: "Access your book",
+                text: "Once payment is verified, receive secure digital access.",
+              },
+            ].map((step, index) => (
+              <Reveal key={step.number} delay={index * 80}>
+                <div className="relative h-full rounded-3xl border border-forest/10 bg-mint/40 p-6">
+                  <span className="absolute right-5 top-5 text-[11px] font-extrabold tracking-[0.14em] text-brand/50">
+                    {step.number}
+                  </span>
+
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand shadow-sm">
+                    <Icon
+                      name={step.icon}
+                      className="h-6 w-6"
+                    />
+                  </span>
+
+                  <h3 className="mt-5 text-[18px] text-deep">
+                    {step.title}
+                  </h3>
+
+                  <p className="mt-2 text-[14px] leading-relaxed text-forest/70">
+                    {step.text}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      {/* =========================================================
+          RELATED BOOKS
+      ========================================================== */}
       <section className="py-14 sm:py-18">
         <Container>
           <div className="flex items-end justify-between gap-4">
-            <h2 className="text-[24px] text-deep sm:text-[30px]">More from UZALINK sellers</h2>
+            <div>
+              <p className="text-[11px] font-extrabold uppercase tracking-[0.15em] text-brand">
+                Keep exploring
+              </p>
+
+              <h2 className="mt-2 text-[24px] text-deep sm:text-[30px]">
+                More books to discover
+              </h2>
+            </div>
+
             <Link
               to="/explore"
               className="inline-flex shrink-0 items-center gap-1.5 text-[14px] font-extrabold text-brand hover:underline"
             >
-              Explore Us
-              <Icon name="arrowRight" className="h-4 w-4" />
+              Discover Books
+              <Icon
+                name="arrowRight"
+                className="h-4 w-4"
+              />
             </Link>
           </div>
+
           <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((p, i) => (
-              <Reveal key={p.code} delay={i * 70}>
-                <ProductCard product={p} className="h-full" />
+            {related.map((item, index) => (
+              <Reveal
+                key={item.code}
+                delay={index * 70}
+              >
+                <ProductCard
+                  product={item}
+                  className="h-full"
+                />
               </Reveal>
             ))}
           </div>
+        </Container>
+      </section>
+
+      {/* =========================================================
+          AUTHOR CTA
+      ========================================================== */}
+      <section className="bg-mint/60 py-14 sm:py-18">
+        <Container>
+          <Reveal>
+            <div className="overflow-hidden rounded-[32px] brand-gradient p-7 text-white sm:p-10">
+              <div className="flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center">
+                <div>
+                  <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
+                    Are you an author?
+                  </p>
+
+                  <h2 className="mt-3 max-w-2xl text-[28px] leading-tight sm:text-[36px]">
+                    Turn your book into a digital business.
+                  </h2>
+
+                  <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-white/75">
+                    Publish your digital book on UZALINK, set your own
+                    price and share your unique book link with readers.
+                    Keep 95% of every sale.
+                  </p>
+                </div>
+
+                <Link
+                  to="/sell"
+                  className={btnClass(
+                    "gold",
+                    "xl",
+                    "w-full shrink-0 lg:w-auto",
+                  )}
+                >
+                  Sell Your Book
+                  <Icon
+                    name="arrowRight"
+                    className="h-5 w-5"
+                    strokeWidth={2.4}
+                  />
+                </Link>
+              </div>
+            </div>
+          </Reveal>
         </Container>
       </section>
     </>
