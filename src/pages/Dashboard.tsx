@@ -13,7 +13,7 @@ import {
   Logo,
 } from "@/components/Icon";
 
-import { api, API_BASE } from "@/lib/api";
+import { api } from "@/lib/api";
 
 import {
   useAuth,
@@ -103,7 +103,7 @@ export function Dashboard() {
     data?.orders || [];
 
   const products =
-    seller?.products || data?.products || [];
+    data?.products || [];
 
   const premium =
     Boolean(data?.premium);
@@ -360,16 +360,11 @@ export function Dashboard() {
                     className="group rounded-2xl border border-forest/10 bg-mint/30 p-5 transition hover:-translate-y-0.5 hover:border-brand/20"
                   >
 
-                    <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-deep text-gold">
-                      {product.code ? (
-                        <img
-                          src={`${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`}
-                          alt={product.name || "Book cover"}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <Icon name="book" className="h-7 w-7" />
-                      )}
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-deep text-gold">
+                      <Icon
+                        name="book"
+                        className="h-7 w-7"
+                      />
                     </div>
 
                     <h3 className="mt-4 line-clamp-2 text-lg font-extrabold text-deep">
