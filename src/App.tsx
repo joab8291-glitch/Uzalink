@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Icon } from "@/components/Icon";
 import { Container, btnClass } from "@/components/ui";
 import { Link, useRoute } from "@/lib/router";
+
 import { Home } from "@/pages/Home";
 import { Explore } from "@/pages/Explore";
 import { SellToday } from "@/pages/SellToday";
@@ -20,10 +21,7 @@ function NotFound() {
     <section className="flex min-h-[70vh] items-center bg-mint/50 pt-28">
       <Container className="text-center">
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl gold-gradient text-deep">
-          <Icon
-            name="compass"
-            className="h-8 w-8"
-          />
+          <Icon name="compass" className="h-8 w-8" />
         </span>
 
         <h1 className="mt-6 text-[34px] leading-tight text-deep sm:text-[44px]">
@@ -31,8 +29,8 @@ function NotFound() {
         </h1>
 
         <p className="mx-auto mt-4 max-w-md text-[15.5px] text-forest/75">
-          The page you are looking for is not here. Try exploring products or create your own Magic
-          Link.
+          The page you are looking for is not here. Try exploring products or
+          create your own Magic Link.
         </p>
 
         <div className="mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-2">
@@ -41,10 +39,7 @@ function NotFound() {
             className={btnClass("deep", "lg")}
           >
             Explore Us
-            <Icon
-              name="compass"
-              className="h-5 w-5"
-            />
+            <Icon name="compass" className="h-5 w-5" />
           </Link>
 
           <Link
@@ -52,10 +47,7 @@ function NotFound() {
             className={btnClass("gold", "lg")}
           >
             Sell Today
-            <Icon
-              name="arrowRight"
-              className="h-5 w-5"
-            />
+            <Icon name="arrowRight" className="h-5 w-5" />
           </Link>
         </div>
       </Container>
@@ -100,23 +92,12 @@ function renderRoute(route: string) {
       return <AdminDashboard />;
 
     case "magic":
-      if (
-        parts[1] &&
-        parts[2] === "checkout"
-      ) {
-        return (
-          <Checkout
-            code={parts[1]}
-          />
-        );
+      if (parts[1] && parts[2] === "checkout") {
+        return <Checkout code={parts[1]} />;
       }
 
       if (parts[1]) {
-        return (
-          <MagicProduct
-            code={parts[1]}
-          />
-        );
+        return <MagicProduct code={parts[1]} />;
       }
 
       return <NotFound />;
@@ -126,7 +107,7 @@ function renderRoute(route: string) {
   }
 }
 
-export default function App() {
+function App() {
   const route = useRoute();
 
   const bare =
@@ -148,4 +129,6 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
 ```
