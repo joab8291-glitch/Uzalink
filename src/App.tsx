@@ -20,16 +20,20 @@ function NotFound() {
     <section className="flex min-h-[70vh] items-center bg-mint/50 pt-28">
       <Container className="text-center">
         <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl gold-gradient text-deep">
-          <Icon name="compass" className="h-8 w-8" />
+          <Icon name="book" className="h-8 w-8" />
         </span>
 
-        <h1 className="mt-6 text-[34px] leading-tight text-deep sm:text-[44px]">
-          This link took a wrong turn
+        <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-forest/50">
+          UzaLink Books
+        </p>
+
+        <h1 className="mt-3 text-[34px] leading-tight text-deep sm:text-[44px]">
+          This book link took a wrong turn
         </h1>
 
-        <p className="mx-auto mt-4 max-w-md text-[15.5px] text-forest/75">
-          The page you are looking for is not here. Try exploring products or
-          create your own Magic Link.
+        <p className="mx-auto mt-4 max-w-md text-[15.5px] leading-relaxed text-forest/75">
+          The book or page you are looking for could not be found. Explore
+          available books or publish your own digital book on UzaLink.
         </p>
 
         <div className="mx-auto mt-8 grid max-w-md gap-3 sm:grid-cols-2">
@@ -37,7 +41,7 @@ function NotFound() {
             to="/explore"
             className={btnClass("deep", "lg")}
           >
-            Explore Us
+            Explore Books
             <Icon name="compass" className="h-5 w-5" />
           </Link>
 
@@ -45,7 +49,7 @@ function NotFound() {
             to="/sell"
             className={btnClass("gold", "lg")}
           >
-            Sell Today
+            Sell Your Book
             <Icon name="arrowRight" className="h-5 w-5" />
           </Link>
         </div>
@@ -55,14 +59,8 @@ function NotFound() {
 }
 
 function renderRoute(route: string) {
-  const path =
-    route
-      .split("?")[0]
-      .replace(/\/+$/, "") || "/";
-
-  const parts = path
-    .split("/")
-    .filter(Boolean);
+  const path = route.split("?")[0].replace(/\/+$/, "") || "/";
+  const parts = path.split("/").filter(Boolean);
 
   if (parts.length === 0) {
     return <Home />;
