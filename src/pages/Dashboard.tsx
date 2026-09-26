@@ -10,10 +10,9 @@ import {
 
 import {
   Icon,
-  Logo,
 } from "@/components/Icon";
 
-import { api, API_BASE } from "@/lib/api";
+import { api } from "@/lib/api";
 
 import {
   useAuth,
@@ -354,7 +353,6 @@ export function Dashboard() {
 
             </div>
           </div>
-        </div>
 
         {/* =====================================================
             PREMIUM SUBSCRIPTION MODAL
