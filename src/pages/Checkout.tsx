@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/utils/cn";
 import {
   PRODUCTS,
@@ -8,10 +8,8 @@ import {
   sellerOf,
   type Product,
 } from "@/lib/data";
-import { findAnyProduct } from "@/lib/store";
-import { Link } from "@/lib/router";
+import { Link, useRoute } from "@/lib/router";
 import { Icon } from "@/components/Icon";
-import { api } from "@/lib/api";
 import {
   Badge,
   Container,
@@ -20,6 +18,7 @@ import {
   btnClass,
   inputClass,
 } from "@/components/ui";
+import { api } from "@/lib/api";
 
 const FALLBACK = PRODUCTS[0];
 
@@ -28,15 +27,19 @@ const VERIFY_STEPS = [
   "Matching transaction reference",
   "Verifying amount received",
   "Crediting author balance (95%)",
-  "Releasing book access",
+  "Unlocking your book",
 ];
 
-const digitsOnly = (value: string) =>
-  value.replace(/\D/g, "").slice(0, 10);
+function digitsOnly(value: string) {
+  return value.replace(/\D/g, "");
+}
 
 export function Checkout({ code }: { code: string }) {
-  const book: Product =
-    productByCode(code) ?? findAnyProduct(code) ?? FALLBACK;
+  const route = useRoute();
+
+  const book = useMemo<Product>(() => {
+    return productByCode(code) ?? FALLBACK;
+  }, [code]);
 
   const [stage, setStage] = useState<
     "form" | "paying" | "verifying" | "success"
@@ -49,1025 +52,832 @@ export function Checkout({ code }: { code: string }) {
   const [method, setMethod] = useState<"stk" | "paybill">("stk");
 
   const [vStep, setVStep] = useState(0);
-  const [countdown, setCountdown] = useState(120);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [countdown, setCountdown] = useState(60);
 
-  const [mpesaOrder, setMpesaOrder] = useState<any>(null);
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const [mpesaOrder, setMpesaOrder] = useState<{
+    orderId: string;
+    publicId?: string;
+    status?: string;
+    checkoutRequestId?: string;
+  } | null>(null);
+
   const [mpesaError, setMpesaError] = useState("");
   const [polling, setPolling] = useState(false);
 
-  const [ref] = useState(
-    () =>
-      `UZL-${Math.random()
-        .toString(16)
-        .slice(2, 7)
-        .toUpperCase()}`,
-  );
-
-  const pay = async () => {
-    const validationErrors: Record<string, string> = {};
-
-    if (name.trim().length < 3) {
-      validationErrors.name = "Enter your name.";
-    }
-
-    if (digitsOnly(phone).length !== 10) {
-      validationErrors.phone =
-        "Enter the M-Pesa number paying for this book.";
-    }
-
-    setErrors(validationErrors);
-
-    if (Object.keys(validationErrors).length) {
-      return;
-    }
-
-    /*
-     * The current backend payment implementation uses STK Push.
-     * Keep the Paybill UI available for future backend support,
-     * but do not attempt to send it through the STK endpoint.
-     */
-    if (method !== "stk") {
-      setMpesaError(
-        "Paybill checkout is not yet connected to the automatic payment verification flow. Please use M-Pesa STK Push.",
-      );
-      return;
-    }
-
-    setMpesaError("");
-    setMpesaOrder(null);
-    setCountdown(120);
-    setPolling(true);
-    setStage("paying");
-
-    try {
-      const created = await api.createOrder({
-        productCode: book.code,
-        name,
-        phone,
-        email: email || undefined,
-      });
-
-      const paid = await api.payOrder(created.order.id);
-
-      setMpesaOrder({
-        orderId: created.order.id,
-        publicId: created.order.publicId,
-        status: "pending",
-        checkoutRequestId: paid.checkoutRequestId,
-      });
-    } catch (error) {
-      setPolling(false);
-      setMpesaError(
-        error instanceof Error
-          ? error.message
-          : "Could not start payment.",
-      );
-    }
-  };
-
-  /* ============================================================
-     POLL THE SAME SERVER-SIDE ORDER
-  ============================================================ */
-  useEffect(() => {
-    if (!polling || !mpesaOrder?.orderId) return;
-
-    let stopped = false;
-    const started = Date.now();
-
-    const check = async () => {
-      try {
-        const result = await api.order(mpesaOrder.orderId);
-        const order = result.order;
-
-        if (stopped) return;
-
-        setMpesaOrder(order);
-
-        if (
-          order.status === "PAID" ||
-          order.status === "FULFILLED"
-        ) {
-          setPolling(false);
-          setVStep(VERIFY_STEPS.length);
-          setStage("success");
-          return;
-        }
-
-        if (order.status === "FAILED") {
-          setPolling(false);
-
-          setMpesaError(
-            order.failureReason ||
-              "M-Pesa payment was not completed.",
-          );
-
-          setStage("paying");
-          return;
-        }
-      } catch (error) {
-        if (Date.now() - started >= 120000) {
-          setPolling(false);
-
-          setMpesaError(
-            error instanceof Error
-              ? error.message
-              : "Unable to check payment.",
-          );
-
-          setStage("paying");
-          return;
-        }
-      }
-
-      if (!stopped && Date.now() - started < 120000) {
-        window.setTimeout(check, 3000);
-      } else if (!stopped) {
-        setPolling(false);
-
-        setMpesaError(
-          "Payment is still being processed. Please check your M-Pesa messages and try again shortly.",
-        );
-
-        setStage("paying");
-      }
-    };
-
-    check();
-
-    return () => {
-      stopped = true;
-    };
-  }, [polling, mpesaOrder?.orderId]);
+  const seller = sellerOf(book);
+  const commission = commissionOf(book.price);
+  const authorEarnings = Math.max(0, book.price - commission);
+  const isDigital = book.instant ?? false;
 
   useEffect(() => {
-    if (!polling) return;
+    if (stage !== "paying") return;
+
+    setCountdown(60);
 
     const timer = window.setInterval(() => {
-      setCountdown((value) => Math.max(0, value - 1));
+      setCountdown((current) => {
+        if (current <= 1) {
+          window.clearInterval(timer);
+          return 0;
+        }
+
+        return current - 1;
+      });
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [polling]);
+  }, [stage]);
 
-  const isDigital = book.instant ?? false;
+  useEffect(() => {
+    if (!mpesaOrder?.orderId) return;
+    if (stage !== "paying" && stage !== "verifying") return;
 
-  /* ============================================================
-     PAYING
-  ============================================================ */
-  if (stage === "paying") {
-    return (
-      <section className="flex min-h-screen items-center justify-center bg-deep px-4 py-24 text-white">
-        <div className="w-full max-w-md text-center">
-          <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
-            <span className="absolute inset-0 animate-ring rounded-full" />
+    let cancelled = false;
+    let attempts = 0;
 
-            <span className="absolute inset-3 rounded-full border-4 border-white/10" />
+    setPolling(true);
+    setVStep(0);
 
-            <div className="flex h-24 w-24 items-center justify-center rounded-3xl gold-gradient text-deep">
-              <Icon name="phone" className="h-11 w-11" />
-            </div>
-          </div>
+    const checkOrder = async () => {
+      try {
+        const response = await api.order(mpesaOrder.orderId);
 
-          <h1 className="mt-9 text-[28px] leading-tight sm:text-[34px]">
-            Check your phone
-          </h1>
+        if (cancelled) return;
 
-          <p className="mt-4 text-[15.5px] leading-relaxed text-white/70">
-            {mpesaOrder ? (
-              <>
-                We sent an M-Pesa request to{" "}
-                <span className="font-extrabold text-gold">
-                  +254 {digitsOnly(phone)}
-                </span>
-                . Enter your M-Pesa PIN to complete payment of{" "}
-                <span className="font-extrabold text-gold">
-                  {formatKsh(book.price)}
-                </span>
-                .
-              </>
-            ) : (
-              <>
-                Starting your M-Pesa payment for{" "}
-                <span className="font-extrabold text-gold">
-                  {formatKsh(book.price)}
-                </span>
-                …
-              </>
-            )}
-          </p>
+        const status = String(response?.order?.status ?? response?.status ?? "")
+          .toUpperCase();
 
-          <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-5 text-left backdrop-blur">
-            <div className="flex items-center justify-between text-[13.5px]">
-              <span className="text-white/60">
-                Book order
-              </span>
+        if (status === "PAID" || status === "FULFILLED") {
+          setVStep(VERIFY_STEPS.length - 1);
 
-              <span className="font-mono font-extrabold">
-                {mpesaOrder?.orderId || ref}
-              </span>
-            </div>
+          window.setTimeout(() => {
+            if (!cancelled) {
+              setStage("success");
+              setPolling(false);
+            }
+          }, 700);
 
-            <div className="mt-2.5 flex items-center justify-between text-[13.5px]">
-              <span className="text-white/60">
-                Book
-              </span>
+          return;
+        }
 
-              <span className="max-w-[60%] truncate text-right font-extrabold">
-                {book.name}
-              </span>
-            </div>
+        if (
+          status === "FAILED" ||
+          status === "CANCELLED" ||
+          status === "EXPIRED"
+        ) {
+          setMpesaError(
+            response?.order?.paymentError ||
+              response?.paymentError ||
+              "The M-Pesa payment could not be completed."
+          );
+          setPolling(false);
+          return;
+        }
 
-            <div className="mt-2.5 flex items-center justify-between text-[13.5px]">
-              <span className="text-white/60">
-                Amount
-              </span>
+        attempts += 1;
 
-              <span className="font-extrabold text-gold">
-                {formatKsh(book.price)}
-              </span>
-            </div>
+        const progress = Math.min(
+          VERIFY_STEPS.length - 2,
+          Math.floor(attempts / 2)
+        );
 
-            <div className="mt-2.5 flex items-center justify-between text-[13.5px]">
-              <span className="text-white/60">
-                Status
-              </span>
+        setVStep(progress);
 
-              <span className="font-extrabold">
-                {mpesaOrder?.status || "Starting STK Push…"}
-              </span>
-            </div>
+        if (attempts >= 40) {
+          setMpesaError(
+            "We could not confirm the payment within the expected time. If money was deducted, please keep your M-Pesa confirmation message and contact support."
+          );
+          setPolling(false);
+          return;
+        }
 
-            {mpesaError && (
-              <p className="mt-4 rounded-2xl bg-red-500/10 p-3 text-[13px] font-semibold text-red-200">
-                {mpesaError}
-              </p>
-            )}
-          </div>
+        window.setTimeout(checkOrder, 3000);
+      } catch (error: any) {
+        if (cancelled) return;
 
-          <p className="mt-7 flex items-center justify-center gap-2 text-[13.5px] font-semibold text-white/60">
-            <Icon
-              name="clock"
-              className="h-4 w-4 text-gold"
-            />
+        attempts += 1;
 
-            {mpesaError
-              ? "Payment needs attention"
-              : `Waiting for confirmation… ${countdown}s`}
-          </p>
+        if (attempts >= 40) {
+          setMpesaError(
+            error?.message ||
+              "We could not confirm your payment. Please try again."
+          );
+          setPolling(false);
+          return;
+        }
 
-          <div className="mx-auto mt-4 h-1.5 w-48 overflow-hidden rounded-full bg-white/10">
-            <span
-              className="block h-full gold-gradient transition-all duration-1000"
-              style={{
-                width: `${Math.max(
-                  0,
-                  Math.min(
-                    100,
-                    ((120 - countdown) / 120) * 100,
-                  ),
-                )}%`,
-              }}
-            />
-          </div>
-        </div>
-      </section>
-    );
+        window.setTimeout(checkOrder, 3000);
+      }
+    };
+
+    checkOrder();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [mpesaOrder?.orderId, stage]);
+
+  async function pay() {
+    const nextErrors: string[] = [];
+
+    if (!name.trim()) {
+      nextErrors.push("Enter your name.");
+    }
+
+    const normalizedPhone = digitsOnly(phone);
+
+    if (!normalizedPhone) {
+      nextErrors.push("Enter your M-Pesa phone number.");
+    } else if (normalizedPhone.length < 9) {
+      nextErrors.push("Enter a valid Kenyan phone number.");
+    }
+
+    if (nextErrors.length) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setErrors([]);
+    setMpesaError("");
+
+    // Paybill is not connected to the current payment API yet.
+    if (method !== "stk") {
+      setMpesaError(
+        "Paybill payments are coming soon. Please use M-Pesa STK Push for now."
+      );
+      return;
+    }
+
+    try {
+      setStage("paying");
+
+      const created = await api.createOrder({
+        productCode: book.code,
+        name: name.trim(),
+        phone: normalizedPhone,
+        email: email.trim() || undefined,
+      });
+
+      const orderId = created?.order?.id;
+
+      if (!orderId) {
+        throw new Error(
+          "We could not create your book order. Please try again."
+        );
+      }
+
+      const paid = await api.payOrder(orderId);
+
+      setMpesaOrder({
+        orderId,
+        publicId: created?.order?.publicId,
+        status: paid?.order?.status ?? paid?.status,
+        checkoutRequestId:
+          paid?.checkoutRequestId ??
+          paid?.order?.checkoutRequestId ??
+          created?.order?.checkoutRequestId,
+      });
+    } catch (error: any) {
+      setStage("form");
+      setMpesaError(
+        error?.message ||
+          "We could not start the M-Pesa payment. Please try again."
+      );
+    }
   }
 
-  /* ============================================================
-     VERIFYING
-  ============================================================ */
-  if (stage === "verifying") {
-    return (
-      <section className="flex min-h-screen items-center justify-center bg-mint/60 px-4 py-24">
-        <div className="w-full max-w-lg">
-          <div className="rounded-[32px] border border-forest/10 bg-white p-7 text-center shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)] sm:p-9">
-            <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-mint text-brand">
-              <Icon name="shield" className="h-8 w-8" />
-            </span>
-
-            <h1 className="mt-6 text-[27px] leading-tight text-deep sm:text-[32px]">
-              Payment Received!
-            </h1>
-
-            <p className="mt-3 text-[14.5px] leading-relaxed text-forest/70">
-              We are verifying your payment before releasing
-              your book. This protects both you and the author.
-            </p>
-
-            <div className="mt-7 space-y-2.5 text-left">
-              {VERIFY_STEPS.map((step, index) => {
-                const done = index < vStep;
-                const active = index === vStep;
-
-                return (
-                  <div
-                    key={step}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl border px-4 py-3.5 transition-all duration-300",
-                      done
-                        ? "border-brand/25 bg-mint"
-                        : active
-                          ? "border-gold bg-goldsoft"
-                          : "border-forest/10 bg-white opacity-55",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                        done
-                          ? "bg-brand text-white"
-                          : active
-                            ? "bg-deep text-gold"
-                            : "bg-forest/10",
-                      )}
-                    >
-                      {done ? (
-                        <Icon
-                          name="check"
-                          className="h-4 w-4"
-                          strokeWidth={3}
-                        />
-                      ) : active ? (
-                        <span className="h-2 w-2 animate-ping rounded-full bg-gold" />
-                      ) : (
-                        <span className="h-2 w-2 rounded-full bg-forest/30" />
-                      )}
-                    </span>
-
-                    <span className="text-[14px] font-bold text-deep">
-                      {step}
-                    </span>
-
-                    <span className="ml-auto text-[11.5px] font-extrabold uppercase tracking-wide text-forest/45">
-                      {done
-                        ? "Done"
-                        : active
-                          ? "Running"
-                          : "Queued"}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+  function resetCheckout() {
+    setStage("form");
+    setMpesaOrder(null);
+    setMpesaError("");
+    setPolling(false);
+    setVStep(0);
+    setCountdown(60);
   }
 
-  /* ============================================================
-     SUCCESS
-  ============================================================ */
-  if (stage === "success") {
-    return (
-      <section className="min-h-screen bg-mint/50 pb-24 pt-28 sm:pt-32">
-        <Container className="max-w-2xl">
-          <div className="text-center">
-            <span className="mx-auto flex h-20 w-20 animate-pop items-center justify-center rounded-[28px] gold-gradient text-deep shadow-xl shadow-gold/40">
-              <Icon
-                name="checkCircle"
-                className="h-11 w-11"
-                strokeWidth={2.2}
-              />
-            </span>
-
-            <h1 className="mt-6 text-[34px] leading-tight text-deep sm:text-[44px]">
-              Your book is ready!
-            </h1>
-
-            <p className="mx-auto mt-4 max-w-md text-[15.5px] leading-relaxed text-forest/75">
-              Your payment has been verified and your book
-              purchase has been confirmed.
-            </p>
-          </div>
-
-          {/* Book access */}
-          <div className="mt-9 overflow-hidden rounded-[32px] border border-brand/25 bg-white shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)]">
-            <div className="brand-gradient px-6 py-5 text-white">
-              <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
-                {isDigital
-                  ? "Digital book unlocked"
-                  : "Book access unlocked"}
-              </p>
-
-              <p className="mt-2 text-[19px] font-extrabold leading-snug">
-                {book.name}
-              </p>
-
-              <p className="mt-1 text-[13px] text-white/70">
-                By {book.seller}
-              </p>
-            </div>
-
-            <div className="p-6">
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <a
-                  href={book.image}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={btnClass(
-                    "gold",
-                    "lg",
-                    "w-full sm:w-auto",
-                  )}
-                >
-                  <Icon
-                    name="download"
-                    className="h-5 w-5"
-                  />
-
-                  {isDigital
-                    ? "Open / Access Book"
-                    : "View Book Access"}
-                </a>
-
-                <button
-                  onClick={() => window.print()}
-                  className={btnClass(
-                    "outline",
-                    "lg",
-                    "w-full sm:w-auto",
-                  )}
-                >
-                  <Icon
-                    name="receipt"
-                    className="h-5 w-5"
-                  />
-                  Print receipt
-                </button>
-              </div>
-
-              <p className="mt-4 flex items-start gap-2.5 text-[13px] leading-relaxed text-forest/70">
-                <Icon
-                  name="info"
-                  className="mt-0.5 h-4 w-4 shrink-0 text-brand"
-                />
-
-                {book.delivery}. Keep your receipt details for
-                your records. A copy of the receipt was sent
-                {email
-                  ? ` to ${email}`
-                  : " to your phone"}
-                .
-              </p>
-            </div>
-          </div>
-
-          {/* Receipt */}
-          <div className="mt-6 rounded-[32px] border border-forest/10 bg-white p-6 sm:p-7">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-forest/50">
-                  Digital receipt
-                </p>
-
-                <p className="mt-1.5 font-mono text-[19px] font-extrabold text-deep">
-                  {ref}
-                </p>
-              </div>
-
-              <Badge tone="mint" icon="checkCircle">
-                Verified
-              </Badge>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {[
-                {
-                  label: "Book",
-                  value: book.name,
-                },
-                {
-                  label: "Category",
-                  value: book.category,
-                },
-                {
-                  label: "Author",
-                  value: book.seller,
-                },
-                {
-                  label: "Paid by",
-                  value: `${
-                    name || "Reader"
-                  } · M-Pesa +254 ${digitsOnly(phone)}`,
-                },
-                {
-                  label: "M-Pesa receipt",
-                  value:
-                    mpesaOrder?.receipt ||
-                    "Verified by M-Pesa",
-                },
-                {
-                  label: "Amount paid",
-                  value: formatKsh(book.price),
-                },
-              ].map((row) => (
-                <div
-                  key={row.label}
-                  className="flex items-start justify-between gap-4 border-b border-forest/8 pb-3"
-                >
-                  <span className="text-[13px] font-semibold text-forest/60">
-                    {row.label}
-                  </span>
-
-                  <span className="max-w-[60%] text-right text-[13.5px] font-extrabold text-deep">
-                    {row.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-5 rounded-2xl bg-mint/70 p-4">
-              <div className="flex items-center justify-between text-[13.5px] font-bold text-forest/75">
-                <span>UZALINK commission (5%)</span>
-
-                <span className="text-deep">
-                  {formatKsh(commissionOf(book.price))}
-                </span>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between text-[14px] font-extrabold">
-                <span className="text-forest">
-                  Author earnings
-                </span>
-
-                <span className="text-brand">
-                  {formatKsh(sellerOf(book.price))}
-                </span>
-              </div>
-
-              <p className="mt-3 text-[12px] leading-relaxed text-forest/65">
-                The author receives 95% of the sale after
-                successful payment verification, subject to
-                the platform's applicable settlement process.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
-            <Link
-              to="/explore"
-              className={btnClass(
-                "deep",
-                "lg",
-                "w-full",
-              )}
-            >
-              Discover More Books
-              <Icon
-                name="compass"
-                className="h-5 w-5"
-              />
-            </Link>
-
-            <Link
-              to="/sell"
-              className={btnClass(
-                "gold",
-                "lg",
-                "w-full",
-              )}
-            >
-              Sell Your Book
-              <Icon
-                name="arrowRight"
-                className="h-5 w-5"
-              />
-            </Link>
-          </div>
-        </Container>
-      </section>
-    );
-  }
-
-  /* ============================================================
-     CHECKOUT FORM
-  ============================================================ */
   return (
-    <section className="min-h-screen bg-mint/40 pb-24 pt-28 sm:pt-32">
-      <Container className="max-w-5xl">
-        {/* Breadcrumb */}
-        <div className="flex flex-wrap items-center gap-3 text-[13px] font-semibold text-forest/60">
-          <Link
-            to={`/magic/${book.code}`}
-            className="inline-flex items-center gap-1.5 hover:text-brand"
-          >
-            <Icon
-              name="arrowLeft"
-              className="h-4 w-4"
-            />
-            Back to book
-          </Link>
+    <main className="min-h-screen bg-mint/40 pb-16 pt-28">
+      <Container>
+        <Reveal>
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-6">
+              <Link
+                to={`/magic/${book.code}`}
+                className="inline-flex items-center gap-2 text-sm font-bold text-forest/70 transition hover:text-deep"
+              >
+                <Icon name="arrowLeft" className="h-4 w-4" />
+                Back to book
+              </Link>
+            </div>
 
-          <span className="hidden sm:inline">·</span>
+            {stage === "success" ? (
+              <SuccessState
+                book={book}
+                seller={seller}
+                name={name}
+                phone={phone}
+                email={email}
+                authorEarnings={authorEarnings}
+                commission={commission}
+              />
+            ) : (
+              <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
+                <section className="rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(4,40,26,0.4)] sm:p-7">
+                  {stage === "form" ? (
+                    <>
+                      <div>
+                        <Badge tone="gold">
+                          <Icon name="book" className="h-3.5 w-3.5" />
+                          Secure book checkout
+                        </Badge>
 
-          <span>Secure book checkout</span>
-        </div>
+                        <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-deep sm:text-4xl">
+                          Buy this book
+                        </h1>
 
-        <div className="mt-5 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          {/* ======================================================
-              PAYMENT FORM
-          ======================================================= */}
-          <Reveal>
-            <div className="rounded-[32px] border border-forest/10 bg-white p-5 shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)] sm:p-7">
-              <Badge tone="gold" icon="lock">
-                No reader account needed
-              </Badge>
+                        <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-forest/70">
+                          Complete your details and pay with M-Pesa. You do not
+                          need to create a reader account.
+                        </p>
+                      </div>
 
-              <h1 className="mt-4 text-[28px] leading-tight text-deep sm:text-[36px]">
-                Buy this book
-              </h1>
+                      <div className="mt-7 space-y-5">
+                        <Field label="Your name" required>
+                          <input
+                            className={inputClass}
+                            value={name}
+                            onChange={(event) => setName(event.target.value)}
+                            placeholder="Enter your name"
+                            autoComplete="name"
+                          />
+                        </Field>
 
-              <p className="mt-3 text-[14.5px] leading-relaxed text-forest/70">
-                Pay securely with M-Pesa. Your digital book
-                becomes available after the payment is verified.
-              </p>
+                        <Field
+                          label="M-Pesa phone number"
+                          required
+                          hint="Use the number that should receive the M-Pesa payment prompt."
+                        >
+                          <input
+                            className={inputClass}
+                            value={phone}
+                            onChange={(event) =>
+                              setPhone(event.target.value)
+                            }
+                            placeholder="07XX XXX XXX"
+                            inputMode="tel"
+                            autoComplete="tel"
+                          />
+                        </Field>
 
-              {/* Payment method */}
-              <div className="mt-6">
-                <p className="text-[13.5px] font-bold text-deep">
-                  Payment method
-                </p>
+                        <Field
+                          label="Email address"
+                          hint="Optional — useful for your digital receipt."
+                        >
+                          <input
+                            className={inputClass}
+                            value={email}
+                            onChange={(event) => setEmail(event.target.value)}
+                            placeholder="you@example.com"
+                            type="email"
+                            autoComplete="email"
+                          />
+                        </Field>
 
-                <div className="mt-3 grid gap-2.5">
-                  {[
-                    {
-                      key: "stk" as const,
-                      icon: "phone",
-                      title: "M-Pesa STK Push",
-                      text: "A payment prompt is sent directly to your phone.",
-                      badge: "Recommended",
-                    },
-                    {
-                      key: "paybill" as const,
-                      icon: "bank",
-                      title: "M-Pesa Paybill",
-                      text: "Manual Paybill instructions are available for reference.",
-                      badge: "Coming to automatic checkout",
-                    },
-                  ].map((payment) => (
-                    <button
-                      key={payment.key}
-                      type="button"
-                      onClick={() =>
-                        setMethod(payment.key)
-                      }
-                      className={cn(
-                        "flex items-center gap-3 rounded-2xl border-2 px-4 py-4 text-left transition-all",
-                        method === payment.key
-                          ? "border-brand bg-mint"
-                          : "border-forest/10 bg-white hover:border-brand/40",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl",
-                          method === payment.key
-                            ? "bg-white text-brand"
-                            : "bg-mint text-brand",
-                        )}
-                      >
-                        <Icon
-                          name={payment.icon}
-                          className="h-5 w-5"
-                        />
-                      </span>
+                        <div>
+                          <p className="mb-3 text-sm font-extrabold text-deep">
+                            Payment method
+                          </p>
 
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-2">
-                          <span className="text-[15px] font-extrabold text-deep">
-                            {payment.title}
-                          </span>
-
-                          {payment.badge && (
-                            <span
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <button
+                              type="button"
+                              onClick={() => setMethod("stk")}
                               className={cn(
-                                "rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
-                                payment.key === "stk"
-                                  ? "gold-gradient text-deep"
-                                  : "bg-forest/10 text-forest",
+                                "rounded-2xl border p-4 text-left transition",
+                                method === "stk"
+                                  ? "border-deep bg-mint/70 shadow-sm"
+                                  : "border-forest/10 bg-white hover:border-forest/20"
                               )}
                             >
-                              {payment.badge}
-                            </span>
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep text-white">
+                                    <Icon
+                                      name="phone"
+                                      className="h-5 w-5"
+                                    />
+                                  </span>
+
+                                  <div>
+                                    <p className="font-extrabold text-deep">
+                                      M-Pesa STK Push
+                                    </p>
+                                    <p className="mt-0.5 text-xs text-forest/60">
+                                      Recommended
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {method === "stk" && (
+                                  <Icon
+                                    name="check"
+                                    className="h-5 w-5 text-deep"
+                                  />
+                                )}
+                              </div>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setMethod("paybill")}
+                              className={cn(
+                                "relative rounded-2xl border p-4 text-left transition",
+                                method === "paybill"
+                                  ? "border-deep bg-mint/70 shadow-sm"
+                                  : "border-forest/10 bg-white hover:border-forest/20"
+                              )}
+                            >
+                              <span className="absolute right-3 top-3 rounded-full bg-gold/20 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-deep">
+                                Coming soon
+                              </span>
+
+                              <div className="flex items-center gap-3 pr-16">
+                                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mint text-forest">
+                                  <Icon
+                                    name="creditCard"
+                                    className="h-5 w-5"
+                                  />
+                                </span>
+
+                                <div>
+                                  <p className="font-extrabold text-deep">
+                                    Paybill
+                                  </p>
+                                  <p className="mt-0.5 text-xs text-forest/60">
+                                    Manual payment option
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+
+                        {errors.length > 0 && (
+                          <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                            <div className="flex gap-3">
+                              <Icon
+                                name="alert"
+                                className="mt-0.5 h-5 w-5 shrink-0 text-red-600"
+                              />
+
+                              <div className="space-y-1">
+                                {errors.map((error) => (
+                                  <p
+                                    key={error}
+                                    className="text-sm font-semibold text-red-700"
+                                  >
+                                    {error}
+                                  </p>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {mpesaError && (
+                          <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
+                            <div className="flex gap-3">
+                              <Icon
+                                name="alert"
+                                className="mt-0.5 h-5 w-5 shrink-0 text-red-600"
+                              />
+
+                              <div>
+                                <p className="font-extrabold text-red-800">
+                                  Payment issue
+                                </p>
+                                <p className="mt-1 text-sm leading-relaxed text-red-700">
+                                  {mpesaError}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={pay}
+                          className={btnClass(
+                            "deep",
+                            "lg",
+                            "w-full justify-center"
                           )}
-                        </span>
-
-                        <span className="mt-0.5 block text-[12.5px] text-forest/65">
-                          {payment.text}
-                        </span>
-                      </span>
-
-                      <span
-                        className={cn(
-                          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2",
-                          method === payment.key
-                            ? "border-brand bg-brand text-white"
-                            : "border-forest/20",
-                        )}
-                      >
-                        {method === payment.key && (
+                        >
                           <Icon
-                            name="check"
-                            className="h-3.5 w-3.5"
-                            strokeWidth={3}
+                            name="lock"
+                            className="h-5 w-5 text-gold"
                           />
-                        )}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+                          Pay {formatKsh(book.price)} with M-Pesa
+                        </button>
 
-              {/* Paybill */}
-              {method === "paybill" && (
-                <div className="mt-4 animate-fade-up rounded-2xl border border-forest/10 bg-mint/60 p-4">
-                  <p className="text-[12px] font-extrabold uppercase tracking-[0.14em] text-forest/55">
-                    Manual Paybill reference
-                  </p>
+                        <div className="flex items-start gap-3 rounded-2xl bg-mint/60 p-4">
+                          <Icon
+                            name="shield"
+                            className="mt-0.5 h-5 w-5 shrink-0 text-deep"
+                          />
 
-                  <ol className="mt-3 space-y-2">
-                    {[
-                      "Go to M-Pesa → Lipa na M-Pesa → Pay Bill.",
-                      "Business number: 400200.",
-                      `Account number: ${ref}.`,
-                      `Amount: ${formatKsh(book.price)}.`,
-                      "Enter your PIN and keep the confirmation SMS.",
-                    ].map((text, index) => (
-                      <li
-                        key={text}
-                        className="flex gap-2.5 text-[13.5px] text-forest/80"
-                      >
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-deep text-[10.5px] font-extrabold text-gold">
-                          {index + 1}
-                        </span>
-
-                        <span>{text}</span>
-                      </li>
-                    ))}
-                  </ol>
-
-                  <p className="mt-3 text-[12px] font-semibold leading-relaxed text-forest/65">
-                    Automatic Paybill confirmation is not yet
-                    connected to this checkout. Use STK Push
-                    for automatic verification and book
-                    release.
-                  </p>
-                </div>
-              )}
-
-              {/* Reader information */}
-              <div className="mt-6">
-                <p className="text-[13.5px] font-extrabold text-deep">
-                  Reader information
-                </p>
-
-                <p className="mt-1 text-[12.5px] text-forest/60">
-                  These details identify your purchase and help
-                  us provide your receipt.
-                </p>
-              </div>
-
-              <div className="mt-5 grid gap-5">
-                <Field
-                  label="Your name"
-                  required
-                  error={errors.name}
-                >
-                  <input
-                    value={name}
-                    onChange={(event) =>
-                      setName(event.target.value)
-                    }
-                    placeholder="Name on M-Pesa"
-                    className={inputClass}
-                  />
-                </Field>
-
-                <Field
-                  label="M-Pesa number to pay from"
-                  required
-                  hint="The STK Push and payment confirmation are sent here."
-                  error={errors.phone}
-                >
-                  <div className="relative">
-                    <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[14.5px] font-bold text-forest/45">
-                      +254
-                    </span>
-
-                    <input
-                      inputMode="numeric"
-                      value={phone}
-                      onChange={(event) =>
-                        setPhone(
-                          digitsOnly(
-                            event.target.value,
-                          ),
-                        )
-                      }
-                      placeholder="0712 345 678"
-                      className={cn(
-                        inputClass,
-                        "pl-[68px] text-[17px] font-extrabold tracking-wide",
-                      )}
+                          <p className="text-xs font-medium leading-relaxed text-forest/70">
+                            Your payment is processed through M-Pesa. Your
+                            reader account is not required to purchase this
+                            book.
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <PaymentProcessing
+                      countdown={countdown}
+                      error={mpesaError}
+                      polling={polling}
+                      onRetry={resetCheckout}
+                      vStep={vStep}
                     />
-                  </div>
-                </Field>
+                  )}
+                </section>
 
-                <Field
-                  label="Email for receipt"
-                  hint="Optional — useful for keeping a copy of your purchase receipt."
-                >
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(event) =>
-                      setEmail(event.target.value)
-                    }
-                    placeholder="you@email.com"
-                    className={inputClass}
-                  />
-                </Field>
-              </div>
-
-              {mpesaError && method === "paybill" && (
-                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-[13px] font-semibold leading-relaxed text-red-700">
-                  {mpesaError}
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={pay}
-                className={btnClass(
-                  "gold",
-                  "xl",
-                  "mt-7 w-full",
-                )}
-              >
-                <Icon
-                  name="bolt"
-                  className="h-5.5 w-5.5"
-                  strokeWidth={0}
-                />
-
-                Pay for Book · {formatKsh(book.price)}
-              </button>
-
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] font-semibold text-forest/60">
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon
-                    name="shield"
-                    className="h-4 w-4 text-brand"
-                  />
-                  Secure payment
-                </span>
-
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon
-                    name="lock"
-                    className="h-4 w-4 text-brand"
-                  />
-                  Server-side verification
-                </span>
-
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon
-                    name="receipt"
-                    className="h-4 w-4 text-brand"
-                  />
-                  Digital receipt
-                </span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* ======================================================
-              BOOK SUMMARY
-          ======================================================= */}
-          <Reveal delay={90}>
-            <div className="lg:sticky lg:top-28">
-              <div className="overflow-hidden rounded-[32px] border border-forest/10 bg-white shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)]">
-                <div className="px-6 pt-6">
-                  <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-forest/50">
+                <aside className="h-fit rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_20px_60px_-40px_rgba(4,40,26,0.4)] sm:p-6 lg:sticky lg:top-24">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-forest/50">
                     Book summary
                   </p>
-                </div>
 
-                <div className="flex gap-4 p-6">
-                  <div className="h-24 w-20 shrink-0 overflow-hidden rounded-2xl border border-forest/10 bg-mint">
+                  <div className="mt-4 overflow-hidden rounded-2xl bg-mint">
                     <img
                       src={book.image}
-                      alt={`${book.name} book cover`}
-                      className="h-full w-full object-cover"
+                      alt={book.name}
+                      className="aspect-[4/3] w-full object-cover"
                     />
                   </div>
 
-                  <div className="min-w-0">
-                    <p className="text-[15px] font-extrabold leading-snug text-deep">
+                  <div className="mt-5">
+                    <Badge tone="mint">Digital Book</Badge>
+
+                    <h2 className="mt-3 text-xl font-extrabold leading-tight text-deep">
                       {book.name}
+                    </h2>
+
+                    <p className="mt-2 text-sm text-forest/65">
+                      By <span className="font-bold">{seller}</span>
                     </p>
 
-                    <p className="mt-1 text-[12.5px] text-forest/60">
-                      By {book.seller}
-                    </p>
-
-                    <span className="mt-2 inline-flex rounded-full bg-mint px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-wide text-forest">
-                      {book.category}
-                    </span>
-
-                    <p className="mt-2 text-[17px] font-extrabold text-deep">
-                      {formatKsh(book.price)}
+                    <p className="mt-4 text-sm leading-relaxed text-forest/70">
+                      {book.description}
                     </p>
                   </div>
-                </div>
 
-                <div className="space-y-2.5 border-t border-forest/10 p-6">
-                  <div className="flex items-center justify-between text-[13.5px]">
-                    <span className="font-semibold text-forest/70">
-                      Book price
-                    </span>
+                  <div className="my-5 h-px bg-forest/10" />
 
-                    <span className="font-extrabold text-deep">
-                      {formatKsh(book.price)}
-                    </span>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                      <span className="font-semibold text-forest/60">
+                        Book price
+                      </span>
+                      <span className="font-extrabold text-deep">
+                        {formatKsh(book.price)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                      <span className="font-semibold text-forest/60">
+                        Reader account
+                      </span>
+                      <span className="font-extrabold text-deep">
+                        Not required
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 text-sm">
+                      <span className="font-semibold text-forest/60">
+                        Access
+                      </span>
+                      <span className="font-extrabold text-deep">
+                        Digital book
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between text-[13.5px]">
-                    <span className="font-semibold text-forest/70">
-                      Processing fee
-                    </span>
-
-                    <span className="font-extrabold text-brand">
-                      KSh 0
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between border-t border-forest/10 pt-3">
-                    <span className="text-[15px] font-extrabold text-deep">
-                      Total
-                    </span>
-
-                    <span className="text-[24px] font-extrabold text-deep">
-                      {formatKsh(book.price)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Reader protection */}
-                <div className="bg-mint/60 p-6">
-                  <p className="flex items-center gap-2 text-[13.5px] font-extrabold text-deep">
-                    <Icon
-                      name="shield"
-                      className="h-4.5 w-4.5 text-brand"
-                    />
-                    UZALINK reader protection
-                  </p>
-
-                  <ul className="mt-3 space-y-2">
-                    {[
-                      "Payment is verified before book access is released",
-                      "A purchase reference and digital receipt are provided",
-                      "The author receives 95% after verification",
-                    ].map((text) => (
-                      <li
-                        key={text}
-                        className="flex gap-2.5 text-[12.5px] leading-snug text-forest/75"
-                      >
+                  <div className="mt-5 rounded-2xl bg-deep p-4 text-white">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10">
                         <Icon
-                          name="checkCircle"
-                          className="mt-0.5 h-4 w-4 shrink-0 text-brand"
+                          name="shield"
+                          className="h-4.5 w-4.5 text-gold"
                         />
+                      </span>
 
-                        {text}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                      <div>
+                        <p className="text-sm font-extrabold">
+                          UZALINK reader protection
+                        </p>
+                        <p className="mt-0.5 text-xs text-white/60">
+                          Simple M-Pesa checkout for digital books.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
               </div>
+            )}
+          </div>
+        </Reveal>
+      </Container>
+    </main>
+  );
+}
 
-              {/* M-Pesa reassurance */}
-              <div className="mt-4 flex items-center gap-3 rounded-3xl border border-forest/10 bg-white p-4">
-                <Icon
-                  name="mpesa"
-                  className="h-7 w-7 shrink-0 text-brand"
-                />
+function PaymentProcessing({
+  countdown,
+  error,
+  polling,
+  onRetry,
+  vStep,
+}: {
+  countdown: number;
+  error: string;
+  polling: boolean;
+  onRetry: () => void;
+  vStep: number;
+}) {
+  if (error) {
+    return (
+      <div className="py-8 text-center">
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-red-50 text-red-600">
+          <Icon name="alert" className="h-8 w-8" />
+        </span>
 
-                <p className="text-[12.5px] leading-snug text-forest/70">
-                  <span className="block font-extrabold text-deep">
-                    M-Pesa made simple
-                  </span>
+        <h2 className="mt-6 text-2xl font-extrabold text-deep">
+          Payment needs attention
+        </h2>
 
-                  Built for Kenyan readers — no card, no app
-                  download and no reader account.
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-forest/70">
+          {error}
+        </p>
+
+        <button
+          type="button"
+          onClick={onRetry}
+          className={cn(btnClass("deep", "md"), "mt-7")}
+        >
+          <Icon name="refresh" className="h-4 w-4" />
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-5">
+      <div className="text-center">
+        <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-mint text-deep">
+          <Icon name="phone" className="h-8 w-8" />
+        </span>
+
+        <h2 className="mt-6 text-2xl font-extrabold text-deep">
+          Check your phone
+        </h2>
+
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-forest/70">
+          An M-Pesa payment prompt has been sent to your phone. Enter your
+          M-Pesa PIN to complete the purchase.
+        </p>
+
+        <div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full bg-mint px-4 py-2 text-sm font-extrabold text-deep">
+          <Icon name="clock" className="h-4 w-4" />
+          {countdown}s
+        </div>
+      </div>
+
+      <div className="mt-8 space-y-3">
+        {VERIFY_STEPS.map((step, index) => {
+          const complete = index < vStep;
+          const current = index === vStep;
+
+          return (
+            <div
+              key={step}
+              className={cn(
+                "flex items-center gap-3 rounded-2xl border p-4 transition",
+                complete || current
+                  ? "border-forest/10 bg-mint/50"
+                  : "border-forest/5 bg-white"
+              )}
+            >
+              <span
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                  complete
+                    ? "bg-deep text-white"
+                    : current
+                      ? "bg-gold text-deep"
+                      : "bg-forest/5 text-forest/40"
+                )}
+              >
+                {complete ? (
+                  <Icon name="check" className="h-4 w-4" />
+                ) : (
+                  <span className="text-xs font-extrabold">{index + 1}</span>
+                )}
+              </span>
+
+              <span
+                className={cn(
+                  "text-sm font-bold",
+                  complete || current
+                    ? "text-deep"
+                    : "text-forest/40"
+                )}
+              >
+                {step}
+              </span>
+
+              {current && polling && (
+                <span className="ml-auto h-4 w-4 animate-spin rounded-full border-2 border-deep/20 border-t-deep" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-7 rounded-2xl border border-gold/20 bg-gold/10 p-4">
+        <p className="text-center text-xs font-semibold leading-relaxed text-deep/75">
+          Please keep this page open while we confirm your M-Pesa payment.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SuccessState({
+  book,
+  seller,
+  name,
+  phone,
+  email,
+  authorEarnings,
+  commission,
+}: {
+  book: Product;
+  seller: string;
+  name: string;
+  phone: string;
+  email: string;
+  authorEarnings: number;
+  commission: number;
+}) {
+  return (
+    <div className="mx-auto max-w-3xl">
+      <section className="overflow-hidden rounded-3xl border border-forest/10 bg-white shadow-[0_25px_70px_-40px_rgba(4,40,26,0.45)]">
+        <div className="bg-deep px-6 py-10 text-center text-white sm:px-10">
+          <span className="mx-auto flex h-18 w-18 items-center justify-center rounded-[24px] bg-white/10">
+            <Icon name="check" className="h-9 w-9 text-gold" />
+          </span>
+
+          <p className="mt-6 text-xs font-extrabold uppercase tracking-[0.18em] text-gold">
+            Payment confirmed
+          </p>
+
+          <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">
+            Your book is ready!
+          </h1>
+
+          <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/65">
+            Your M-Pesa payment has been confirmed and your book purchase has
+            been recorded.
+          </p>
+        </div>
+
+        <div className="p-5 sm:p-8">
+          <div className="grid gap-6 sm:grid-cols-[150px_1fr]">
+            <img
+              src={book.image}
+              alt={book.name}
+              className="mx-auto aspect-[4/3] w-full max-w-[180px] rounded-2xl object-cover sm:mx-0"
+            />
+
+            <div>
+              <Badge tone="mint">Digital Book</Badge>
+
+              <h2 className="mt-3 text-2xl font-extrabold leading-tight text-deep">
+                {book.name}
+              </h2>
+
+              <p className="mt-2 text-sm text-forest/65">
+                By <span className="font-bold">{seller}</span>
+              </p>
+
+              <p className="mt-4 text-sm leading-relaxed text-forest/70">
+                Thank you, {name || "reader"}. Your payment for this book has
+                been confirmed.
+              </p>
+            </div>
+          </div>
+
+          <div className="my-7 h-px bg-forest/10" />
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <ReceiptItem label="Book" value={formatKsh(book.price)} />
+            <ReceiptItem label="Author settlement" value={formatKsh(authorEarnings)} />
+            <ReceiptItem label="UzaLink fee" value={formatKsh(commission)} />
+          </div>
+
+          <div className="mt-7 rounded-2xl border border-gold/25 bg-gold/10 p-5">
+            <div className="flex gap-3">
+              <Icon
+                name="book"
+                className="mt-0.5 h-5 w-5 shrink-0 text-deep"
+              />
+
+              <div>
+                <p className="font-extrabold text-deep">
+                  Book access unlocked
+                </p>
+
+                <p className="mt-1 text-sm leading-relaxed text-deep/65">
+                  Your payment has been confirmed. The digital book access
+                  stage is now unlocked.
                 </p>
               </div>
             </div>
-          </Reveal>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <a
+              href={book.image}
+              target="_blank"
+              rel="noreferrer"
+              className={btnClass("deep", "lg", "justify-center")}
+            >
+              <Icon name="bookOpen" className="h-5 w-5 text-gold" />
+              Open Book Access
+            </a>
+
+            <Link
+              to="/explore"
+              className={btnClass("outline", "lg", "justify-center")}
+            >
+              <Icon name="compass" className="h-5 w-5" />
+              Discover More Books
+            </Link>
+          </div>
+
+          <div className="mt-7 rounded-2xl bg-mint/60 p-5">
+            <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-forest/50">
+              Digital receipt
+            </p>
+
+            <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <ReceiptLine label="Reader" value={name || "Reader"} />
+              <ReceiptLine label="Phone" value={phone || "—"} />
+              <ReceiptLine label="Email" value={email || "Not provided"} />
+              <ReceiptLine label="Book price" value={formatKsh(book.price)} />
+            </div>
+          </div>
         </div>
-      </Container>
-    </section>
+      </section>
+    </div>
+  );
+}
+
+function ReceiptItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl bg-mint/60 p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-forest/50">
+        {label}
+      </p>
+
+      <p className="mt-2 text-lg font-extrabold text-deep">{value}</p>
+    </div>
+  );
+}
+
+function ReceiptLine({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-forest/10 pb-3 last:border-0 last:pb-0">
+      <span className="font-semibold text-forest/55">{label}</span>
+      <span className="text-right font-bold text-deep">{value}</span>
+    </div>
   );
 }
