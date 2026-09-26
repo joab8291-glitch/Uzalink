@@ -1,10 +1,12 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/utils/cn";
 import {
   BUYER_FLOW,
   PRODUCTS,
   formatKsh,
+  type Product,
 } from "@/lib/data";
+import { api } from "@/lib/api";
 import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
 import {
@@ -31,14 +33,75 @@ export function Explore() {
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("popular");
+  const [liveProducts, setLiveProducts] = useState<Product[]>([]);
+  const [loadingBooks, setLoadingBooks] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-  /*
-   * Keep using the existing PRODUCTS data for now.
-   * The backend can later provide dedicated book fields without
-   * requiring another frontend rewrite.
-   */
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBooks = async () => {
+      try {
+        const result = await api.products();
+        const products = Array.isArray(result?.products)
+          ? result.products
+          : [];
+
+        const mapped: Product[] = products.map((product: any) => {
+          const sellerName =
+            product?.seller?.user?.name ||
+            product?.seller?.handle ||
+            "UzaLink Author";
+          const initials = sellerName
+            .split(/\\s+/)
+            .filter(Boolean)
+            .map((part: string) => part[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
+
+          return {
+            code: product.code,
+            name: product.name,
+            seller: sellerName,
+            handle: product?.seller?.handle || "",
+            sellerAvatarSeed: initials || "AU",
+            type: "Digital Product",
+            category: product.category,
+            description: product.description,
+            longDescription: product.description,
+            price: Number(product.priceCents || 0) / 100,
+            image: `https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=900&q=80`,
+            delivery: product.deliveryText || "Digital book",
+            rating: 0,
+            sales: 0,
+            instant: Boolean(product.instant),
+          };
+        });
+
+        if (!cancelled) setLiveProducts(mapped);
+      } catch (error) {
+        if (!cancelled) {
+          setLoadError(error instanceof Error ? error.message : "Could not load books.");
+        }
+      } finally {
+        if (!cancelled) setLoadingBooks(false);
+      }
+    };
+
+    void loadBooks();
+    return () => { cancelled = true; };
+  }, []);
+
+  const allBooks = useMemo(() => {
+    const byCode = new Map<string, Product>();
+    PRODUCTS.forEach((p) => byCode.set(p.code, p));
+    liveProducts.forEach((p) => byCode.set(p.code, p));
+    return Array.from(byCode.values());
+  }, [liveProducts]);
+
   const categories = useMemo(() => {
-    const values = PRODUCTS.map((p) => p.category).filter(Boolean);
+    const values = allBooks.map((p) => p.category).filter(Boolean);
 
     return [
       "All",
@@ -49,7 +112,7 @@ export function Explore() {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let list = PRODUCTS.filter((book) => {
+    let list = allBooks.filter((book) => {
       const matchesCategory =
         category === "All" || book.category === category;
 
@@ -72,7 +135,7 @@ export function Explore() {
     });
 
     return list;
-  }, [category, query, sort]);
+  }, [allBooks, category, query, sort]);
 
   return (
     <>
@@ -225,6 +288,12 @@ export function Explore() {
             </div>
 
             {/* Results count */}
+            {loadingBooks && (
+              <p className="px-1 text-[13px] font-semibold text-brand">Loading published books…</p>
+            )}
+            {loadError && (
+              <p className="px-1 text-[13px] font-semibold text-red-600">{loadError}</p>
+            )}
             <p className="px-1 text-[13px] font-semibold text-forest/60">
               Showing{" "}
               <span className="text-deep">{results.length}</span>{" "}
