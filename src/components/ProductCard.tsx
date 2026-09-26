@@ -20,30 +20,34 @@ export function ProductCard({
         className,
       )}
     >
+      {/* Book cover */}
       <Link
         to={`/magic/${product.code}`}
         className="relative block aspect-[4/3] overflow-hidden bg-mint"
       >
         <img
           src={product.image}
-          alt={`${product.name} book cover`}
+          alt={`Cover of ${product.name}`}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
 
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-deep/55 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-deep/60 to-transparent" />
 
+        {/* Book type */}
         <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-forest shadow-sm">
           <Icon name="book" className="h-3 w-3" />
           Digital Book
         </span>
 
+        {/* Promotional badge */}
         {product.badge && (
           <span className="absolute right-3 top-3 rounded-full gold-gradient px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-deep shadow">
             {product.badge}
           </span>
         )}
 
+        {/* Instant access */}
         {product.instant && (
           <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-deep/85 px-2.5 py-1.5 text-[11px] font-bold text-white backdrop-blur">
             <Icon name="bolt" className="h-3 w-3 text-gold" />
@@ -53,14 +57,14 @@ export function ProductCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        {/* Author */}
+        {/* Author + rating */}
         <div className="flex items-center gap-2 text-[12px] font-semibold text-forest/60">
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-mint text-[10px] font-extrabold text-forest">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mint text-[10px] font-extrabold text-forest">
             {product.sellerAvatarSeed}
           </span>
 
-          <span className="truncate">
-            By {product.seller}
+          <span className="min-w-0 truncate">
+            By <span className="font-extrabold text-forest">{product.seller}</span>
           </span>
 
           <span className="ml-auto inline-flex shrink-0 items-center gap-1 font-bold text-deep">
@@ -74,24 +78,29 @@ export function ProductCard({
         </div>
 
         {/* Book title */}
-        <h3 className="mt-2.5 line-clamp-2 text-[16.5px] font-extrabold leading-snug text-deep">
-          <Link to={`/magic/${product.code}`}>
+        <h3 className="mt-3 line-clamp-2 text-[16.5px] font-extrabold leading-snug text-deep">
+          <Link
+            to={`/magic/${product.code}`}
+            className="transition-colors hover:text-brand"
+          >
             {product.name}
           </Link>
         </h3>
 
-        {/* Category */}
-        <p className="mt-1 text-[11.5px] font-bold uppercase tracking-wide text-forest/45">
-          {product.category}
-        </p>
-
+        {/* Description */}
         {!compact && (
           <p className="mt-2 line-clamp-2 text-[13.5px] leading-relaxed text-forest/70">
             {product.description}
           </p>
         )}
 
-        {/* Price and sales */}
+        {/* Category */}
+        <div className="mt-3 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-forest/45">
+          <Icon name="tag" className="h-3 w-3" />
+          {product.category}
+        </div>
+
+        {/* Price */}
         <div className="mt-4 flex items-end justify-between gap-2">
           <div>
             <p className="text-[22px] font-extrabold leading-none text-deep">
@@ -99,12 +108,11 @@ export function ProductCard({
             </p>
 
             <p className="mt-1.5 text-[11.5px] font-semibold uppercase tracking-wide text-forest/50">
-              {product.sales.toLocaleString()} readers
+              {product.sales.toLocaleString()} copies sold
             </p>
           </div>
 
-          <span className="inline-flex items-center gap-1 rounded-full bg-mint px-2.5 py-1.5 text-[10.5px] font-bold text-forest">
-            <Icon name="download" className="h-3 w-3" />
+          <span className="rounded-full bg-mint px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide text-forest">
             Digital
           </span>
         </div>
@@ -119,6 +127,7 @@ export function ProductCard({
               "h-11! px-3! text-[13.5px]!",
             )}
           >
+            <Icon name="bookOpen" className="h-4 w-4" />
             View Book
           </Link>
 
