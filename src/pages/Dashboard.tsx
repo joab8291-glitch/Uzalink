@@ -42,6 +42,18 @@ export function Dashboard() {
   const [message, setMessage] =
     useState("");
 
+  const [premiumOpen, setPremiumOpen] =
+    useState(false);
+
+  const [premiumPhone, setPremiumPhone] =
+    useState("");
+
+  const [premiumLoading, setPremiumLoading] =
+    useState(false);
+
+  const [premiumPending, setPremiumPending] =
+    useState(false);
+
   const load = async () => {
     try {
       setError("");
@@ -163,7 +175,11 @@ export function Dashboard() {
               <button
                 onClick={() => {
                   setMessage("");
-                  navigate("/dashboard");
+                  setError("");
+                  setPremiumPhone(
+                    seller?.paymentNumber || ""
+                  );
+                  setPremiumOpen(true);
                 }}
                 className={btnClass(
                   "outline",
@@ -611,7 +627,7 @@ export function Dashboard() {
           ==================================================== */}
           <div className="rounded-3xl border border-forest/10 bg-white p-6">
 
-            <p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand">
+            <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand">
               Your earnings
             </p>
 
@@ -634,7 +650,6 @@ export function Dashboard() {
                 KSh{" "}
                 {available.toLocaleString()}
               </p>
-
             </div>
 
             <input
@@ -697,7 +712,7 @@ export function Dashboard() {
               Request payout
             </button>
 
-            {message && (
+            {message && !premiumOpen && (
               <p className="mt-3 text-sm font-semibold text-brand">
                 {message}
               </p>
@@ -725,6 +740,172 @@ export function Dashboard() {
             </div>
           </div>
         </div>
+
+        {/* =====================================================
+            PREMIUM SUBSCRIPTION MODAL
+        ====================================================== */}
+        {premiumOpen && !premium && (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-deep/60 backdrop-blur-sm"
+              onClick={() => !premiumLoading && setPremiumOpen(false)}
+            />
+
+            <div className="relative z-10 w-full max-w-md rounded-3xl border border-forest/10 bg-white p-6 shadow-2xl sm:p-7">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand">
+                    UzaLink Premium
+                  </p>
+                  <h2 className="mt-2 text-2xl font-extrabold text-deep">
+                    Upgrade your author account
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-forest/65">
+                    Enter the M-Pesa number you want to use. UzaLink will send an STK Push. Your account becomes Premium only after the payment is confirmed.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={premiumLoading}
+                  onClick={() => setPremiumOpen(false)}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-forest/10 text-forest/60 hover:bg-mint disabled:opacity-50"
+                  aria-label="Close Premium dialog"
+                >
+                  <Icon name="x" className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-mint/60 p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-forest/50">
+                  M-Pesa number
+                </p>
+                <input
+                  value={premiumPhone}
+                  onChange={(e) =>
+                    setPremiumPhone(
+                      e.target.value.replace(/[^0-9+]/g, "")
+                    )
+                  }
+                  placeholder="0712345678"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  disabled={premiumLoading}
+                  className="mt-2 w-full rounded-2xl border border-forest/10 bg-white px-4 py-3.5 text-base font-semibold text-deep outline-none focus:border-brand disabled:opacity-60"
+                />
+                <p className="mt-2 text-xs text-forest/50">
+                  Use a Safaricom M-Pesa number that can receive the STK Push.
+                </p>
+              </div>
+
+              {premiumPending && (
+                <div className="mt-4 rounded-2xl border border-gold/30 bg-goldsoft/60 p-4 text-sm text-[#6b5200]">
+                  <p className="font-extrabold">STK Push sent.</p>
+                  <p className="mt-1">
+                    Complete the payment on your phone. We are checking your Premium status automatically.
+                  </p>
+                </div>
+              )}
+
+              {message && (
+                <p className="mt-4 rounded-2xl bg-mint p-3.5 text-sm font-semibold text-brand">
+                  {message}
+                </p>
+              )}
+
+              <button
+                type="button"
+                disabled={premiumLoading || premiumPending}
+                onClick={async () => {
+                  setMessage("");
+                  setError("");
+
+                  const normalized = premiumPhone
+                    .trim()
+                    .replace(/\s+/g, "");
+
+                  if (!/^2547\d{8}$/.test(normalized) && !/^07\d{8}$/.test(normalized)) {
+                    setMessage(
+                      "Enter a valid Kenyan M-Pesa number, for example 0712345678 or 254712345678."
+                    );
+                    return;
+                  }
+
+                  try {
+                    setPremiumLoading(true);
+
+                    const result =
+                      await api.subscribe(normalized);
+
+                    setPremiumPending(true);
+                    setMessage(
+                      result?.message ||
+                        "STK Push sent. Complete the payment on your phone."
+                    );
+
+                    let attempts = 0;
+                    const checkPremium = async () => {
+                      attempts += 1;
+
+                      try {
+                        const latest =
+                          await api.sellerDashboard();
+                        setData(latest);
+
+                        if (latest?.premium) {
+                          setPremiumPending(false);
+                          setPremiumOpen(false);
+                          setMessage(
+                            "Premium activated successfully. Your author account is now Premium."
+                          );
+                          return;
+                        }
+                      } catch {
+                        // Keep polling; the payment callback may still be processing.
+                      }
+
+                      if (attempts < 20) {
+                        window.setTimeout(
+                          checkPremium,
+                          3000
+                        );
+                      }
+                    };
+
+                    window.setTimeout(
+                      checkPremium,
+                      3000
+                    );
+                  } catch (e) {
+                    setPremiumPending(false);
+                    setMessage(
+                      e instanceof Error
+                        ? e.message
+                        : "Could not start Premium payment."
+                    );
+                  } finally {
+                    setPremiumLoading(false);
+                  }
+                }}
+                className={btnClass(
+                  "gold",
+                  "lg",
+                  "mt-5 w-full"
+                )}
+              >
+                {premiumLoading
+                  ? "Sending STK Push…"
+                  : premiumPending
+                    ? "Payment Sent"
+                    : "Pay for Premium"}
+              </button>
+
+              <p className="mt-3 text-center text-[11px] leading-relaxed text-forest/45">
+                Do not close the dashboard after paying. UzaLink will refresh your account when the M-Pesa callback confirms the payment.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* =====================================================
             AUTHOR CTA
@@ -760,7 +941,6 @@ export function Dashboard() {
             >
               Publish a Book
             </button>
-
           </div>
         </div>
 
