@@ -14,9 +14,7 @@ import {
 import { Icon } from "@/components/Icon";
 
 import {
-  PRODUCT_TYPES,
   CATEGORIES,
-  type ProductType,
 } from "@/lib/data";
 
 import { api } from "@/lib/api";
@@ -24,18 +22,6 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
 import { navigate } from "@/lib/router";
-
-const kind = (t: ProductType) =>
-  ({
-    "Digital Product": "DIGITAL",
-    Service: "SERVICE",
-    Booking: "BOOKING",
-    Event: "EVENT",
-    Course: "COURSE",
-    Subscription: "SUBSCRIPTION",
-    "Physical Product": "PHYSICAL",
-    Other: "OTHER",
-  }[t] as string);
 
 export function SellToday() {
   const { user, loading } = useAuth();
@@ -49,19 +35,23 @@ export function SellToday() {
   const [profileLoading, setProfileLoading] =
     useState(false);
 
-  const [type, setType] =
-    useState<ProductType | null>(null);
+  // =========================
+  // BOOK DETAILS
+  // =========================
 
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
+  const [authorName, setAuthorName] =
+    useState("");
   const [description, setDescription] =
     useState("");
   const [category, setCategory] =
     useState("");
   const [price, setPrice] = useState("");
-  const [inventory, setInventory] =
-    useState("");
 
-  const [file, setFile] =
+  const [bookFile, setBookFile] =
+    useState<File | null>(null);
+
+  const [coverFile, setCoverFile] =
     useState<File | null>(null);
 
   const [busy, setBusy] =
@@ -73,15 +63,19 @@ export function SellToday() {
   const [created, setCreated] =
     useState<any>();
 
-  const ref =
+  const bookFileRef =
+    useRef<HTMLInputElement>(null);
+
+  const coverFileRef =
     useRef<HTMLInputElement>(null);
 
   /**
-   * Load the current seller profile.
+   * ======================================================
+   * LOAD SELLER PROFILE
+   * ======================================================
    *
-   * This allows sellers who already have a
-   * profile to continue without re-entering
-   * their details.
+   * Existing seller authentication and payout
+   * functionality remains unchanged.
    */
   useEffect(() => {
     if (
@@ -121,9 +115,6 @@ export function SellToday() {
         /*
          * Do not block the seller page if the
          * profile cannot be loaded.
-         *
-         * The seller can still enter the
-         * information manually.
          */
       } finally {
         if (!cancelled) {
@@ -139,16 +130,26 @@ export function SellToday() {
     };
   }, [loading, user]);
 
+  /**
+   * ======================================================
+   * LOADING
+   * ======================================================
+   */
   if (loading) {
     return (
       <section className="min-h-screen bg-mint/40 pt-32">
         <Container className="text-center">
-          Loading seller access…
+          Loading author access…
         </Container>
       </section>
     );
   }
 
+  /**
+   * ======================================================
+   * NOT LOGGED IN
+   * ======================================================
+   */
   if (!user) {
     return (
       <section className="min-h-screen bg-mint/40 pt-32">
@@ -162,12 +163,12 @@ export function SellToday() {
             </div>
 
             <h1 className="mt-5 text-3xl text-deep">
-              Start selling for free
+              Start selling your books
             </h1>
 
             <p className="mt-3 text-forest/65">
               Get a secure Magic Link and create
-              your seller account. Premium is
+              your author account. Premium is
               optional.
             </p>
 
@@ -181,7 +182,7 @@ export function SellToday() {
                 navigate("/seller-login")
               }
             >
-              Get Free Seller Login
+              Get Free Author Login
             </button>
           </div>
         </Container>
@@ -189,6 +190,11 @@ export function SellToday() {
     );
   }
 
+  /**
+   * ======================================================
+   * SELLER ACCESS REQUIRED
+   * ======================================================
+   */
   if (
     user.role !== "SELLER" &&
     user.role !== "ADMIN"
@@ -198,12 +204,12 @@ export function SellToday() {
         <Container className="max-w-xl">
           <div className="rounded-3xl bg-white p-8 text-center">
             <h1 className="text-3xl text-deep">
-              Seller access required
+              Author access required
             </h1>
 
             <p className="mt-3 text-forest/65">
-              Sign in using Seller Magic Login to
-              create products.
+              Sign in using the Author Magic
+              Login to list your books.
             </p>
 
             <button
@@ -216,7 +222,7 @@ export function SellToday() {
                 navigate("/seller-login")
               }
             >
-              Seller Magic Login
+              Author Magic Login
             </button>
           </div>
         </Container>
@@ -224,6 +230,11 @@ export function SellToday() {
     );
   }
 
+  /**
+   * ======================================================
+   * SAVE AUTHOR PROFILE
+   * ======================================================
+   */
   const saveProfile = async () => {
     setError("");
 
@@ -241,15 +252,17 @@ export function SellToday() {
       )
     ) {
       setError(
-        "Your seller handle must be 3–30 characters using lowercase letters, numbers or underscores."
+        "Your author handle must be 3–30 characters using lowercase letters, numbers or underscores."
       );
+
       return;
     }
 
     if (!cleanPaymentNumber) {
       setError(
-        "Enter the M-Pesa number where your seller payouts will be settled."
+        "Enter the M-Pesa number where your book-sale earnings will be settled."
       );
+
       return;
     }
 
@@ -261,6 +274,7 @@ export function SellToday() {
       setError(
         "Enter a valid Kenyan M-Pesa number, for example 0712345678."
       );
+
       return;
     }
 
@@ -292,26 +306,40 @@ export function SellToday() {
       setError(
         e instanceof Error
           ? e.message
-          : "Could not save seller profile."
+          : "Could not save author profile."
       );
     } finally {
       setBusy(false);
     }
   };
 
+  /**
+   * ======================================================
+   * CREATE BOOK
+   * ======================================================
+   */
   const submit = async () => {
     setError("");
 
     if (
-      !type ||
-      name.trim().length < 3 ||
+      title.trim().length < 3 ||
+      authorName.trim().length < 2 ||
       description.trim().length < 12 ||
       !category ||
       Number(price) < 50
     ) {
       setError(
-        "Complete the product type, name, description, category and a price of at least KSh 50."
+        "Complete the book title, author name, description, category and a price of at least KSh 50."
       );
+
+      return;
+    }
+
+    if (!bookFile) {
+      setError(
+        "Please upload the digital book file."
+      );
+
       return;
     }
 
@@ -320,9 +348,14 @@ export function SellToday() {
     try {
       const fd = new FormData();
 
+      /*
+       * The backend currently expects "name".
+       * We send the book title through that field
+       * so the existing API remains compatible.
+       */
       fd.append(
         "name",
-        name.trim()
+        title.trim()
       );
 
       fd.append(
@@ -335,9 +368,13 @@ export function SellToday() {
         category
       );
 
+      /*
+       * Books are currently represented as
+       * digital products in the existing backend.
+       */
       fd.append(
         "kind",
-        kind(type)
+        "DIGITAL"
       );
 
       fd.append(
@@ -351,13 +388,12 @@ export function SellToday() {
 
       fd.append(
         "instant",
-        String(
-          PRODUCT_TYPES.find(
-            (x) => x.type === type
-          )?.digital || false
-        )
+        "true"
       );
 
+      /*
+       * Secure download controls.
+       */
       fd.append(
         "downloadLimit",
         "5"
@@ -368,17 +404,34 @@ export function SellToday() {
         "72"
       );
 
-      if (inventory) {
-        fd.append(
-          "inventory",
-          inventory
-        );
-      }
+      /*
+       * Author information is included in the
+       * FormData for future backend support.
+       *
+       * If the current backend ignores unknown
+       * fields, this remains backwards compatible.
+       */
+      fd.append(
+        "authorName",
+        authorName.trim()
+      );
 
-      if (file) {
+      /*
+       * Main digital book file.
+       */
+      fd.append(
+        "file",
+        bookFile
+      );
+
+      /*
+       * Book cover is sent separately for future
+       * backend support.
+       */
+      if (coverFile) {
         fd.append(
-          "file",
-          file
+          "cover",
+          coverFile
         );
       }
 
@@ -390,30 +443,36 @@ export function SellToday() {
       setError(
         e instanceof Error
           ? e.message
-          : "Could not create product."
+          : "Could not create book listing."
       );
     } finally {
       setBusy(false);
     }
   };
 
+  /**
+   * ======================================================
+   * BOOK CREATED
+   * ======================================================
+   */
   if (created) {
     return (
       <section className="min-h-screen bg-mint/50 pt-32">
         <Container className="max-w-2xl">
           <div className="rounded-[32px] bg-white p-8 text-center">
+
             <Icon
               name="checkCircle"
               className="mx-auto h-16 w-16 text-brand"
             />
 
             <h1 className="mt-5 text-4xl text-deep">
-              Magic Link created
+              Book listing created
             </h1>
 
             <p className="mt-3 text-forest/65">
-              Your product is now live and ready
-              to sell.
+              Your book is now live and ready
+              for readers to purchase.
             </p>
 
             <div className="mt-6 rounded-2xl bg-mint p-4 font-mono text-sm break-all">
@@ -424,12 +483,12 @@ export function SellToday() {
 
             <div className="mt-6 rounded-2xl border border-forest/10 bg-white p-5 text-left">
               <p className="text-xs font-bold uppercase tracking-wide text-forest/50">
-                Your earnings
+                Your book earnings
               </p>
 
               <p className="mt-2 text-lg font-extrabold text-deep">
                 You receive 95% of every successful
-                sale.
+                book sale.
               </p>
 
               <p className="mt-1 text-sm text-forest/65">
@@ -451,7 +510,7 @@ export function SellToday() {
                   )
                 }
               >
-                View product
+                View Book
               </button>
 
               <button
@@ -464,7 +523,7 @@ export function SellToday() {
                   navigate("/dashboard")
                 }
               >
-                Dashboard
+                Author Dashboard
               </button>
             </div>
           </div>
@@ -473,54 +532,66 @@ export function SellToday() {
     );
   }
 
+  /**
+   * ======================================================
+   * MAIN AUTHOR WORKSPACE
+   * ======================================================
+   */
   return (
     <section className="min-h-screen bg-mint/40 pb-24 pt-28">
       <Container className="max-w-4xl">
+
         <div className="text-center">
           <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand">
-            Free seller workspace
+            Author workspace
           </p>
 
           <h1 className="mt-4 text-4xl text-deep sm:text-5xl">
-            Start selling today.
+            Sell your book online.
           </h1>
 
           <p className="mx-auto mt-4 max-w-xl text-forest/65">
-            No Premium subscription is required.
-            Create your seller profile, list your
-            product and start accepting M-Pesa
-            payments.
+            Create your author profile, publish
+            your book and start accepting M-Pesa
+            payments from readers.
           </p>
         </div>
 
         <div className="mt-8 rounded-[32px] border border-forest/10 bg-white p-6 sm:p-8">
+
+          {/* =================================================
+              STEP 1 — AUTHOR PROFILE
+          ================================================== */}
           {step === 1 && (
             <>
               <div className="mb-8 flex items-center gap-3">
+
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep font-extrabold text-gold">
                   1
                 </span>
 
                 <div>
                   <h2 className="text-2xl text-deep">
-                    Set up your free seller profile
+                    Set up your author profile
                   </h2>
 
                   <p className="text-sm text-forest/60">
-                    Your payout number is used for
-                    seller settlements.
+                    Your M-Pesa number is used for
+                    your book-sale settlements.
                   </p>
                 </div>
               </div>
 
               {profileLoading && (
                 <div className="mb-5 rounded-2xl bg-mint/60 p-4 text-sm font-semibold text-forest">
-                  Loading your existing seller profile…
+                  Loading your existing author
+                  profile…
                 </div>
               )}
 
               <div className="grid gap-5">
-                <Field label="Seller handle">
+
+                <Field label="Author handle">
                   <input
                     value={handle}
                     onChange={(e) =>
@@ -533,13 +604,13 @@ export function SellToday() {
                           )
                       )
                     }
-                    placeholder="myshop"
+                    placeholder="mybooks"
                     className={inputClass}
                   />
 
                   <p className="mt-2 text-xs text-forest/55">
-                    Your seller handle identifies your
-                    seller account on UzaLink.
+                    This identifies your author
+                    account on UzaLink.
                   </p>
                 </Field>
 
@@ -559,8 +630,8 @@ export function SellToday() {
                   />
 
                   <p className="mt-2 text-xs text-forest/55">
-                    This is where your available seller
-                    balance will be paid out.
+                    Your book-sale earnings will
+                    be paid to this number.
                   </p>
                 </Field>
               </div>
@@ -585,27 +656,32 @@ export function SellToday() {
               >
                 {busy
                   ? "Saving securely…"
-                  : "Continue to Product"}
+                  : "Continue to Book"}
               </button>
             </>
           )}
 
+          {/* =================================================
+              STEP 2 — BOOK
+          ================================================== */}
           {step === 2 && (
             <>
               <div className="mb-8 flex items-center justify-between gap-4">
+
                 <div className="flex items-center gap-3">
+
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep font-extrabold text-gold">
                     2
                   </span>
 
                   <div>
                     <h2 className="text-2xl text-deep">
-                      Create your product
+                      Publish your book
                     </h2>
 
                     <p className="text-sm text-forest/60">
-                      Your product will be stored
-                      securely.
+                      Add your book details and
+                      digital file.
                     </p>
                   </div>
                 </div>
@@ -622,49 +698,42 @@ export function SellToday() {
               </div>
 
               <div className="grid gap-5">
-                <div>
-                  <p className="text-sm font-bold text-deep">
-                    Product type
-                  </p>
 
-                  <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                    {PRODUCT_TYPES.map((t) => (
-                      <button
-                        key={t.type}
-                        onClick={() =>
-                          setType(t.type)
-                        }
-                        className={`rounded-2xl border-2 p-4 text-left ${
-                          type === t.type
-                            ? "border-brand bg-mint"
-                            : "border-forest/10"
-                        }`}
-                      >
-                        <span className="text-2xl">
-                          {t.emoji}
-                        </span>
-
-                        <p className="mt-2 text-sm font-extrabold text-deep">
-                          {t.type}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <Field label="Product name">
+                {/* BOOK TITLE */}
+                <Field label="Book title">
                   <input
-                    value={name}
+                    value={title}
                     onChange={(e) =>
-                      setName(
+                      setTitle(
                         e.target.value
                       )
                     }
+                    placeholder="Enter your book title"
                     className={inputClass}
                   />
                 </Field>
 
-                <Field label="Description">
+                {/* AUTHOR */}
+                <Field label="Author name">
+                  <input
+                    value={authorName}
+                    onChange={(e) =>
+                      setAuthorName(
+                        e.target.value
+                      )
+                    }
+                    placeholder="Your full author name"
+                    className={inputClass}
+                  />
+
+                  <p className="mt-2 text-xs text-forest/55">
+                    This is the name readers will
+                    see on your book listing.
+                  </p>
+                </Field>
+
+                {/* DESCRIPTION */}
+                <Field label="Book description">
                   <textarea
                     value={description}
                     onChange={(e) =>
@@ -672,12 +741,14 @@ export function SellToday() {
                         e.target.value
                       )
                     }
-                    rows={5}
+                    rows={6}
+                    placeholder="Tell readers what your book is about..."
                     className={inputClass}
                   />
                 </Field>
 
-                <Field label="Category">
+                {/* CATEGORY */}
+                <Field label="Book category">
                   <select
                     value={category}
                     onChange={(e) =>
@@ -688,7 +759,7 @@ export function SellToday() {
                     className={inputClass}
                   >
                     <option value="">
-                      Select category
+                      Select book category
                     </option>
 
                     {CATEGORIES.map((c) => (
@@ -699,51 +770,46 @@ export function SellToday() {
                   </select>
                 </Field>
 
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <Field label="Price (KSh)">
-                    <input
-                      inputMode="numeric"
-                      value={price}
-                      onChange={(e) =>
-                        setPrice(
-                          e.target.value.replace(
-                            /\D/g,
-                            ""
-                          )
+                {/* PRICE */}
+                <Field label="Book price (KSh)">
+                  <input
+                    inputMode="numeric"
+                    value={price}
+                    onChange={(e) =>
+                      setPrice(
+                        e.target.value.replace(
+                          /\D/g,
+                          ""
                         )
-                      }
-                      className={inputClass}
-                    />
-                  </Field>
+                      )
+                    }
+                    placeholder="e.g. 500"
+                    className={inputClass}
+                  />
 
-                  <Field label="Inventory (optional)">
-                    <input
-                      inputMode="numeric"
-                      value={inventory}
-                      onChange={(e) =>
-                        setInventory(
-                          e.target.value.replace(
-                            /\D/g,
-                            ""
-                          )
-                        )
-                      }
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
+                  <p className="mt-2 text-xs text-forest/55">
+                    Minimum book price is KSh 50.
+                  </p>
+                </Field>
 
+                {/* COVER */}
                 <div>
                   <p className="text-sm font-bold text-deep">
-                    Private product file
+                    Book cover
+                  </p>
+
+                  <p className="mt-1 text-xs text-forest/55">
+                    Upload the cover readers will
+                    associate with your book.
                   </p>
 
                   <input
-                    ref={ref}
+                    ref={coverFileRef}
                     type="file"
+                    accept="image/*"
                     className="hidden"
                     onChange={(e) =>
-                      setFile(
+                      setCoverFile(
                         e.target.files?.[0] ||
                           null
                       )
@@ -751,23 +817,75 @@ export function SellToday() {
                   />
 
                   <button
+                    type="button"
                     onClick={() =>
-                      ref.current?.click()
+                      coverFileRef.current?.click()
                     }
                     className={btnClass(
                       "outline",
                       "md",
-                      "mt-2"
+                      "mt-3"
                     )}
                   >
-                    Upload private file
+                    Upload book cover
                   </button>
 
-                  {file && (
+                  {coverFile && (
                     <p className="mt-2 text-sm text-forest/60">
-                      {file.name} ·{" "}
+                      {coverFile.name} ·{" "}
                       {(
-                        file.size /
+                        coverFile.size /
+                        1024 /
+                        1024
+                      ).toFixed(1)}{" "}
+                      MB
+                    </p>
+                  )}
+                </div>
+
+                {/* BOOK FILE */}
+                <div>
+                  <p className="text-sm font-bold text-deep">
+                    Digital book file
+                  </p>
+
+                  <p className="mt-1 text-xs text-forest/55">
+                    Upload the file readers will
+                    receive after successful payment.
+                  </p>
+
+                  <input
+                    ref={bookFileRef}
+                    type="file"
+                    accept=".pdf,.epub,.mobi,.azw,.azw3"
+                    className="hidden"
+                    onChange={(e) =>
+                      setBookFile(
+                        e.target.files?.[0] ||
+                          null
+                      )
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      bookFileRef.current?.click()
+                    }
+                    className={btnClass(
+                      "outline",
+                      "md",
+                      "mt-3"
+                    )}
+                  >
+                    Upload digital book
+                  </button>
+
+                  {bookFile && (
+                    <p className="mt-2 text-sm text-forest/60">
+                      {bookFile.name} ·{" "}
+                      {(
+                        bookFile.size /
                         1024 /
                         1024
                       ).toFixed(1)}{" "}
@@ -783,15 +901,17 @@ export function SellToday() {
                 </div>
               )}
 
+              {/* COMMISSION */}
               <div className="mt-7 rounded-2xl border border-brand/10 bg-mint/60 p-4">
                 <p className="font-extrabold text-deep">
-                  UzaLink commission
+                  Your book-sale earnings
                 </p>
 
                 <p className="mt-1 text-sm text-forest/65">
-                  UzaLink takes 5% from each successful
-                  sale. You receive the remaining 95%
-                  in your seller balance.
+                  UzaLink takes 5% from each
+                  successful book sale. You receive
+                  the remaining 95% in your author
+                  balance.
                 </p>
               </div>
 
@@ -805,8 +925,8 @@ export function SellToday() {
                 )}
               >
                 {busy
-                  ? "Creating securely…"
-                  : "Create My Magic Link"}
+                  ? "Publishing securely…"
+                  : "Publish My Book"}
               </button>
             </>
           )}
