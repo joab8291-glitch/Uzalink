@@ -1,12 +1,4 @@
-export type ProductType =
-  | "Digital Product"
-  | "Service"
-  | "Booking"
-  | "Event"
-  | "Course"
-  | "Subscription"
-  | "Physical Product"
-  | "Other";
+export type ProductType = "Digital Book";
 
 export const PRODUCT_TYPES: {
   type: ProductType;
@@ -16,133 +8,131 @@ export const PRODUCT_TYPES: {
   digital: boolean;
 }[] = [
   {
-    type: "Digital Product",
-    icon: "file",
-    blurb: "Ebooks, templates, beats, design packs, PDFs.",
-    emoji: "📁",
+    type: "Digital Book",
+    icon: "book",
+    blurb: "PDF, ePub and other digital books readers can buy online.",
+    emoji: "📚",
     digital: true,
-  },
-  {
-    type: "Service",
-    icon: "sparkles",
-    blurb: "Design, repair, consultancy, delivery, tutoring.",
-    emoji: "🛠️",
-    digital: false,
-  },
-  {
-    type: "Booking",
-    icon: "calendar",
-    blurb: "Salon slots, photoshoots, pitch, court hire.",
-    emoji: "📅",
-    digital: false,
-  },
-  {
-    type: "Event",
-    icon: "ticket",
-    blurb: "Tickets, meetups, church & harambee drives.",
-    emoji: "🎟️",
-    digital: true,
-  },
-  {
-    type: "Course",
-    icon: "graduation",
-    blurb: "Video lessons, cohorts, masterclasses.",
-    emoji: "🎓",
-    digital: true,
-  },
-  {
-    type: "Subscription",
-    icon: "refresh",
-    blurb: "Memberships, newsletters, monthly care.",
-    emoji: "🔁",
-    digital: true,
-  },
-  {
-    type: "Physical Product",
-    icon: "package",
-    blurb: "Sneakers, food, crafts, electronics, produce.",
-    emoji: "📦",
-    digital: false,
-  },
-  {
-    type: "Other",
-    icon: "link",
-    blurb: "Donations, harambee, anything creative.",
-    emoji: "✨",
-    digital: false,
   },
 ];
 
 export const CATEGORIES = [
-  "Business & Money",
-  "Design & Creative",
+  "Business & Entrepreneurship",
   "Education",
-  "Beauty & Grooming",
-  "Fashion",
-  "Food & Drink",
-  "Events & Entertainment",
-  "Health & Fitness",
-  "Electronics",
-  "Home & Crafts",
+  "Personal Development",
+  "Faith & Christian Living",
+  "Fiction",
+  "Romance",
+  "Biography & Memoir",
+  "Children & Young Readers",
+  "Health & Wellness",
+  "Finance & Money",
+  "Leadership",
+  "Lifestyle",
+  "Agriculture",
+  "Technology",
   "Other",
 ];
 
 export type Product = {
+  /**
+   * `Product` is kept as the internal/backend-compatible type for now.
+   * The public UI presents this as a Book.
+   */
   code: string;
+
+  /** Book title */
   name: string;
+
+  /** Author display name */
   seller: string;
+
+  /** Author handle */
   handle: string;
+
+  /** Author avatar seed */
   sellerAvatarSeed: string;
+
+  /** Backend-compatible type */
   type: ProductType;
+
+  /** Book category */
   category: string;
+
+  /** Short book description */
   description: string;
+
+  /** Full book description */
   longDescription: string;
+
+  /** Book price in KSh */
   price: number;
+
+  /** Book cover */
   image: string;
+
+  /** Delivery/access information */
   delivery: string;
+
+  /** Book rating */
   rating: number;
+
+  /** Number of purchases */
   sales: number;
+
+  /** Optional promotional badge */
   badge?: string;
+
+  /** Digital book is available immediately after verified payment */
   instant?: boolean;
 };
 
 const px = (id: string, w = 760, h = 760) =>
   `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}&h=${h}&fit=crop`;
 
+/**
+ * Sample books used by the current frontend.
+ *
+ * These are presentation/demo records only.
+ * The live backend remains responsible for real books, authors,
+ * orders and payment verification.
+ */
 export const PRODUCTS: Product[] = [
   {
     code: "abc123",
-    name: "Social Media Growth Kit for Kenyan Brands",
+    name: "The African Entrepreneur's Playbook",
     seller: "Achieng Digital Studio",
     handle: "@achiengdigital",
     sellerAvatarSeed: "AD",
-    type: "Digital Product",
-    category: "Business & Money",
-    description: "90 content templates, caption bank and a 30-day posting calendar.",
+    type: "Digital Book",
+    category: "Business & Entrepreneurship",
+    description:
+      "A practical guide to starting, growing and managing a small business in Africa.",
     longDescription:
-      "Everything a small Kenyan brand needs to post consistently: 90 editable Canva templates, a 200-line caption bank in English & Sheng', a 30-day posting calendar and a hook swipe file. Instant download after payment verification.",
+      "A practical digital book for aspiring and existing entrepreneurs. It covers choosing a viable business idea, understanding customers, pricing, marketing, managing cash flow and building sustainable business systems. Written with African entrepreneurs and small businesses in mind.",
     price: 1200,
     image: px("19537356"),
-    delivery: "Instant download • PDF + Canva links (18 MB)",
+    delivery: "Instant access • Digital book",
     rating: 4.9,
     sales: 312,
-    badge: "Best seller",
+    badge: "Popular",
     instant: true,
   },
   {
     code: "kit7xz",
-    name: "M-Pesa Bookkeeping for Small Business — Course",
+    name: "Mastering Your Money",
     seller: "Wanjiru Trainers",
     handle: "@wanjirutrainers",
     sellerAvatarSeed: "WT",
-    type: "Course",
-    category: "Education",
-    description: "6 video lessons that turn your till and M-Pesa records into clean books.",
+    type: "Digital Book",
+    category: "Finance & Money",
+    description:
+      "A simple guide to budgeting, saving and building better financial habits.",
     longDescription:
-      "Six practical video lessons (Kiswahili + English subtitles) covering daily till reconciliation, M-Pesa statements, simple P&L and how to price for profit. Lifetime access, certificate of completion, private WhatsApp group.",
-    price: 2500,
+      "Learn practical ways to manage personal income, create a realistic budget, control unnecessary spending and build a consistent saving habit. The book uses simple examples and practical exercises that readers can apply to everyday financial decisions.",
+    price: 850,
     image: px("20432872", 900, 620),
-    delivery: "Instant access • 6 video lessons (3h 20m)",
+    delivery: "Instant access • Digital book",
     rating: 4.8,
     sales: 189,
     badge: "Top rated",
@@ -150,205 +140,216 @@ export const PRODUCTS: Product[] = [
   },
   {
     code: "call55",
-    name: "1-on-1 Brand Strategy Call — 45 Minutes",
-    seller: "Brian Otieno Consulting",
-    handle: "@brianstrategy",
+    name: "Building Confidence One Day at a Time",
+    seller: "Brian Otieno",
+    handle: "@brianotieno",
     sellerAvatarSeed: "BO",
-    type: "Service",
-    category: "Business & Money",
-    description: "A focused call to sharpen your offer, pricing and go-to-market.",
+    type: "Digital Book",
+    category: "Personal Development",
+    description:
+      "A practical guide for building confidence, discipline and positive daily habits.",
     longDescription:
-      "We audit your product, pricing and channels, then leave you with a one-page action plan. You will receive a booking confirmation instantly and a calendar link to pick your slot.",
-    price: 1500,
+      "A practical personal-development book focused on confidence, discipline, consistency and personal growth. Each chapter includes simple reflections and actions readers can use to develop stronger habits and a healthier mindset.",
+    price: 650,
     image: px("8312669"),
-    delivery: "Booking confirmed • Google Meet / Phone call",
-    rating: 5,
+    delivery: "Instant access • Digital book",
+    rating: 4.8,
     sales: 96,
-    instant: false,
+    instant: true,
   },
   {
     code: "glam99",
-    name: "Salon Braiding Appointment — Nairobi CBD",
+    name: "Starting Your Beauty Business",
     seller: "Glam House Kenya",
     handle: "@glamhouseke",
     sellerAvatarSeed: "GH",
-    type: "Booking",
+    type: "Digital Book",
     category: "Beauty & Grooming",
-    description: "Knotless, cornrows or twist. Secure your chair with a deposit.",
+    description:
+      "A beginner-friendly guide to starting and growing a profitable beauty business.",
     longDescription:
-      "Reserve your stylist for knotless braids, cornrows or twists. Price shown is the booking deposit; balance is settled at the salon. Free touch-up within 7 days.",
-    price: 2000,
+      "Learn how to turn beauty skills into a sustainable business. The book covers choosing services, setting prices, attracting clients, managing appointments, building a strong brand and using social media to grow your customer base.",
+    price: 1000,
     image: px("13430270"),
-    delivery: "Appointment • Mon–Sat, 8:00am – 7:00pm",
+    delivery: "Instant access • Digital book",
     rating: 4.7,
-    sales: 540,
-    badge: "Fast booking",
-    instant: false,
+    sales: 140,
+    badge: "Popular",
+    instant: true,
   },
   {
     code: "afro22",
-    name: "Afro Futures Night — General Admission",
+    name: "Stories From Nairobi",
     seller: "Sauti Collective",
     handle: "@sauticollective",
     sellerAvatarSeed: "SC",
-    type: "Event",
-    category: "Events & Entertainment",
-    description: "Live band, DJs and street food. Sarakasi Dome, Nairobi.",
+    type: "Digital Book",
+    category: "Fiction",
+    description:
+      "A collection of contemporary stories inspired by life, people and places in Nairobi.",
     longDescription:
-      "One night, four live acts and three DJs. Doors open 6:00pm, show starts 8:00pm. Your digital ticket carries a QR code that is scanned at the gate. Strictly 18+.",
+      "A collection of fictional stories exploring friendship, ambition, family, love and everyday life in Nairobi. The stories move through different neighbourhoods and perspectives while capturing the energy of a changing city.",
     price: 800,
     image: px("13230484", 900, 620),
-    delivery: "Digital ticket with QR • Sat 8:00pm, Sarakasi Dome",
+    delivery: "Instant access • Digital book",
     rating: 4.6,
-    sales: 1284,
-    badge: "Selling fast",
+    sales: 284,
+    badge: "Reader favourite",
     instant: true,
   },
   {
     code: "sub3mth",
-    name: "Hustle Insights Newsletter — 3 Months",
+    name: "The Small Business Growth Guide",
     seller: "Matara Media",
     handle: "@mataramedia",
     sellerAvatarSeed: "MM",
-    type: "Subscription",
-    category: "Business & Money",
-    description: "Weekly money-making intel for Kenyan micro-businesses.",
+    type: "Digital Book",
+    category: "Business & Entrepreneurship",
+    description:
+      "Practical lessons for small-business owners who want to grow sustainably.",
     longDescription:
-      "Every Tuesday: supplier leads, price-watch on fast-moving goods, tender alerts and one growth tactic you can apply the same day. Delivered by email and WhatsApp.",
-    price: 300,
+      "A practical guide covering customer acquisition, pricing, marketing, record keeping, cash-flow management and repeat business. Designed for entrepreneurs who want straightforward strategies they can apply immediately.",
+    price: 700,
     image: px("5704728", 900, 620),
-    delivery: "Email + WhatsApp • Every Tuesday",
+    delivery: "Instant access • Digital book",
     rating: 4.5,
     sales: 421,
     instant: true,
   },
   {
     code: "pod450",
-    name: "Studio Wireless Headphones (Refurb A-Grade)",
+    name: "Understanding Technology for Everyday Life",
     seller: "SoundPlug Nairobi",
     handle: "@soundplug254",
     sellerAvatarSeed: "SP",
-    type: "Physical Product",
-    category: "Electronics",
-    description: "40h battery, noise cancelling, 6-month seller warranty.",
+    type: "Digital Book",
+    category: "Technology",
+    description:
+      "An easy-to-understand guide to modern technology, online safety and digital tools.",
     longDescription:
-      "A-grade refurbished studio headphones, fully tested with 40-hour battery life and active noise cancelling. Includes carry case and USB-C cable. Same-day delivery within Nairobi, countrywide courier in 1–3 days.",
-    price: 4500,
+      "A beginner-friendly introduction to everyday technology. Learn about smartphones, online accounts, digital payments, cloud services, online privacy, cybersecurity basics and practical digital tools for work and business.",
+    price: 900,
     image: px("3394650"),
-    delivery: "Courier • Nairobi same-day, countrywide 1–3 days",
+    delivery: "Instant access • Digital book",
     rating: 4.4,
     sales: 77,
-    instant: false,
+    instant: true,
   },
   {
     code: "bead80",
-    name: "Handmade Maasai Beaded Bracelet",
+    name: "The Artisan's Business Guide",
     seller: "Naserian Crafts",
     handle: "@naseriancrafts",
     sellerAvatarSeed: "NC",
-    type: "Physical Product",
-    category: "Home & Crafts",
-    description: "Hand-beaded in Kajiado. Adjustable, unisex, gift ready.",
+    type: "Digital Book",
+    category: "Business & Entrepreneurship",
+    description:
+      "How creative makers can turn handmade skills into a sustainable business.",
     longDescription:
-      "Each bracelet is hand-beaded by women artisans in Kajiado using glass beads and strong waxed thread. Adjustable to fit most wrists and comes gift-wrapped in a kiondo pouch.",
+      "A guide for artisans and creatives who want to build a business around their skills. Topics include product development, pricing handmade products, branding, photography, social-media marketing, customer service and managing orders.",
     price: 950,
     image: px("1212048"),
-    delivery: "Courier • Padded envelope, countrywide",
+    delivery: "Instant access • Digital book",
     rating: 4.9,
     sales: 268,
-    badge: "Artisan made",
-    instant: false,
+    badge: "Popular",
+    instant: true,
   },
   {
     code: "logo77",
-    name: "Logo Starter Pack — 20 Editable Templates",
+    name: "Branding Your Small Business",
     seller: "Achieng Digital Studio",
     handle: "@achiengdigital",
     sellerAvatarSeed: "AD",
-    type: "Digital Product",
+    type: "Digital Book",
     category: "Design & Creative",
-    description: "Editable logo templates plus a brand colour and font cheat sheet.",
+    description:
+      "A practical guide to creating a memorable brand for your small business.",
     longDescription:
-      "Twenty fully editable logo templates (Canva + Illustrator), 8 badge variations, a brand colour cheat sheet and a font pairing guide. Swap the name, export, done.",
+      "Learn the foundations of small-business branding, including choosing a brand identity, colours, typography, messaging, social-media presentation and consistent customer experiences. Includes practical branding exercises.",
     price: 700,
     image: px("4959935", 900, 620),
-    delivery: "Instant download • Canva + AI files (34 MB)",
+    delivery: "Instant access • Digital book",
     rating: 4.7,
     sales: 233,
     instant: true,
   },
   {
     code: "fit12",
-    name: "Home Fitness Coaching Plan — 4 Weeks",
+    name: "Your Four-Week Wellness Reset",
     seller: "Coach Kamau Fitness",
     handle: "@coachkamau",
     sellerAvatarSeed: "CK",
-    type: "Subscription",
-    category: "Health & Fitness",
-    description: "Daily workouts, weekly check-ins, no gym required.",
+    type: "Digital Book",
+    category: "Health & Wellness",
+    description:
+      "A simple four-week guide to healthier routines, movement and everyday wellbeing.",
     longDescription:
-      "A four-week bodyweight programme delivered daily on WhatsApp with short demo videos, a simple meal guide using local food and a weekly check-in call.",
-    price: 3000,
+      "A practical four-week wellness guide covering movement, rest, hydration, everyday nutrition and habit building. It is designed to help readers create realistic routines that fit around work and family life.",
+    price: 750,
     image: px("5908766", 900, 620),
-    delivery: "WhatsApp programme • Starts every Monday",
+    delivery: "Instant access • Digital book",
     rating: 4.8,
     sales: 141,
-    instant: false,
+    instant: true,
   },
   {
     code: "food12",
-    name: "Sunday Chapati & Ndengu Pack (Serves 4)",
+    name: "25 Kenyan Family Recipes",
     seller: "Mama Njeri Kitchen",
     handle: "@mamanjerike",
     sellerAvatarSeed: "MN",
-    type: "Physical Product",
-    category: "Food & Drink",
-    description: "Fresh, hot and delivered. Order before 10am for Sunday lunch.",
+    type: "Digital Book",
+    category: "Lifestyle",
+    description:
+      "Traditional and modern Kenyan recipes with simple ingredients and practical instructions.",
     longDescription:
-      "Eight soft chapatis with ndengu stew, kachumbari and fresh juice, packed hot. Delivered within Ruiru, Juja and Kiambu town. Orders close at 10:00am on Sunday.",
-    price: 1250,
+      "A collection of 25 family-friendly Kenyan recipes, from pilau and chapati to mahamri and everyday vegetable dishes. Includes ingredient lists, preparation steps, serving ideas and practical shopping tips.",
+    price: 450,
     image: px("12194523"),
-    delivery: "Local delivery • Sun 11:00am – 2:00pm",
+    delivery: "Instant access • PDF digital book",
     rating: 4.9,
     sales: 612,
-    badge: "Weekend only",
-    instant: false,
+    badge: "Under KSh 500",
+    instant: true,
   },
   {
     code: "shoot40",
-    name: "Outdoor Photoshoot — 1 Hour, 15 Edited Photos",
+    name: "The Creator's Guide to Better Photos",
     seller: "Lens by Mumbi",
     handle: "@lensbymumbi",
     sellerAvatarSeed: "LM",
-    type: "Booking",
+    type: "Digital Book",
     category: "Design & Creative",
-    description: "Portraits, brands and graduations around Nairobi.",
+    description:
+      "Learn practical photography techniques for portraits, brands and everyday content.",
     longDescription:
-      "One hour on location with a pro photographer. You get 15 fully edited high-resolution photos in 72 hours plus 3 reels-ready vertical clips. Travel within Nairobi included.",
-    price: 6000,
+      "A practical photography guide covering composition, lighting, phone photography, portraits, product photography and social-media content. Created for beginners, entrepreneurs and content creators who want better images without expensive equipment.",
+    price: 1100,
     image: px("9741840"),
-    delivery: "Appointment • Edited photos in 72 hours",
+    delivery: "Instant access • Digital book",
     rating: 5,
     sales: 88,
-    instant: false,
+    instant: true,
   },
   {
     code: "craft21",
-    name: "Sisal Storage Basket — Large",
+    name: "The Handmade Business Handbook",
     seller: "Naserian Crafts",
     handle: "@naseriancrafts",
     sellerAvatarSeed: "NC",
-    type: "Physical Product",
-    category: "Home & Crafts",
-    description: "Handwoven sisal basket, 40cm tall. Perfect for laundry or toys.",
+    type: "Digital Book",
+    category: "Lifestyle",
+    description:
+      "Build a profitable handmade brand from your creative skills.",
     longDescription:
-      "Handwoven from sisal and recycled twins by a weaving cooperative in Machakos. Sturdy enough for laundry, stylish enough for the living room. Colours vary slightly, which is the beauty of handmade.",
-    price: 1800,
+      "This handbook helps makers turn creative skills into a structured business. It covers product planning, pricing, packaging, photography, marketing, customer relationships and creating repeatable sales processes.",
+    price: 850,
     image: px("4053188"),
-    delivery: "Courier • 1–3 days countrywide",
+    delivery: "Instant access • Digital book",
     rating: 4.6,
     sales: 64,
-    instant: false,
+    instant: true,
   },
   {
     code: "ebook9",
@@ -356,71 +357,146 @@ export const PRODUCTS: Product[] = [
     seller: "Mama Njeri Kitchen",
     handle: "@mamanjerike",
     sellerAvatarSeed: "MN",
-    type: "Digital Product",
-    category: "Food & Drink",
-    description: "From pilau to mahamri, with shopping lists for each recipe.",
+    type: "Digital Book",
+    category: "Lifestyle",
+    description:
+      "A practical collection of Kenyan family recipes with shopping lists and meal ideas.",
     longDescription:
-      "Twenty-five tested family recipes with step photos, local shopping lists and budget swaps. Includes a seven-day family meal plan and a kids' lunchbox guide.",
+      "Twenty-five tested family recipes with practical ingredient lists, preparation instructions and budget-friendly alternatives. Includes a seven-day family meal plan and ideas for children's lunchboxes.",
     price: 450,
     image: px("9557122"),
-    delivery: "Instant download • PDF, 62 pages",
+    delivery: "Instant access • PDF digital book",
     rating: 4.8,
     sales: 905,
-    badge: "Under 500",
+    badge: "Under KSh 500",
     instant: true,
   },
 ];
 
+/**
+ * Author publishing steps.
+ *
+ * Kept as SELLER_STEPS for compatibility with existing components.
+ */
 export const SELLER_STEPS = [
-  { id: 1, label: "Product Type", icon: "grid" },
-  { id: 2, label: "Details", icon: "image" },
+  { id: 1, label: "Book Details", icon: "book" },
+  { id: 2, label: "Book Files", icon: "image" },
   { id: 3, label: "Price", icon: "tag" },
   { id: 4, label: "Payment Number", icon: "lock" },
   { id: 5, label: "Magic Link", icon: "link" },
 ];
 
 export const BUYER_FLOW = [
-  { title: "Open Seller's Magic Link", text: "From WhatsApp, TikTok, SMS or a QR code.", icon: "link" },
-  { title: "View Product", text: "Photos, price, delivery info — no sign up.", icon: "eye" },
-  { title: "Click Buy Now", text: "One big button. No account, no forms.", icon: "cart" },
-  { title: "Pay", text: "M-Pesa STK push or paybill prompt.", icon: "phone" },
-  { title: "Payment Verification", text: "UZALINK confirms the payment server-side.", icon: "shield" },
-  { title: "Receive Product", text: "Download, access, ticket or delivery.", icon: "download" },
-  { title: "Digital Receipt", text: "Proof of purchase sent to you.", icon: "receipt" },
+  {
+    title: "Open the Book Link",
+    text: "Open the author's link from WhatsApp, TikTok, SMS, Instagram or a QR code.",
+    icon: "link",
+  },
+  {
+    title: "Discover the Book",
+    text: "Read the description, check the price and see what the book contains.",
+    icon: "eye",
+  },
+  {
+    title: "Buy the Book",
+    text: "Choose the book and continue to secure checkout.",
+    icon: "cart",
+  },
+  {
+    title: "Pay with M-Pesa",
+    text: "Pay securely using an M-Pesa STK push or supported payment flow.",
+    icon: "phone",
+  },
+  {
+    title: "Payment Verification",
+    text: "UzaLink verifies the payment before releasing book access.",
+    icon: "shield",
+  },
+  {
+    title: "Access Your Book",
+    text: "Once payment is confirmed, your digital book becomes available.",
+    icon: "download",
+  },
+  {
+    title: "Digital Receipt",
+    text: "Keep your purchase details as proof of payment.",
+    icon: "receipt",
+  },
 ];
 
 export const SELLER_FLOW = [
-  { title: "Create Product", text: "Pick what you are selling.", icon: "grid" },
-  { title: "Add Details", text: "Name, description, image, file.", icon: "image" },
-  { title: "Set Price", text: "Your price in KSh.", icon: "tag" },
-  { title: "Set Payment Number", text: "Where settlements land. Locked after setup.", icon: "lock" },
-  { title: "Generate Magic Link", text: "One unique UZALINK link.", icon: "link" },
-  { title: "Share Link", text: "WhatsApp, TikTok, IG, SMS, QR.", icon: "share" },
-  { title: "Receive Verified Sales", text: "Payments verified automatically.", icon: "shield" },
-  { title: "Get Seller Settlement", text: "95% paid out fast.", icon: "wallet" },
+  {
+    title: "Create Your Author Account",
+    text: "Set up your author profile and prepare to publish your book.",
+    icon: "users",
+  },
+  {
+    title: "Add Your Book",
+    text: "Add the title, description, category, cover and digital book file.",
+    icon: "book",
+  },
+  {
+    title: "Set Your Price",
+    text: "Choose how much readers will pay for your book in KSh.",
+    icon: "tag",
+  },
+  {
+    title: "Set Your Payment Number",
+    text: "Choose where your verified author earnings will be settled.",
+    icon: "lock",
+  },
+  {
+    title: "Generate Your Book Link",
+    text: "UzaLink gives your book a unique link that you can share.",
+    icon: "link",
+  },
+  {
+    title: "Share With Readers",
+    text: "Share your book link through WhatsApp, Instagram, TikTok, SMS or QR.",
+    icon: "share",
+  },
+  {
+    title: "Receive Verified Sales",
+    text: "UzaLink verifies reader payments before releasing access.",
+    icon: "shield",
+  },
+  {
+    title: "Receive Your Author Earnings",
+    text: "You keep 95% of each verified book sale.",
+    icon: "wallet",
+  },
 ];
 
-export const COMMISSION = { rate: 0.05, example: 1000 };
+export const COMMISSION = {
+  rate: 0.05,
+  example: 1000,
+};
 
 export const SETTLEMENT_NOTE =
-  "95% seller balance is sent within 6 business working hours of the same day, subject to successful payment verification and applicable payment processing.";
+  "95% of a verified book sale goes to the author, subject to successful payment verification and applicable payment processing.";
 
 export const DASHBOARD_NAV = [
   { key: "overview", label: "Overview", icon: "grid" },
-  { key: "earnings", label: "Earnings", icon: "wallet" },
-  { key: "sales", label: "Sales", icon: "trend" },
-  { key: "products", label: "Products", icon: "package" },
-  { key: "magic", label: "Magic Links", icon: "link" },
-  { key: "customers", label: "Customers", icon: "users" },
-  { key: "orders", label: "Orders", icon: "cart" },
-  { key: "downloads", label: "Downloads", icon: "download" },
-  { key: "analytics", label: "Analytics", icon: "chart" },
+  { key: "earnings", label: "Author Earnings", icon: "wallet" },
+  { key: "sales", label: "Book Sales", icon: "trend" },
+  { key: "products", label: "My Books", icon: "book" },
+  { key: "magic", label: "Book Links", icon: "link" },
+  { key: "customers", label: "Readers", icon: "users" },
+  { key: "orders", label: "Book Orders", icon: "cart" },
+  { key: "downloads", label: "Book Access", icon: "download" },
+  { key: "analytics", label: "Book Analytics", icon: "chart" },
   { key: "settlements", label: "Settlements", icon: "bank" },
   { key: "payment", label: "Payment Settings", icon: "lock" },
 ] as const;
 
 export type DashboardKey = (typeof DASHBOARD_NAV)[number]["key"];
 
+/**
+ * Demo author data.
+ *
+ * Kept for compatibility with existing dashboard components.
+ * Real dashboard data comes from the backend.
+ */
 export const SELLER = {
   name: "Achieng Digital Studio",
   handle: "@achiengdigital",
@@ -440,13 +516,66 @@ export const SELLER = {
   views: 10_540,
 };
 
+/**
+ * Demo book orders.
+ *
+ * Kept as ORDERS for compatibility with existing components.
+ */
 export const ORDERS = [
-  { ref: "UZL-9F41C", product: "Social Media Growth Kit", buyer: "Kevin M.", amount: 1200, status: "Verified", when: "Today, 09:12", type: "Digital" },
-  { ref: "UZL-7B22D", product: "Logo Starter Pack", buyer: "Faith W.", amount: 700, status: "Verified", when: "Today, 08:41", type: "Digital" },
-  { ref: "UZL-5C18A", product: "1-on-1 Brand Strategy Call", buyer: "Otieno J.", amount: 1500, status: "Settled", when: "Yesterday, 18:03", type: "Service" },
-  { ref: "UZL-3A77E", product: "Social Media Growth Kit", buyer: "Njeri S.", amount: 1200, status: "Settled", when: "Yesterday, 15:26", type: "Digital" },
-  { ref: "UZL-2D90B", product: "Logo Starter Pack", buyer: "Ali H.", amount: 700, status: "Pending verification", when: "Yesterday, 13:11", type: "Digital" },
-  { ref: "UZL-1E63F", product: "Social Media Growth Kit", buyer: "Wanjiku P.", amount: 1200, status: "Settled", when: "Mon, 11:47", type: "Digital" },
+  {
+    ref: "UZL-9F41C",
+    product: "The African Entrepreneur's Playbook",
+    buyer: "Kevin M.",
+    amount: 1200,
+    status: "Verified",
+    when: "Today, 09:12",
+    type: "Digital Book",
+  },
+  {
+    ref: "UZL-7B22D",
+    product: "Branding Your Small Business",
+    buyer: "Faith W.",
+    amount: 700,
+    status: "Verified",
+    when: "Today, 08:41",
+    type: "Digital Book",
+  },
+  {
+    ref: "UZL-5C18A",
+    product: "Building Confidence One Day at a Time",
+    buyer: "Otieno J.",
+    amount: 650,
+    status: "Settled",
+    when: "Yesterday, 18:03",
+    type: "Digital Book",
+  },
+  {
+    ref: "UZL-3A77E",
+    product: "The African Entrepreneur's Playbook",
+    buyer: "Njeri S.",
+    amount: 1200,
+    status: "Settled",
+    when: "Yesterday, 15:26",
+    type: "Digital Book",
+  },
+  {
+    ref: "UZL-2D90B",
+    product: "Branding Your Small Business",
+    buyer: "Ali H.",
+    amount: 700,
+    status: "Pending verification",
+    when: "Yesterday, 13:11",
+    type: "Digital Book",
+  },
+  {
+    ref: "UZL-1E63F",
+    product: "The African Entrepreneur's Playbook",
+    buyer: "Wanjiku P.",
+    amount: 1200,
+    status: "Settled",
+    when: "Mon, 11:47",
+    type: "Digital Book",
+  },
 ];
 
 export const SALES_SERIES = [
@@ -460,22 +589,69 @@ export const SALES_SERIES = [
 ];
 
 export const formatKsh = (n: number) =>
-  `KSh ${n.toLocaleString("en-KE", { maximumFractionDigits: 0 })}`;
+  `KSh ${n.toLocaleString("en-KE", {
+    maximumFractionDigits: 0,
+  })}`;
 
-export const commissionOf = (amount: number) => Math.round(amount * COMMISSION.rate);
-export const sellerOf = (amount: number) => amount - commissionOf(amount);
+export const commissionOf = (amount: number) =>
+  Math.round(amount * COMMISSION.rate);
+
+export const sellerOf = (amount: number) =>
+  amount - commissionOf(amount);
 
 export const productByCode = (code: string) =>
-  PRODUCTS.find((p) => p.code.toLowerCase() === code.toLowerCase());
+  PRODUCTS.find(
+    (p) => p.code.toLowerCase() === code.toLowerCase()
+  );
 
-export const magicLink = (code: string) => `uzalink.co.ke/magic/${code}`;
+/**
+ * Compatibility helper.
+ * Publicly this is now referred to as a Book Link.
+ */
+export const magicLink = (code: string) =>
+  `uzalink.co.ke/magic/${code}`;
 
 export const SHARE_CHANNELS = [
-  { key: "whatsapp", label: "WhatsApp", icon: "whatsapp", color: "#25D366" },
-  { key: "facebook", label: "Facebook", icon: "facebook", color: "#1877F2" },
-  { key: "tiktok", label: "TikTok", icon: "tiktok", color: "#111111" },
-  { key: "instagram", label: "Instagram", icon: "instagram", color: "#E1306C" },
-  { key: "sms", label: "SMS", icon: "sms", color: "#0e8c46" },
-  { key: "copy", label: "Copy Link", icon: "copy", color: "#0a4a2c" },
-  { key: "qr", label: "QR Code", icon: "qr", color: "#04281a" },
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    icon: "whatsapp",
+    color: "#25D366",
+  },
+  {
+    key: "facebook",
+    label: "Facebook",
+    icon: "facebook",
+    color: "#1877F2",
+  },
+  {
+    key: "tiktok",
+    label: "TikTok",
+    icon: "tiktok",
+    color: "#111111",
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    icon: "instagram",
+    color: "#E1306C",
+  },
+  {
+    key: "sms",
+    label: "SMS",
+    icon: "sms",
+    color: "#0e8c46",
+  },
+  {
+    key: "copy",
+    label: "Copy Book Link",
+    icon: "copy",
+    color: "#0a4a2c",
+  },
+  {
+    key: "qr",
+    label: "QR Code",
+    icon: "qr",
+    color: "#04281a",
+  },
 ];
