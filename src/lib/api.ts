@@ -153,23 +153,86 @@ export const api = {
       body: JSON.stringify({ amountCents }),
     }),
 
+  /*
+   * ---------------------------------------------------------
+   * ADMIN
+   * ---------------------------------------------------------
+   */
+
   adminDashboard: () =>
     request<any>("/api/admin/dashboard"),
 
   adminOrders: () =>
     request<any>("/api/admin/orders"),
 
-  adminProductStatus: (id: string, status: string) =>
-    request<any>("/api/admin/products/" + encodeURIComponent(id) + "/status", {
+  adminProductStatus: (
+    id: string,
+    status: string
+  ) =>
+    request<any>(
+      "/api/admin/products/" +
+        encodeURIComponent(id) +
+        "/status",
+      {
+        method: "POST",
+        body: JSON.stringify({ status }),
+      }
+    ),
+
+  /*
+   * Create a payout for an author/seller.
+   *
+   * amountCents:
+   * Example:
+   * KSh 500 = 50000
+   */
+  adminCreatePayout: (
+    sellerId: string,
+    amountCents: number
+  ) =>
+    request<any>("/api/admin/payouts", {
       method: "POST",
-      body: JSON.stringify({ status }),
+      body: JSON.stringify({
+        sellerId,
+        amountCents,
+      }),
     }),
 
-  adminMarkPayoutPaid: (id: string, reference?: string) =>
-    request<any>("/api/admin/payouts/" + encodeURIComponent(id) + "/mark-paid", {
-      method: "POST",
-      body: JSON.stringify({ reference }),
-    }),
+  /*
+   * Send an existing payout through M-Pesa B2C.
+   */
+  adminSendPayout: (id: string) =>
+    request<any>(
+      `/api/admin/payouts/${encodeURIComponent(
+        id
+      )}/send-mpesa`,
+      {
+        method: "POST",
+      }
+    ),
+
+  /*
+   * Legacy/manual payout completion endpoint.
+   *
+   * Kept here for compatibility with existing backend
+   * functionality, although the new dashboard workflow
+   * uses adminSendPayout() instead.
+   */
+  adminMarkPayoutPaid: (
+    id: string,
+    reference?: string
+  ) =>
+    request<any>(
+      "/api/admin/payouts/" +
+        encodeURIComponent(id) +
+        "/mark-paid",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          reference,
+        }),
+      }
+    ),
 
   subscribe: (phone: string) =>
     request<any>("/api/subscriptions/start", {
