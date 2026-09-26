@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import {
-  PRODUCTS,
   commissionOf,
   formatKsh,
   productByCode,
@@ -20,8 +19,6 @@ import {
 } from "@/components/ui";
 import { api } from "@/lib/api";
 
-const FALLBACK = PRODUCTS[0];
-
 const VERIFY_STEPS = [
   "M-Pesa payment confirmed",
   "Matching transaction reference",
@@ -37,9 +34,7 @@ function digitsOnly(value: string) {
 export function Checkout({ code }: { code: string }) {
   const route = useRoute();
 
-  const book = useMemo<Product>(() => {
-    return productByCode(code) ?? FALLBACK;
-  }, [code]);
+  const book = productByCode(code);
 
   const [stage, setStage] = useState<
     "form" | "paying" | "verifying" | "success"
@@ -200,6 +195,27 @@ export function Checkout({ code }: { code: string }) {
       cancelled = true;
     };
   }, [mpesaOrder?.orderId, stage]);
+
+  if (!book) {
+    return (
+      <main className="min-h-screen bg-mint/40 pb-16 pt-32">
+        <Container className="max-w-2xl text-center">
+          <h1 className="text-3xl font-extrabold text-deep">
+            Book unavailable
+          </h1>
+          <p className="mt-3 text-forest/70">
+            This book could not be loaded. Please return to the book page and try again.
+          </p>
+          <Link
+            to={`/magic/${code}`}
+            className={btnClass("gold", "lg", "mt-6")}
+          >
+            Back to Book
+          </Link>
+        </Container>
+      </main>
+    );
+  }
 
   async function pay() {
     const nextErrors: string[] = [];
