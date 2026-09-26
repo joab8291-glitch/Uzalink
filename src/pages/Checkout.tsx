@@ -28,7 +28,7 @@ const VERIFY_STEPS = [
   "Matching transaction reference",
   "Verifying amount received",
   "Crediting author balance (95%)",
-  "Unlocking your book",
+  "Releasing book access",
 ];
 
 const digitsOnly = (value: string) =>
@@ -78,7 +78,19 @@ export function Checkout({ code }: { code: string }) {
 
     setErrors(validationErrors);
 
-    if (Object.keys(validationErrors).length || method !== "stk") {
+    if (Object.keys(validationErrors).length) {
+      return;
+    }
+
+    /*
+     * The current backend payment implementation uses STK Push.
+     * Keep the Paybill UI available for future backend support,
+     * but do not attempt to send it through the STK endpoint.
+     */
+    if (method !== "stk") {
+      setMpesaError(
+        "Paybill checkout is not yet connected to the automatic payment verification flow. Please use M-Pesa STK Push.",
+      );
       return;
     }
 
@@ -340,9 +352,8 @@ export function Checkout({ code }: { code: string }) {
             </h1>
 
             <p className="mt-3 text-[14.5px] leading-relaxed text-forest/70">
-              Verifying your payment server-side before your
-              book is released. This protects both you and the
-              author.
+              We are verifying your payment before releasing
+              your book. This protects both you and the author.
             </p>
 
             <div className="mt-7 space-y-2.5 text-left">
@@ -427,13 +438,12 @@ export function Checkout({ code }: { code: string }) {
             </h1>
 
             <p className="mx-auto mt-4 max-w-md text-[15.5px] leading-relaxed text-forest/75">
-              Payment has been verified server-side. Your
-              purchase is confirmed and your digital book has
-              been released.
+              Your payment has been verified and your book
+              purchase has been confirmed.
             </p>
           </div>
 
-          {/* Book unlocked */}
+          {/* Book access */}
           <div className="mt-9 overflow-hidden rounded-[32px] border border-brand/25 bg-white shadow-[0_30px_70px_-45px_rgba(4,40,26,0.5)]">
             <div className="brand-gradient px-6 py-5 text-white">
               <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
@@ -495,9 +505,8 @@ export function Checkout({ code }: { code: string }) {
                   className="mt-0.5 h-4 w-4 shrink-0 text-brand"
                 />
 
-                {book.delivery}. Keep this page for your
-                purchase information. A copy of the receipt
-                was sent
+                {book.delivery}. Keep your receipt details for
+                your records. A copy of the receipt was sent
                 {email
                   ? ` to ${email}`
                   : " to your phone"}
@@ -575,21 +584,17 @@ export function Checkout({ code }: { code: string }) {
                 <span>UZALINK commission (5%)</span>
 
                 <span className="text-deep">
-                  {formatKsh(
-                    commissionOf(book.price),
-                  )}
+                  {formatKsh(commissionOf(book.price))}
                 </span>
               </div>
 
               <div className="mt-2 flex items-center justify-between text-[14px] font-extrabold">
                 <span className="text-forest">
-                  Author settlement
+                  Author earnings
                 </span>
 
                 <span className="text-brand">
-                  {formatKsh(
-                    sellerOf(book.price),
-                  )}
+                  {formatKsh(sellerOf(book.price))}
                 </span>
               </div>
 
@@ -676,9 +681,8 @@ export function Checkout({ code }: { code: string }) {
               </h1>
 
               <p className="mt-3 text-[14.5px] leading-relaxed text-forest/70">
-                Complete your M-Pesa payment and get secure
-                access to your digital book after the payment
-                is verified.
+                Pay securely with M-Pesa. Your digital book
+                becomes available after the payment is verified.
               </p>
 
               {/* Payment method */}
@@ -700,12 +704,13 @@ export function Checkout({ code }: { code: string }) {
                       key: "paybill" as const,
                       icon: "bank",
                       title: "M-Pesa Paybill",
-                      text: "Use the displayed Paybill instructions and order reference.",
-                      badge: null,
+                      text: "Manual Paybill instructions are available for reference.",
+                      badge: "Coming to automatic checkout",
                     },
                   ].map((payment) => (
                     <button
                       key={payment.key}
+                      type="button"
                       onClick={() =>
                         setMethod(payment.key)
                       }
@@ -731,13 +736,20 @@ export function Checkout({ code }: { code: string }) {
                       </span>
 
                       <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-2">
+                        <span className="flex flex-wrap items-center gap-2">
                           <span className="text-[15px] font-extrabold text-deep">
                             {payment.title}
                           </span>
 
                           {payment.badge && (
-                            <span className="rounded-full gold-gradient px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide text-deep">
+                            <span
+                              className={cn(
+                                "rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide",
+                                payment.key === "stk"
+                                  ? "gold-gradient text-deep"
+                                  : "bg-forest/10 text-forest",
+                              )}
+                            >
                               {payment.badge}
                             </span>
                           )}
@@ -773,7 +785,7 @@ export function Checkout({ code }: { code: string }) {
               {method === "paybill" && (
                 <div className="mt-4 animate-fade-up rounded-2xl border border-forest/10 bg-mint/60 p-4">
                   <p className="text-[12px] font-extrabold uppercase tracking-[0.14em] text-forest/55">
-                    Paybill instructions
+                    Manual Paybill reference
                   </p>
 
                   <ol className="mt-3 space-y-2">
@@ -782,7 +794,7 @@ export function Checkout({ code }: { code: string }) {
                       "Business number: 400200.",
                       `Account number: ${ref}.`,
                       `Amount: ${formatKsh(book.price)}.`,
-                      "Enter your PIN and wait for the confirmation SMS.",
+                      "Enter your PIN and keep the confirmation SMS.",
                     ].map((text, index) => (
                       <li
                         key={text}
@@ -792,12 +804,17 @@ export function Checkout({ code }: { code: string }) {
                           {index + 1}
                         </span>
 
-                        <span className="font-mono">
-                          {text}
-                        </span>
+                        <span>{text}</span>
                       </li>
                     ))}
                   </ol>
+
+                  <p className="mt-3 text-[12px] font-semibold leading-relaxed text-forest/65">
+                    Automatic Paybill confirmation is not yet
+                    connected to this checkout. Use STK Push
+                    for automatic verification and book
+                    release.
+                  </p>
                 </div>
               )}
 
@@ -808,8 +825,8 @@ export function Checkout({ code }: { code: string }) {
                 </p>
 
                 <p className="mt-1 text-[12.5px] text-forest/60">
-                  These details are used to identify your
-                  purchase and send your receipt.
+                  These details identify your purchase and help
+                  us provide your receipt.
                 </p>
               </div>
 
@@ -832,7 +849,7 @@ export function Checkout({ code }: { code: string }) {
                 <Field
                   label="M-Pesa number to pay from"
                   required
-                  hint="The STK push or payment confirmation is sent here."
+                  hint="The STK Push and payment confirmation are sent here."
                   error={errors.phone}
                 >
                   <div className="relative">
@@ -875,7 +892,14 @@ export function Checkout({ code }: { code: string }) {
                 </Field>
               </div>
 
+              {mpesaError && method === "paybill" && (
+                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-[13px] font-semibold leading-relaxed text-red-700">
+                  {mpesaError}
+                </div>
+              )}
+
               <button
+                type="button"
                 onClick={pay}
                 className={btnClass(
                   "gold",
@@ -906,7 +930,7 @@ export function Checkout({ code }: { code: string }) {
                     name="lock"
                     className="h-4 w-4 text-brand"
                   />
-                  Verified server-side
+                  Server-side verification
                 </span>
 
                 <span className="inline-flex items-center gap-1.5">
@@ -992,7 +1016,7 @@ export function Checkout({ code }: { code: string }) {
                   </div>
                 </div>
 
-                {/* Buyer protection */}
+                {/* Reader protection */}
                 <div className="bg-mint/60 p-6">
                   <p className="flex items-center gap-2 text-[13.5px] font-extrabold text-deep">
                     <Icon
@@ -1004,8 +1028,8 @@ export function Checkout({ code }: { code: string }) {
 
                   <ul className="mt-3 space-y-2">
                     {[
-                      "Payment is verified before your book is released",
-                      "Order reference and digital receipt for every purchase",
+                      "Payment is verified before book access is released",
+                      "A purchase reference and digital receipt are provided",
                       "The author receives 95% after verification",
                     ].map((text) => (
                       <li
