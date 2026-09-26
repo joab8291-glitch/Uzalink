@@ -258,11 +258,21 @@ export function Checkout({ code }: { code: string }) {
         email: email.trim() || undefined,
       });
 
-      const orderId = created?.order?.id;
+      const createdOrder = created?.order;
+      const orderId = createdOrder?.id;
+      const returnedProductCode =
+        createdOrder?.items?.[0]?.product?.code ??
+        createdOrder?.items?.[0]?.productCode;
 
       if (!orderId) {
         throw new Error(
           "We could not create your book order. Please try again."
+        );
+      }
+
+      if (returnedProductCode && returnedProductCode !== book.code) {
+        throw new Error(
+          "The selected book changed before payment could start. Please return to the book page and try again."
         );
       }
 
