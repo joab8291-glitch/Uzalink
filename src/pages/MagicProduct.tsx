@@ -1,25 +1,15 @@
 import { useEffect, useState } from "react";
-import {
-  PRODUCTS,
-  productByCode,
-  formatKsh,
-  type Product,
-} from "@/lib/data";
+import { formatKsh, type Product } from "@/lib/data";
 import { api } from "@/lib/api";
-import { findAnyProduct } from "@/lib/store";
 import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
 import { Badge, Container, Reveal, btnClass } from "@/components/ui";
 import { ProductCard } from "@/components/ProductCard";
 import { ShareChannels } from "@/components/ShareSheet";
 
-const FALLBACK = PRODUCTS[0];
-
 export function MagicProduct({ code }: { code: string }) {
-  const [book, setBook] = useState<Product | null>(() =>
-    productByCode(code) ?? findAnyProduct(code) ?? null
-  );
-  const [loading, setLoading] = useState(!book);
+  const [book, setBook] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,14 +43,14 @@ export function MagicProduct({ code }: { code: string }) {
           description: product.description,
           longDescription: product.description,
           price: Number(product.priceCents || 0) / 100,
-          image: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=900&q=80",
+          image: (import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com") + "/api/products/" + encodeURIComponent(product.code) + "/cover",
           delivery: product.deliveryText || "Digital book",
-          rating: 0,
-          sales: 0,
+          rating: Number(product.rating || 0),
+          sales: Number(product.salesCount || 0),
           instant: Boolean(product.instant),
         });
       } catch {
-        // Keep an already-known/local book if the API is temporarily unavailable.
+        // Do not display demo content when the real book cannot be loaded.
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -84,9 +74,7 @@ export function MagicProduct({ code }: { code: string }) {
     );
   }
 
-  const related = PRODUCTS.filter(
-    (item) => item.code !== book.code,
-  ).slice(0, 3);
+  const [related, setRelated] = useState<Product[]>([]);
 
   return (
     <>
