@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { navigate } from "@/lib/router";
 
-export default function SellerLogin() {
+function SellerLogin() {
   const { user, refresh } = useAuth();
 
   const [email, setEmail] = useState("");
