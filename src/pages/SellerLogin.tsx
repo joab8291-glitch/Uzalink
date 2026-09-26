@@ -17,22 +17,22 @@ export function SellerLogin() {
   const [error, setError] = useState("");
 
   /**
-   * Prevent the magic-link verification effect from
-   * running more than once during the same page load.
+   * Prevent the magic-link verification from running
+   * multiple times during the same page load.
    */
   const verificationStarted = useRef(false);
 
   /**
-   * -------------------------------------------------------
-   * MAGIC LINK VERIFICATION
-   * -------------------------------------------------------
+   * ======================================================
+   * MAGIC LINK DETECTION + VERIFICATION
+   * ======================================================
    *
    * Expected URL:
    *
-   * https://uzalink.vercel.app/#/seller-login?token=XXXX
+   * https://uzalink.vercel.app/#/seller-login?token=xxxxx
    *
-   * Because the application uses hash routing, the token
-   * lives inside window.location.hash.
+   * Because UzaLink uses hash routing, the token is
+   * contained inside window.location.hash.
    */
   useEffect(() => {
     if (verificationStarted.current) {
@@ -42,17 +42,17 @@ export function SellerLogin() {
     const hash = window.location.hash || "";
 
     console.log(
+      "[SellerLogin] Current URL:",
+      window.location.href
+    );
+
+    console.log(
       "[SellerLogin] Current hash:",
       hash
     );
 
     /**
-     * Only process seller-login magic links.
-     *
-     * Examples:
-     *
-     * #/seller-login?token=abc
-     * #/seller-login/?token=abc
+     * Make sure this is the seller-login route.
      */
     if (
       !hash.startsWith("#/seller-login")
@@ -61,96 +61,135 @@ export function SellerLogin() {
     }
 
     /**
-     * Extract the query portion after ?.
+     * Find the ? in:
+     *
+     * #/seller-login?token=xxxxx
      */
     const questionMarkIndex =
       hash.indexOf("?");
 
     if (questionMarkIndex === -1) {
+      console.log(
+        "[SellerLogin] No query string found."
+      );
+
       return;
     }
 
+    /**
+     * Extract everything after ?.
+     */
     const queryString =
       hash.substring(
         questionMarkIndex + 1
       );
 
-    const query =
+    console.log(
+      "[SellerLogin] Query string detected."
+    );
+
+    const params =
       new URLSearchParams(
         queryString
       );
 
-    const token = query.get("token");
+    const token =
+      params.get("token");
 
+    /**
+     * No token means this is a normal seller
+     * login page visit.
+     */
     if (!token) {
       console.log(
         "[SellerLogin] No magic-link token found."
       );
+
       return;
     }
 
-    verificationStarted.current = true;
-    setVerifying(true);
-    setError("");
-
+    /**
+     * We have a token.
+     */
     console.log(
       "[SellerLogin] Magic-link token detected."
     );
 
     /**
-     * Remove the token from the browser URL immediately.
-     *
-     * This prevents accidental reuse if the page is
-     * refreshed and also keeps the token out of the
-     * visible URL after it has been extracted.
+     * Never print the complete token.
      */
-    const cleanHash =
-      "#/seller-login";
+    console.log(
+      "[SellerLogin] Token length:",
+      token.length
+    );
 
+    verificationStarted.current = true;
+
+    setVerifying(true);
+    setError("");
+
+    /**
+     * Remove the token from the visible URL.
+     *
+     * The token has already been extracted into memory.
+     *
+     * This does NOT change the current route.
+     */
     window.history.replaceState(
       null,
       "",
-      `${window.location.pathname}${cleanHash}`
+      `${window.location.pathname}#/seller-login`
     );
 
     void (async () => {
       try {
         /**
-         * Verify token with backend.
-         *
-         * Backend:
-         * POST /api/auth/verify-magic-link
+         * ==================================================
+         * STEP A
+         * Send token to backend
+         * ==================================================
          */
+        console.log(
+          "[SellerLogin] Verifying magic link..."
+        );
+
         const result =
           await api.verifyMagic(token);
 
         console.log(
-          "[SellerLogin] Magic link verified:",
+          "[SellerLogin] Magic-link verification response:",
           result
         );
 
         /**
-         * Refresh authenticated user.
-         *
-         * This calls /api/auth/me and confirms that
-         * the session cookie created by the backend
-         * is available.
+         * ==================================================
+         * STEP B
+         * Refresh authenticated user
+         * ==================================================
          */
-        const refreshedUser =
+        console.log(
+          "[SellerLogin] Refreshing authentication..."
+        );
+
+        const refreshed =
           await refresh();
 
         console.log(
-          "[SellerLogin] Auth refresh result:",
-          refreshedUser
+          "[SellerLogin] Authentication refresh result:",
+          refreshed
         );
 
         /**
-         * If refresh successfully gives us a user,
-         * go to the appropriate destination.
+         * If the user was successfully authenticated,
+         * navigate to the correct dashboard.
          */
-        if (refreshedUser) {
+        if (refreshed) {
+          console.log(
+            "[SellerLogin] Authentication successful."
+          );
+
           if (
-            refreshedUser.role ===
+            refreshed.role ===
             "ADMIN"
           ) {
             navigate("/admin");
@@ -162,26 +201,29 @@ export function SellerLogin() {
         }
 
         /**
-         * Some auth implementations update React state
-         * asynchronously. Give the browser a moment to
-         * persist the session cookie and retry once.
+         * If refresh didn't immediately return the user,
+         * give the browser a short moment and retry.
          */
-        await new Promise(
-          (resolve) =>
-            setTimeout(resolve, 300)
+        console.log(
+          "[SellerLogin] First refresh returned no user. Retrying..."
         );
 
-        const retryUser =
+        await new Promise(
+          (resolve) =>
+            setTimeout(resolve, 500)
+        );
+
+        const retry =
           await refresh();
 
         console.log(
-          "[SellerLogin] Auth refresh retry:",
-          retryUser
+          "[SellerLogin] Authentication retry result:",
+          retry
         );
 
-        if (retryUser) {
+        if (retry) {
           if (
-            retryUser.role ===
+            retry.role ===
             "ADMIN"
           ) {
             navigate("/admin");
@@ -193,7 +235,7 @@ export function SellerLogin() {
         }
 
         throw new Error(
-          "Login was verified, but the session could not be established. Please try again."
+          "The login link was verified, but your session could not be established."
         );
       } catch (e) {
         console.error(
@@ -208,8 +250,8 @@ export function SellerLogin() {
         );
 
         /**
-         * Allow another verification attempt if the
-         * user receives a new link.
+         * Allow another link to be processed if the
+         * user receives a new one.
          */
         verificationStarted.current =
           false;
@@ -220,11 +262,14 @@ export function SellerLogin() {
   }, [refresh]);
 
   /**
-   * -------------------------------------------------------
-   * ALREADY AUTHENTICATED
-   * -------------------------------------------------------
+   * ======================================================
+   * ALREADY LOGGED IN
+   * ======================================================
    */
-  if (user && !verifying) {
+  if (
+    user &&
+    !verifying
+  ) {
     return (
       <section className="min-h-screen bg-mint/50 pt-32">
         <Container className="max-w-lg">
@@ -268,9 +313,9 @@ export function SellerLogin() {
   }
 
   /**
-   * -------------------------------------------------------
-   * MAGIC LINK VERIFICATION SCREEN
-   * -------------------------------------------------------
+   * ======================================================
+   * VERIFYING MAGIC LINK
+   * ======================================================
    */
   if (verifying) {
     return (
@@ -289,8 +334,8 @@ export function SellerLogin() {
             </h1>
 
             <p className="mt-3 text-sm text-forest/65">
-              Your secure seller login link is being
-              verified. Please wait.
+              Your secure seller login link is
+              being verified.
             </p>
 
             <div className="mt-6 flex justify-center">
@@ -303,9 +348,9 @@ export function SellerLogin() {
   }
 
   /**
-   * -------------------------------------------------------
-   * SEND MAGIC LINK
-   * -------------------------------------------------------
+   * ======================================================
+   * REQUEST MAGIC LINK
+   * ======================================================
    */
   const send = async () => {
     setError("");
@@ -314,6 +359,7 @@ export function SellerLogin() {
       setError(
         "Enter your email or phone number."
       );
+
       return;
     }
 
@@ -335,15 +381,18 @@ export function SellerLogin() {
 
       setSent(true);
 
+      /**
+       * Development-only magic link.
+       */
       if (result.devLink) {
         console.info(
-          "Development magic link:",
+          "[SellerLogin] Development magic link:",
           result.devLink
         );
       }
     } catch (e) {
       console.error(
-        "[SellerLogin] Failed to request magic link:",
+        "[SellerLogin] Could not send magic link:",
         e
       );
 
@@ -358,9 +407,9 @@ export function SellerLogin() {
   };
 
   /**
-   * -------------------------------------------------------
+   * ======================================================
    * SELLER LOGIN FORM
-   * -------------------------------------------------------
+   * ======================================================
    */
   return (
     <section className="brand-gradient min-h-screen pb-20 pt-28 text-white">
