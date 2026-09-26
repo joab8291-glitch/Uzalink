@@ -129,6 +129,15 @@ export const api = {
       `/api/orders/${encodeURIComponent(id)}`
     ),
 
+  downloadAccess: (id: string, phone: string) =>
+    request<{ url: string; expiresInSeconds?: number }>(
+      `/api/orders/${encodeURIComponent(id)}/download-access`,
+      {
+        method: "POST",
+        body: JSON.stringify({ phone }),
+      }
+    ),
+
   sellerDashboard: () =>
     request<any>("/api/seller/dashboard"),
 
