@@ -1,3 +1,4 @@
+```tsx
 import { useEffect, useState } from "react";
 import { cn } from "@/utils/cn";
 import { Icon } from "./Icon";
@@ -5,6 +6,7 @@ import { btnClass, Divider } from "./ui";
 
 export function useCopy() {
   const [copied, setCopied] = useState(false);
+
   const copy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -15,40 +17,56 @@ export function useCopy() {
       ta.style.opacity = "0";
       document.body.appendChild(ta);
       ta.select();
+
       try {
         document.execCommand("copy");
       } catch {
         /* noop */
       }
+
       document.body.removeChild(ta);
     }
+
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
+
   return { copied, copy };
 }
 
 export function CopyField({
   value,
   className,
-  label = "Your unique UZALINK URL",
+  label = "Your unique UZALINK book link",
 }: {
   value: string;
   className?: string;
   label?: string;
 }) {
   const { copied, copy } = useCopy();
+
   return (
     <div className={cn("", className)}>
-      <p className="mb-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest/55">{label}</p>
+      <p className="mb-2 text-[12px] font-bold uppercase tracking-[0.14em] text-forest/55">
+        {label}
+      </p>
+
       <div className="flex flex-col gap-2 sm:flex-row">
         <div className="flex min-w-0 flex-1 items-center gap-2.5 rounded-2xl border-2 border-forest/12 bg-mint/70 px-4 py-3">
           <Icon name="link" className="h-4.5 w-4.5 shrink-0 text-brand" />
-          <span className="truncate font-mono text-[14px] font-semibold text-deep">{value}</span>
+
+          <span className="truncate font-mono text-[14px] font-semibold text-deep">
+            {value}
+          </span>
         </div>
+
         <button
           onClick={() => copy(`https://${value}`)}
-          className={btnClass(copied ? "deep" : "gold", "md", "h-[52px]! shrink-0")}
+          className={btnClass(
+            copied ? "deep" : "gold",
+            "md",
+            "h-[52px]! shrink-0",
+          )}
         >
           <Icon name={copied ? "check" : "copy"} className="h-4.5 w-4.5" />
           {copied ? "Copied!" : "Copy Link"}
@@ -58,22 +76,32 @@ export function CopyField({
   );
 }
 
-export function QrCode({ value, size = 190 }: { value: string; size?: number }) {
-  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${size * 2}x${size * 2}&margin=6&color=04281a&bgcolor=ffffff&data=${encodeURIComponent(
+export function QrCode({
+  value,
+  size = 190,
+}: {
+  value: string;
+  size?: number;
+}) {
+  const src = `https://api.qrserver.com/v1/create-qr-code/?size=${
+    size * 2
+  }x${size * 2}&margin=6&color=04281a&bgcolor=ffffff&data=${encodeURIComponent(
     `https://${value}`,
   )}`;
+
   return (
     <div className="inline-flex flex-col items-center gap-3 rounded-3xl border-2 border-forest/10 bg-white p-4 shadow-[0_18px_40px_-28px_rgba(4,40,26,0.5)]">
       <img
         src={src}
-        alt="Magic Link QR code"
+        alt="UZALINK book link QR code"
         width={size}
         height={size}
         className="rounded-xl"
         style={{ width: size, height: size }}
       />
+
       <p className="text-[12px] font-bold uppercase tracking-wide text-forest/60">
-        Scan to open product
+        Scan to open book
       </p>
     </div>
   );
@@ -94,8 +122,10 @@ const CHANNELS = [
     label: "Facebook",
     icon: "facebook",
     bg: "bg-[#1877F2]",
-    href: (_t: string, url: string) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    href: (_text: string, url: string) =>
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        url,
+      )}`,
     copy: false,
   },
   {
@@ -119,7 +149,8 @@ const CHANNELS = [
     label: "SMS",
     icon: "sms",
     bg: "bg-brand",
-    href: (text: string, url: string) => `sms:?&body=${encodeURIComponent(`${text} ${url}`)}`,
+    href: (text: string, url: string) =>
+      `sms:?&body=${encodeURIComponent(`${text} ${url}`)}`,
     copy: false,
   },
 ];
@@ -137,14 +168,19 @@ export function ShareChannels({
   const url = `https://${link}`;
 
   return (
-    <div className={cn("grid gap-2.5", compact ? "grid-cols-4" : "grid-cols-3 sm:grid-cols-4")}>
-      {CHANNELS.map((c) => (
+    <div
+      className={cn(
+        "grid gap-2.5",
+        compact ? "grid-cols-4" : "grid-cols-3 sm:grid-cols-4",
+      )}
+    >
+      {CHANNELS.map((channel) => (
         <a
-          key={c.key}
-          href={c.href(message, url)}
+          key={channel.key}
+          href={channel.href(message, url)}
           target="_blank"
           rel="noreferrer"
-          onClick={() => c.copy && copy(url)}
+          onClick={() => channel.copy && copy(url)}
           className={cn(
             "flex flex-col items-center gap-2 rounded-2xl border border-forest/10 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-lg",
           )}
@@ -152,13 +188,19 @@ export function ShareChannels({
           <span
             className={cn(
               "flex items-center justify-center rounded-2xl text-white",
-              c.bg,
+              channel.bg,
               compact ? "h-10 w-10" : "h-11 w-11",
             )}
           >
-            <Icon name={c.icon} className={compact ? "h-5 w-5" : "h-5.5 w-5.5"} />
+            <Icon
+              name={channel.icon}
+              className={compact ? "h-5 w-5" : "h-5.5 w-5.5"}
+            />
           </span>
-          <span className="text-[11.5px] font-bold text-deep">{c.label}</span>
+
+          <span className="text-[11.5px] font-bold text-deep">
+            {channel.label}
+          </span>
         </a>
       ))}
 
@@ -172,16 +214,26 @@ export function ShareChannels({
             compact ? "h-10 w-10" : "h-11 w-11",
           )}
         >
-          <Icon name={copied ? "check" : "copy"} className={compact ? "h-5 w-5" : "h-5.5 w-5.5"} />
+          <Icon
+            name={copied ? "check" : "copy"}
+            className={compact ? "h-5 w-5" : "h-5.5 w-5.5"}
+          />
         </span>
-        <span className="text-[11.5px] font-bold text-deep">{copied ? "Copied" : "Copy Link"}</span>
+
+        <span className="text-[11.5px] font-bold text-deep">
+          {copied ? "Copied" : "Copy Link"}
+        </span>
       </button>
 
       {"share" in navigator && (
         <button
           onClick={() =>
             navigator
-              .share({ title: "UZALINK", text: message, url })
+              .share({
+                title: "UZALINK",
+                text: message,
+                url,
+              })
               .catch(() => undefined)
           }
           className="flex flex-col items-center gap-2 rounded-2xl border border-forest/10 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/30 hover:shadow-lg"
@@ -192,9 +244,15 @@ export function ShareChannels({
               compact ? "h-10 w-10" : "h-11 w-11",
             )}
           >
-            <Icon name="share" className={compact ? "h-5 w-5" : "h-5.5 w-5.5"} />
+            <Icon
+              name="share"
+              className={compact ? "h-5 w-5" : "h-5.5 w-5.5"}
+            />
           </span>
-          <span className="text-[11.5px] font-bold text-deep">More</span>
+
+          <span className="text-[11.5px] font-bold text-deep">
+            More
+          </span>
         </button>
       )}
     </div>
@@ -216,9 +274,16 @@ export function ShareSheet({
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
@@ -229,16 +294,26 @@ export function ShareSheet({
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center">
-      <div className="absolute inset-0 bg-deep/60 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-deep/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
       <div className="relative z-10 max-h-[92vh] w-full overflow-y-auto rounded-t-[28px] bg-white p-5 shadow-2xl animate-sheet sm:max-w-lg sm:rounded-[28px] sm:p-7">
         <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-forest/15 sm:hidden" />
+
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-[22px] leading-tight text-deep">Share your Magic Link</h3>
+            <h3 className="text-[22px] leading-tight text-deep">
+              Share your Book Link
+            </h3>
+
             <p className="mt-1.5 text-[14px] text-forest/70">
-              Post it anywhere. Buyers open, pay, receive — no account needed.
+              Share your book anywhere. Readers open the link, pay with
+              M-Pesa, and access the book — no account needed.
             </p>
           </div>
+
           <button
             onClick={onClose}
             aria-label="Close"
@@ -256,27 +331,39 @@ export function ShareSheet({
           <p className="mb-3 text-[12px] font-bold uppercase tracking-[0.14em] text-forest/55">
             Share via
           </p>
-          <ShareChannels link={link} message={message} />
+
+          <ShareChannels
+            link={link}
+            message={message}
+          />
         </div>
 
         <Divider className="my-6" />
 
         <button
-          onClick={() => setShowQr((v) => !v)}
+          onClick={() => setShowQr((value) => !value)}
           className="flex w-full items-center justify-between rounded-2xl border-2 border-forest/10 bg-mint/50 px-4 py-3.5 text-left transition-colors hover:bg-mint"
         >
           <span className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-deep text-white">
               <Icon name="qr" className="h-5 w-5" />
             </span>
+
             <span>
-              <span className="block text-[15px] font-extrabold text-deep">QR Code</span>
+              <span className="block text-[15px] font-extrabold text-deep">
+                QR Code
+              </span>
+
               <span className="block text-[12.5px] text-forest/65">
-                Perfect for posters, stickers & duuka displays
+                Perfect for posters, stickers & book displays
               </span>
             </span>
           </span>
-          <Icon name={showQr ? "chevronUp" : "chevronDown"} className="h-5 w-5 text-forest/50" />
+
+          <Icon
+            name={showQr ? "chevronUp" : "chevronDown"}
+            className="h-5 w-5 text-forest/50"
+          />
         </button>
 
         {showQr && (
@@ -285,11 +372,15 @@ export function ShareSheet({
           </div>
         )}
 
-        <button onClick={onClose} className={btnClass("gold", "lg", "mt-6 w-full")}>
-          Share & Start Selling
+        <button
+          onClick={onClose}
+          className={btnClass("gold", "lg", "mt-6 w-full")}
+        >
+          Share Book Link
           <Icon name="arrowRight" className="h-5 w-5" />
         </button>
       </div>
     </div>
   );
 }
+```
