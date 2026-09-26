@@ -1,4 +1,3 @@
-```tsx
 import { useEffect, useRef, useState } from "react";
 import { Container, btnClass, inputClass } from "@/components/ui";
 import { Logo, Icon } from "@/components/Icon";
@@ -16,8 +15,7 @@ function SellerLogin() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState("");
 
-  const verificationStarted =
-    useRef(false);
+  const verificationStarted = useRef(false);
 
   /**
    * ======================================================
@@ -36,8 +34,7 @@ function SellerLogin() {
       return;
     }
 
-    const hash =
-      window.location.hash || "";
+    const hash = window.location.hash || "";
 
     console.log(
       "[SellerLogin] Current URL:",
@@ -49,16 +46,11 @@ function SellerLogin() {
       hash
     );
 
-    if (
-      !hash.startsWith(
-        "#/seller-login"
-      )
-    ) {
+    if (!hash.startsWith("#/seller-login")) {
       return;
     }
 
-    const questionMarkIndex =
-      hash.indexOf("?");
+    const questionMarkIndex = hash.indexOf("?");
 
     if (questionMarkIndex === -1) {
       console.log(
@@ -68,18 +60,13 @@ function SellerLogin() {
       return;
     }
 
-    const queryString =
-      hash.substring(
-        questionMarkIndex + 1
-      );
+    const queryString = hash.substring(
+      questionMarkIndex + 1
+    );
 
-    const params =
-      new URLSearchParams(
-        queryString
-      );
+    const params = new URLSearchParams(queryString);
 
-    const token =
-      params.get("token");
+    const token = params.get("token");
 
     if (!token) {
       console.log(
@@ -98,8 +85,7 @@ function SellerLogin() {
       token.length
     );
 
-    verificationStarted.current =
-      true;
+    verificationStarted.current = true;
 
     setVerifying(true);
     setError("");
@@ -110,8 +96,7 @@ function SellerLogin() {
     window.history.replaceState(
       null,
       "",
-      window.location.pathname +
-        "#/seller-login"
+      window.location.pathname + "#/seller-login"
     );
 
     void (async () => {
@@ -120,8 +105,7 @@ function SellerLogin() {
           "[SellerLogin] Verifying magic link..."
         );
 
-        const result =
-          await api.verifyMagic(token);
+        const result = await api.verifyMagic(token);
 
         console.log(
           "[SellerLogin] Magic-link verification response:",
@@ -132,8 +116,7 @@ function SellerLogin() {
           "[SellerLogin] Refreshing authentication..."
         );
 
-        const refreshed =
-          await refresh();
+        const refreshed = await refresh();
 
         console.log(
           "[SellerLogin] Authentication refresh result:",
@@ -145,10 +128,7 @@ function SellerLogin() {
             "[SellerLogin] Authentication successful."
           );
 
-          if (
-            refreshed.role ===
-            "ADMIN"
-          ) {
+          if (refreshed.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/dashboard");
@@ -161,16 +141,11 @@ function SellerLogin() {
           "[SellerLogin] First refresh returned no user. Retrying..."
         );
 
-        await new Promise(
-          (resolve) =>
-            setTimeout(
-              resolve,
-              500
-            )
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500)
         );
 
-        const retry =
-          await refresh();
+        const retry = await refresh();
 
         console.log(
           "[SellerLogin] Authentication retry result:",
@@ -178,10 +153,7 @@ function SellerLogin() {
         );
 
         if (retry) {
-          if (
-            retry.role ===
-            "ADMIN"
-          ) {
+          if (retry.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/dashboard");
@@ -205,8 +177,7 @@ function SellerLogin() {
             : "Login link is invalid or expired."
         );
 
-        verificationStarted.current =
-          false;
+        verificationStarted.current = false;
       } finally {
         setVerifying(false);
       }
@@ -218,10 +189,7 @@ function SellerLogin() {
    * ALREADY LOGGED IN
    * ======================================================
    */
-  if (
-    user &&
-    !verifying
-  ) {
+  if (user && !verifying) {
     return (
       <section className="min-h-screen bg-mint/50 pt-32">
         <Container className="max-w-lg">
@@ -250,8 +218,7 @@ function SellerLogin() {
               )}
               onClick={() =>
                 navigate(
-                  user.role ===
-                    "ADMIN"
+                  user.role === "ADMIN"
                     ? "/admin"
                     : "/dashboard"
                 )
@@ -308,10 +275,7 @@ function SellerLogin() {
   const send = async () => {
     setError("");
 
-    if (
-      !email.trim() &&
-      !phone.trim()
-    ) {
+    if (!email.trim() && !phone.trim()) {
       setError(
         "Enter your email or phone number."
       );
@@ -322,18 +286,11 @@ function SellerLogin() {
     setBusy(true);
 
     try {
-      const result =
-        await api.requestMagic({
-          email:
-            email.trim() ||
-            undefined,
-
-          phone:
-            phone.trim() ||
-            undefined,
-
-          intent: "seller",
-        });
+      const result = await api.requestMagic({
+        email: email.trim() || undefined,
+        phone: phone.trim() || undefined,
+        intent: "seller",
+      });
 
       setSent(true);
 
@@ -443,16 +400,11 @@ function SellerLogin() {
                 <input
                   value={email}
                   onChange={(e) =>
-                    setEmail(
-                      e.target.value
-                    )
+                    setEmail(e.target.value)
                   }
                   type="email"
                   placeholder="you@example.com"
-                  className={
-                    inputClass +
-                    " mt-2"
-                  }
+                  className={inputClass + " mt-2"}
                   disabled={busy}
                 />
 
@@ -469,23 +421,14 @@ function SellerLogin() {
                   onChange={(e) =>
                     setPhone(
                       e.target.value
-                        .replace(
-                          /\D/g,
-                          ""
-                        )
-                        .slice(
-                          0,
-                          10
-                        )
+                        .replace(/\D/g, "")
+                        .slice(0, 10)
                     )
                   }
                   type="tel"
                   inputMode="numeric"
                   placeholder="0712345678"
-                  className={
-                    inputClass +
-                    " mt-2"
-                  }
+                  className={inputClass + " mt-2"}
                   disabled={busy}
                 />
 
@@ -565,4 +508,16 @@ function SellerLogin() {
     </section>
   );
 }
-```
+
+/**
+ * IMPORTANT:
+ * Export both ways so App.tsx can use either:
+ *
+ * import SellerLogin from "@/pages/SellerLogin";
+ *
+ * OR:
+ *
+ * import { SellerLogin } from "@/pages/SellerLogin";
+ */
+export { SellerLogin };
+export default SellerLogin;
