@@ -1,4 +1,3 @@
-```tsx
 import { Header, MobileCtaBar } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Icon } from "@/components/Icon";
@@ -107,7 +106,7 @@ function renderRoute(route: string) {
   }
 }
 
-function App() {
+export function App() {
   const route = useRoute();
 
   const bare =
@@ -129,6 +128,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
-```
