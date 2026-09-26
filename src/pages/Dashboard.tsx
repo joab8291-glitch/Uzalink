@@ -13,7 +13,7 @@ import {
   Logo,
 } from "@/components/Icon";
 
-import { api } from "@/lib/api";
+import { api, API_BASE } from "@/lib/api";
 
 import {
   useAuth,
@@ -88,6 +88,24 @@ export function Dashboard() {
     }
   }, [loading, user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const refreshDashboard = () => {
+      if (document.visibilityState === "visible") {
+        void load();
+      }
+    };
+
+    window.addEventListener("focus", refreshDashboard);
+    document.addEventListener("visibilitychange", refreshDashboard);
+
+    return () => {
+      window.removeEventListener("focus", refreshDashboard);
+      document.removeEventListener("visibilitychange", refreshDashboard);
+    };
+  }, [user]);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen pt-32 text-center">
@@ -102,8 +120,10 @@ export function Dashboard() {
   const orders =
     data?.orders || [];
 
+  // The seller dashboard API stores the real products inside seller.products.
+  // Keep the old top-level fallback so this remains compatible with older API responses.
   const products =
-    data?.products || [];
+    seller?.products || data?.products || [];
 
   const premium =
     Boolean(data?.premium);
@@ -127,7 +147,7 @@ export function Dashboard() {
 
         {/* =====================================================
             AUTHOR HEADER
-        ====================================================== */}
+        ====================================================== */
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-forest/10 bg-white p-5">
 
           <div className="flex items-center gap-3">
@@ -314,7 +334,7 @@ export function Dashboard() {
 
         {/* =====================================================
             YOUR BOOKS
-        ====================================================== */}
+        ====================================================== */
         <div className="mt-6 rounded-3xl border border-forest/10 bg-white p-6">
 
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -334,104 +354,141 @@ export function Dashboard() {
               </p>
             </div>
 
-            <button
-              onClick={() =>
-                navigate("/sell")
-              }
-              className={btnClass(
-                "gold",
-                "md"
-              )}
-            >
-              Publish another book
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => void load()}
+                className={btnClass("outline", "md")}
+              >
+                Refresh books
+              </button>
+
+              <button
+                onClick={() =>
+                  navigate("/sell")
+                }
+                className={btnClass(
+                  "gold",
+                  "md"
+                )}
+              >
+                Publish another book
+              </button>
+            </div>
           </div>
 
           {products.length > 0 ? (
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
               {products.map(
-                (product: any) => (
-                  <div
-                    key={
-                      product.id ||
-                      product.code
-                    }
-                    className="group rounded-2xl border border-forest/10 bg-mint/30 p-5 transition hover:-translate-y-0.5 hover:border-brand/20"
-                  >
+                (product: any) => {
+                  const coverUrl = product.code
+                    ? `${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`
+                    : "";
 
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-deep text-gold">
-                      <Icon
-                        name="book"
-                        className="h-7 w-7"
-                      />
-                    </div>
+                  return (
+                    <div
+                      key={
+                        product.id ||
+                        product.code
+                      }
+                      className="group overflow-hidden rounded-2xl border border-forest/10 bg-mint/30 transition hover:-translate-y-0.5 hover:border-brand/20"
+                    >
 
-                    <h3 className="mt-4 line-clamp-2 text-lg font-extrabold text-deep">
-                      {product.name ||
-                        "Untitled book"}
-                    </h3>
+                      <div className="relative aspect-[4/3] overflow-hidden bg-deep">
+                        <div className="absolute inset-0 flex items-center justify-center text-gold">
+                          <Icon
+                            name="book"
+                            className="h-10 w-10"
+                          />
+                        </div>
 
-                    {product.category && (
-                      <p className="mt-1 text-xs font-bold uppercase tracking-wide text-brand">
-                        {product.category}
-                      </p>
-                    )}
-
-                    {product.description && (
-                      <p className="mt-2 line-clamp-3 text-sm text-forest/60">
-                        {product.description}
-                      </p>
-                    )}
-
-                    {product.priceCents !==
-                      undefined && (
-                      <p className="mt-4 text-lg font-extrabold text-deep">
-                        KSh{" "}
-                        {(
-                          product.priceCents /
-                          100
-                        ).toLocaleString()}
-                      </p>
-                    )}
-
-                    <div className="mt-4 flex gap-2">
-
-                      {product.code && (
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/magic/${product.code}`
-                            )
-                          }
-                          className={btnClass(
-                            "deep",
-                            "sm",
-                            "flex-1"
-                          )}
-                        >
-                          View book
-                        </button>
-                      )}
-
-                      <button
-                        onClick={() =>
-                          navigate("/sell")
-                        }
-                        className={btnClass(
-                          "outline",
-                          "sm",
-                          product.code
-                            ? ""
-                            : "w-full"
+                        {coverUrl && (
+                          <img
+                            src={coverUrl}
+                            alt={`Cover of ${product.name || "book"}`}
+                            loading="lazy"
+                            className="relative z-10 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
                         )}
-                      >
-                        New
-                      </button>
 
+                        <div className="absolute inset-x-0 bottom-0 z-20 h-20 bg-gradient-to-t from-deep/70 to-transparent" />
+
+                        <span className="absolute left-3 top-3 z-20 rounded-full bg-white/95 px-2.5 py-1.5 text-[10px] font-extrabold uppercase tracking-wide text-forest shadow-sm">
+                          Digital Book
+                        </span>
+                      </div>
+
+                      <div className="p-5">
+                        <h3 className="line-clamp-2 text-lg font-extrabold text-deep">
+                          {product.name ||
+                            "Untitled book"}
+                        </h3>
+
+                        {product.category && (
+                          <p className="mt-1 text-xs font-bold uppercase tracking-wide text-brand">
+                            {product.category}
+                          </p>
+                        )}
+
+                        {product.description && (
+                          <p className="mt-2 line-clamp-3 text-sm text-forest/60">
+                            {product.description}
+                          </p>
+                        )}
+
+                        {product.priceCents !==
+                          undefined && (
+                          <p className="mt-4 text-lg font-extrabold text-deep">
+                            KSh{" "}
+                            {(
+                              product.priceCents /
+                              100
+                            ).toLocaleString()}
+                          </p>
+                        )}
+
+                        <div className="mt-4 flex gap-2">
+
+                          {product.code && (
+                            <button
+                              onClick={() =>
+                                navigate(
+                                  `/magic/${product.code}`
+                                )
+                              }
+                              className={btnClass(
+                                "deep",
+                                "sm",
+                                "flex-1"
+                              )}
+                            >
+                              View book
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() =>
+                              navigate("/sell")
+                            }
+                            className={btnClass(
+                              "outline",
+                              "sm",
+                              product.code
+                                ? ""
+                                : "w-full"
+                            )}
+                          >
+                            New
+                          </button>
+
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )
+                  );
+                }
               )}
 
             </div>
@@ -473,12 +530,12 @@ export function Dashboard() {
 
         {/* =====================================================
             SALES + PAYOUT
-        ====================================================== */}
+        ====================================================== */
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_.6fr]">
 
           {/* ===================================================
               BOOK SALES
-          ==================================================== */}
+          ==================================================== */
           <div className="rounded-3xl border border-forest/10 bg-white p-6">
 
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -743,7 +800,7 @@ export function Dashboard() {
 
         {/* =====================================================
             PREMIUM SUBSCRIPTION MODAL
-        ====================================================== */}
+        ====================================================== */
         {premiumOpen && !premium && (
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div
@@ -909,7 +966,7 @@ export function Dashboard() {
 
         {/* =====================================================
             AUTHOR CTA
-        ====================================================== */}
+        ====================================================== */
         <div className="mt-6 overflow-hidden rounded-3xl bg-deep p-7 text-white sm:p-9">
 
           <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
