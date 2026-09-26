@@ -4,13 +4,14 @@ import {
   Check,
   ShieldCheck,
   Zap,
-  Store,
+  BookOpen,
   Wallet,
   LockKeyhole,
   Smartphone,
   Download,
   BadgeCheck,
   Sparkles,
+  PenLine,
 } from "lucide-react";
 
 export function Home() {
@@ -21,9 +22,9 @@ export function Home() {
       ========================== */}
       <section className="relative overflow-hidden">
         {/* Background effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
-          <div className="absolute top-20 right-0 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-indigo-600/20 blur-3xl" />
+          <div className="absolute right-0 top-20 h-96 w-96 rounded-full bg-cyan-500/10 blur-3xl" />
           <div className="absolute bottom-0 left-1/2 h-72 w-72 rounded-full bg-purple-600/10 blur-3xl" />
         </div>
 
@@ -33,20 +34,20 @@ export function Home() {
             <div>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-400/20 bg-indigo-500/10 px-4 py-2 text-sm font-medium text-indigo-300">
                 <Sparkles className="h-4 w-4" />
-                Kenya's simple digital marketplace
+                Built for African authors
               </div>
 
               <h1 className="max-w-3xl text-5xl font-black tracking-tight sm:text-6xl lg:text-7xl">
-                Sell digital products.
+                Sell your books.
                 <span className="block bg-gradient-to-r from-indigo-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                  Get paid simply.
+                  Reach more readers.
                 </span>
               </h1>
 
               <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-300 sm:text-xl">
-                UzaLink gives Kenyan creators, sellers and businesses a simple
-                way to sell digital products online, accept M-Pesa payments,
-                and deliver products securely.
+                UzaLink gives authors a simple way to sell their digital books
+                online, accept M-Pesa payments and securely deliver their
+                books to readers.
               </p>
 
               <div className="mt-9 flex flex-col gap-4 sm:flex-row">
@@ -54,7 +55,7 @@ export function Home() {
                   to="/sell"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:bg-indigo-500"
                 >
-                  Start Selling
+                  Start Selling Your Book
                   <ArrowRight className="h-5 w-5" />
                 </Link>
 
@@ -62,14 +63,15 @@ export function Home() {
                   to="/explore"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 font-bold text-white transition hover:bg-white/10"
                 >
-                  Explore Products
+                  Explore Books
+                  <BookOpen className="h-5 w-5" />
                 </Link>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-400">
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-400" />
-                  Free seller account
+                  Free author account
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -79,20 +81,25 @@ export function Home() {
 
                 <div className="flex items-center gap-2">
                   <Check className="h-4 w-4 text-emerald-400" />
-                  5% platform fee
+                  Keep 95%
                 </div>
               </div>
             </div>
 
-            {/* Hero seller card */}
+            {/* Author earnings card */}
             <div className="relative">
               <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-r from-indigo-500/20 to-cyan-500/20 blur-2xl" />
 
               <div className="relative rounded-3xl border border-white/10 bg-white/[0.06] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
                 <div className="mb-7 flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-400">Seller earnings</p>
-                    <p className="mt-1 text-4xl font-black">95%</p>
+                    <p className="text-sm text-slate-400">
+                      Author earnings
+                    </p>
+
+                    <p className="mt-1 text-4xl font-black">
+                      95%
+                    </p>
                   </div>
 
                   <div className="rounded-2xl bg-emerald-500/10 p-4">
@@ -103,14 +110,25 @@ export function Home() {
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold">Your sale</p>
-                        <p className="text-sm text-slate-400">
-                          Example: KES 1,000 product
-                        </p>
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-indigo-500/10 p-2">
+                          <BookOpen className="h-5 w-5 text-indigo-400" />
+                        </div>
+
+                        <div>
+                          <p className="font-semibold">
+                            Your book sale
+                          </p>
+
+                          <p className="text-sm text-slate-400">
+                            Example: KES 1,000 book
+                          </p>
+                        </div>
                       </div>
 
-                      <p className="font-bold">KES 1,000</p>
+                      <p className="font-bold">
+                        KES 1,000
+                      </p>
                     </div>
                   </div>
 
@@ -120,10 +138,15 @@ export function Home() {
                         <p className="font-semibold text-slate-300">
                           UzaLink fee
                         </p>
-                        <p className="text-sm text-slate-500">5%</p>
+
+                        <p className="text-sm text-slate-500">
+                          5%
+                        </p>
                       </div>
 
-                      <p className="font-bold text-slate-300">KES 50</p>
+                      <p className="font-bold text-slate-300">
+                        KES 50
+                      </p>
                     </div>
                   </div>
 
@@ -133,6 +156,7 @@ export function Home() {
                         <p className="font-semibold text-emerald-300">
                           You receive
                         </p>
+
                         <p className="text-sm text-emerald-400/70">
                           95% of the sale
                         </p>
@@ -147,7 +171,7 @@ export function Home() {
 
                 <div className="mt-6 flex items-center gap-3 rounded-xl bg-indigo-500/10 p-4 text-sm text-indigo-200">
                   <ShieldCheck className="h-5 w-5 shrink-0 text-indigo-400" />
-                  Secure payments and protected digital delivery.
+                  Secure M-Pesa payments and protected book delivery.
                 </div>
               </div>
             </div>
@@ -156,23 +180,23 @@ export function Home() {
       </section>
 
       {/* =========================
-          SELLER MODEL
+          AUTHOR MODEL
       ========================== */}
       <section className="border-y border-white/5 bg-slate-900/50">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <span className="text-sm font-bold uppercase tracking-widest text-indigo-400">
-              Simple seller model
+              Simple author model
             </span>
 
             <h2 className="mt-3 text-3xl font-black sm:text-4xl">
-              Start selling without paying for Premium
+              Turn your book into a digital business
             </h2>
 
             <p className="mt-5 text-slate-400">
-              Create your free seller account with a passwordless Magic Link.
-              You can create products, receive sales and manage your earnings.
-              Premium is optional for additional features.
+              Create your free author account, upload your book, set your
+              price and share your unique book link with readers. No Premium
+              subscription is required.
             </p>
           </div>
 
@@ -180,14 +204,16 @@ export function Home() {
             {/* Step 1 */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-7">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400">
-                <Smartphone className="h-6 w-6" />
+                <PenLine className="h-6 w-6" />
               </div>
 
               <div className="mb-2 text-sm font-bold text-indigo-400">
                 STEP 01
               </div>
 
-              <h3 className="text-xl font-bold">Create your seller account</h3>
+              <h3 className="text-xl font-bold">
+                Create your author account
+              </h3>
 
               <p className="mt-3 leading-7 text-slate-400">
                 Enter your email and receive a secure Magic Link. No password
@@ -198,18 +224,20 @@ export function Home() {
             {/* Step 2 */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-7">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
-                <Store className="h-6 w-6" />
+                <BookOpen className="h-6 w-6" />
               </div>
 
               <div className="mb-2 text-sm font-bold text-cyan-400">
                 STEP 02
               </div>
 
-              <h3 className="text-xl font-bold">Create your products</h3>
+              <h3 className="text-xl font-bold">
+                Upload and sell your book
+              </h3>
 
               <p className="mt-3 leading-7 text-slate-400">
-                Add your digital products, set your prices and securely upload
-                private files for customers.
+                Add your book title, cover, description and digital book file,
+                then set the price you want readers to pay.
               </p>
             </div>
 
@@ -223,11 +251,13 @@ export function Home() {
                 STEP 03
               </div>
 
-              <h3 className="text-xl font-bold">Earn 95%</h3>
+              <h3 className="text-xl font-bold">
+                Earn from every sale
+              </h3>
 
               <p className="mt-3 leading-7 text-slate-400">
-                When a customer pays, UzaLink keeps 5% and the remaining 95%
-                is credited to your seller balance.
+                When a reader pays, UzaLink keeps 5% and the remaining 95% is
+                credited to your author balance.
               </p>
             </div>
           </div>
@@ -242,16 +272,16 @@ export function Home() {
           <div className="grid gap-14 lg:grid-cols-2 lg:items-center">
             <div>
               <span className="text-sm font-bold uppercase tracking-widest text-cyan-400">
-                Built for digital sellers
+                Built for authors
               </span>
 
               <h2 className="mt-3 text-3xl font-black sm:text-4xl">
-                Everything you need to sell online
+                Everything you need to sell your books online
               </h2>
 
               <p className="mt-5 max-w-xl leading-8 text-slate-400">
-                UzaLink handles the important parts of a digital sale so you
-                can focus on creating and selling your products.
+                UzaLink handles the important parts of a digital book sale so
+                you can focus on writing, publishing and reaching your readers.
               </p>
 
               <div className="mt-9 space-y-5">
@@ -261,10 +291,13 @@ export function Home() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">Fast M-Pesa payments</h3>
+                    <h3 className="font-bold">
+                      Fast M-Pesa payments
+                    </h3>
+
                     <p className="mt-1 text-sm leading-6 text-slate-400">
-                      Customers can pay using M-Pesa and your order is
-                      processed through the UzaLink backend.
+                      Readers can pay for your book using M-Pesa and their
+                      order is processed through the UzaLink backend.
                     </p>
                   </div>
                 </div>
@@ -275,10 +308,13 @@ export function Home() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">Secure digital delivery</h3>
+                    <h3 className="font-bold">
+                      Secure book delivery
+                    </h3>
+
                     <p className="mt-1 text-sm leading-6 text-slate-400">
-                      Private files can be delivered using protected,
-                      temporary download access.
+                      Your digital book files can be delivered using protected,
+                      temporary download access after payment.
                     </p>
                   </div>
                 </div>
@@ -289,10 +325,13 @@ export function Home() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">Seller earnings dashboard</h3>
+                    <h3 className="font-bold">
+                      Author earnings dashboard
+                    </h3>
+
                     <p className="mt-1 text-sm leading-6 text-slate-400">
-                      Track sales, available balance, pending payouts and
-                      your seller activity from one dashboard.
+                      Track book sales, available balance, pending payouts
+                      and your author activity from one dashboard.
                     </p>
                   </div>
                 </div>
@@ -303,10 +342,13 @@ export function Home() {
                   </div>
 
                   <div>
-                    <h3 className="font-bold">Controlled downloads</h3>
+                    <h3 className="font-bold">
+                      Controlled book downloads
+                    </h3>
+
                     <p className="mt-1 text-sm leading-6 text-slate-400">
-                      Digital products can use download limits and expiry
-                      controls to help protect seller files.
+                      Download limits and expiry controls can help authors
+                      protect their digital book files.
                     </p>
                   </div>
                 </div>
@@ -318,9 +360,12 @@ export function Home() {
               <div className="rounded-2xl border border-white/10 bg-slate-950/80 p-6">
                 <div className="flex items-center justify-between border-b border-white/10 pb-5">
                   <div>
-                    <p className="text-sm text-slate-500">Seller dashboard</p>
+                    <p className="text-sm text-slate-500">
+                      Author dashboard
+                    </p>
+
                     <p className="mt-1 text-2xl font-black">
-                      Your earnings
+                      Your book earnings
                     </p>
                   </div>
 
@@ -332,27 +377,39 @@ export function Home() {
                     Available balance
                   </p>
 
-                  <p className="mt-2 text-4xl font-black">KES 12,350</p>
+                  <p className="mt-2 text-4xl font-black">
+                    KES 12,350
+                  </p>
 
                   <div className="mt-6 h-3 overflow-hidden rounded-full bg-slate-800">
                     <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400" />
                   </div>
 
                   <div className="mt-3 flex justify-between text-xs text-slate-500">
-                    <span>95% seller earnings</span>
+                    <span>95% author earnings</span>
                     <span>5% platform fee</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-white/[0.04] p-4">
-                    <p className="text-xs text-slate-500">Orders</p>
-                    <p className="mt-1 text-xl font-bold">48</p>
+                    <p className="text-xs text-slate-500">
+                      Book sales
+                    </p>
+
+                    <p className="mt-1 text-xl font-bold">
+                      48
+                    </p>
                   </div>
 
                   <div className="rounded-xl bg-white/[0.04] p-4">
-                    <p className="text-xs text-slate-500">Products</p>
-                    <p className="mt-1 text-xl font-bold">12</p>
+                    <p className="text-xs text-slate-500">
+                      Books
+                    </p>
+
+                    <p className="mt-1 text-xl font-bold">
+                      12
+                    </p>
                   </div>
                 </div>
               </div>
@@ -362,7 +419,7 @@ export function Home() {
       </section>
 
       {/* =========================
-          BUYERS
+          READERS
       ========================== */}
       <section className="border-y border-white/5 bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
@@ -373,19 +430,20 @@ export function Home() {
               </div>
 
               <h2 className="text-2xl font-black">
-                Buying is simple too
+                Readers can buy without an account
               </h2>
 
               <p className="mt-4 leading-7 text-slate-400">
-                Customers don't need to create an account just to purchase a
-                product. They can open a product link, provide their details,
-                pay through M-Pesa and receive their digital product.
+                Readers don't need to create a UzaLink account just to buy a
+                book. They can open an author's book link, provide their
+                details, pay through M-Pesa and receive secure access to their
+                purchase.
               </p>
 
               <ul className="mt-6 space-y-3 text-sm text-slate-300">
                 <li className="flex gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-400" />
-                  No buyer account required
+                  No reader account required
                 </li>
 
                 <li className="flex gap-3">
@@ -395,7 +453,7 @@ export function Home() {
 
                 <li className="flex gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-400" />
-                  Secure product access
+                  Secure book access
                 </li>
               </ul>
 
@@ -403,7 +461,7 @@ export function Home() {
                 to="/explore"
                 className="mt-8 inline-flex items-center gap-2 font-bold text-cyan-400 hover:text-cyan-300"
               >
-                Browse products
+                Explore books
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -414,11 +472,11 @@ export function Home() {
               </div>
 
               <h2 className="text-2xl font-black">
-                Sellers stay in control
+                Authors stay in control
               </h2>
 
               <p className="mt-4 leading-7 text-slate-400">
-                Your seller account gives you access to your products, sales,
+                Your author account gives you access to your books, sales,
                 earnings and payout information without requiring a paid
                 Premium plan.
               </p>
@@ -431,12 +489,12 @@ export function Home() {
 
                 <li className="flex gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-400" />
-                  Create and manage products
+                  Create and manage your books
                 </li>
 
                 <li className="flex gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-400" />
-                  Track earnings and payouts
+                  Track book sales and earnings
                 </li>
               </ul>
 
@@ -444,7 +502,7 @@ export function Home() {
                 to="/seller-login"
                 className="mt-8 inline-flex items-center gap-2 font-bold text-indigo-400 hover:text-indigo-300"
               >
-                Seller login
+                Author login
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -462,30 +520,40 @@ export function Home() {
           </span>
 
           <h2 className="mt-3 text-3xl font-black sm:text-4xl">
-            You keep 95% of every successful sale
+            Keep 95% of every successful book sale
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-400">
-            UzaLink applies a 5% platform commission to successful sales. The
-            remaining 95% is credited to the seller's balance.
+            UzaLink applies a 5% platform commission to successful book
+            sales. The remaining 95% is credited to the author's balance.
           </p>
 
           <div className="mx-auto mt-10 grid max-w-2xl gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-7">
-              <p className="text-sm text-slate-500">UzaLink</p>
-              <p className="mt-2 text-4xl font-black">5%</p>
+              <p className="text-sm text-slate-500">
+                UzaLink
+              </p>
+
+              <p className="mt-2 text-4xl font-black">
+                5%
+              </p>
+
               <p className="mt-2 text-sm text-slate-400">
                 Platform commission
               </p>
             </div>
 
             <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-7">
-              <p className="text-sm text-emerald-400/80">Seller</p>
+              <p className="text-sm text-emerald-400/80">
+                Author
+              </p>
+
               <p className="mt-2 text-4xl font-black text-emerald-300">
                 95%
               </p>
+
               <p className="mt-2 text-sm text-emerald-400/70">
-                Seller earnings
+                Author earnings
               </p>
             </div>
           </div>
@@ -506,9 +574,9 @@ export function Home() {
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-400">
-            You don't need Premium to start selling. Your free seller account
-            provides the core tools needed to create products, receive orders,
-            track your earnings and manage your seller activity.
+            You don't need Premium to start selling your books. Your free
+            author account provides the core tools needed to upload books,
+            receive orders, track earnings and manage your author activity.
           </p>
 
           <div className="mx-auto mt-8 max-w-2xl rounded-2xl border border-purple-400/20 bg-purple-500/5 p-6 text-left">
@@ -516,11 +584,13 @@ export function Home() {
               <Sparkles className="mt-1 h-5 w-5 shrink-0 text-purple-400" />
 
               <div>
-                <h3 className="font-bold">Optional Premium features</h3>
+                <h3 className="font-bold">
+                  Optional Premium features
+                </h3>
+
                 <p className="mt-2 text-sm leading-6 text-slate-400">
-                  Premium can be used for additional seller-management
-                  features as the platform grows. It is not required for basic
-                  selling.
+                  Premium can provide additional author-management features
+                  as the platform grows. It is not required to sell books.
                 </p>
               </div>
             </div>
@@ -536,12 +606,12 @@ export function Home() {
 
         <div className="relative mx-auto max-w-5xl px-6 py-24 text-center lg:px-8">
           <h2 className="text-4xl font-black tracking-tight sm:text-5xl">
-            Ready to start selling?
+            Ready to sell your book?
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-            Create your free seller account, add your first product and start
-            accepting payments through M-Pesa.
+            Create your free author account, upload your first book and start
+            accepting payments from readers through M-Pesa.
           </p>
 
           <div className="mt-9 flex flex-col justify-center gap-4 sm:flex-row">
@@ -549,7 +619,7 @@ export function Home() {
               to="/seller-login"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 font-bold text-slate-950 transition hover:bg-slate-100"
             >
-              Create Seller Account
+              Become an Author Seller
               <ArrowRight className="h-5 w-5" />
             </Link>
 
@@ -557,7 +627,8 @@ export function Home() {
               to="/explore"
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 font-bold text-white transition hover:bg-white/10"
             >
-              Explore UzaLink
+              Explore Books
+              <BookOpen className="h-5 w-5" />
             </Link>
           </div>
         </div>
@@ -581,18 +652,18 @@ export function Home() {
           <div className="mt-10 space-y-4">
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                Do I need Premium to sell on UzaLink?
+                Do I need Premium to sell my book on UzaLink?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
-                No. Sellers can create a free account using a secure Magic
-                Link and use the core selling features without Premium.
+                No. Authors can create a free account using a secure Magic
+                Link and use the core book-selling features without Premium.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                Do I need a password to create a seller account?
+                Do I need a password to create an author account?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
@@ -603,48 +674,47 @@ export function Home() {
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                How much does UzaLink charge sellers?
+                How much does UzaLink charge authors?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
-                UzaLink applies a 5% commission to successful sales. The seller
-                receives the remaining 95%.
+                UzaLink applies a 5% commission to successful book sales. The
+                author receives the remaining 95%.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                Do buyers need an account?
+                Do readers need a UzaLink account?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
-                No. Buyers can purchase products without creating a UzaLink
+                No. Readers can purchase books without creating a UzaLink
                 account.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                How do sellers receive their earnings?
+                How do authors receive their earnings?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
-                Successful sales add the seller's 95% share to their available
-                balance. Sellers can manage their payout details and request
-                payouts from their seller dashboard.
+                Successful book sales add the author's 95% share to their
+                available balance. Authors can manage their payout details and
+                request payouts from their author dashboard.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
               <h3 className="font-bold">
-                What can I sell?
+                What types of books can I sell?
               </h3>
 
               <p className="mt-2 leading-7 text-slate-400">
-                UzaLink is designed for digital products and services that can
-                be delivered through the platform. Sellers can create products
-                with descriptions, prices and secure digital files where
-                applicable.
+                UzaLink is designed for authors selling digital books. You can
+                provide your book title, description, cover and digital book
+                file, then sell it directly to your readers.
               </p>
             </div>
           </div>
@@ -658,9 +728,12 @@ export function Home() {
         <div className="mx-auto max-w-7xl px-6 py-10 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-5 text-center sm:flex-row sm:text-left">
             <div>
-              <p className="font-bold">UzaLink</p>
+              <p className="font-bold">
+                UzaLink
+              </p>
+
               <p className="mt-1 text-sm text-slate-500">
-                Sell digital products. Get paid simply.
+                Helping authors sell their books online.
               </p>
             </div>
 
@@ -669,14 +742,14 @@ export function Home() {
                 to="/explore"
                 className="transition hover:text-white"
               >
-                Explore
+                Explore Books
               </Link>
 
               <Link
                 to="/sell"
                 className="transition hover:text-white"
               >
-                Sell
+                Sell Your Book
               </Link>
 
               <Link
