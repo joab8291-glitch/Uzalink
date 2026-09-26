@@ -159,6 +159,18 @@ export const api = {
   adminOrders: () =>
     request<any>("/api/admin/orders"),
 
+  adminProductStatus: (id: string, status: string) =>
+    request<any>("/api/admin/products/" + encodeURIComponent(id) + "/status", {
+      method: "POST",
+      body: JSON.stringify({ status }),
+    }),
+
+  adminMarkPayoutPaid: (id: string, reference?: string) =>
+    request<any>("/api/admin/payouts/" + encodeURIComponent(id) + "/mark-paid", {
+      method: "POST",
+      body: JSON.stringify({ reference }),
+    }),
+
   subscribe: (phone: string) =>
     request<any>("/api/subscriptions/start", {
       method: "POST",
