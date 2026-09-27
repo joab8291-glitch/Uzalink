@@ -13,44 +13,44 @@ const VALUES = [
   {
     icon: "sparkles",
     title: "Simplicity",
-    text: "Upload your book, set your price and share one simple link with your readers.",
+    text: "Upload your product, set your price and share one simple link with your customers.",
   },
   {
     icon: "globe",
-    title: "Reach more readers",
-    text: "Your book link can be shared anywhere your readers already are — WhatsApp, social media, SMS and websites.",
+    title: "Reach more customers",
+    text: "Your product link can be shared anywhere your customers already are — WhatsApp, social media, SMS and websites.",
   },
   {
     icon: "phone",
     title: "Mobile-first",
-    text: "Built for authors and readers using phones every day, without requiring complicated software.",
+    text: "Built for sellers and customers using phones every day, without requiring complicated software.",
   },
   {
     icon: "mpesa",
     title: "M-Pesa-first payments",
-    text: "Readers can pay for books using M-Pesa, with payment verification handled before access is released.",
+    text: "Customers can pay for products using M-Pesa, with payment verification handled before access is released.",
   },
   {
     icon: "share",
     title: "Easy sharing",
-    text: "Every book can have a dedicated link that authors can share directly with their audience.",
+    text: "Every product can have a dedicated link that sellers can share directly with their audience.",
   },
   {
     icon: "shield",
     title: "Secure digital delivery",
-    text: "Payments are verified server-side before digital book access is released.",
+    text: "Payments are verified server-side before digital product access is released.",
   },
   {
     icon: "trend",
-    title: "Author growth",
-    text: "Start publishing your books and build a direct relationship with the people who read your work.",
+    title: "Seller growth",
+    text: "Start publishing your products and build a direct relationship with the people who read your work.",
   },
 ];
 
 const STATS = [
-  { k: "95%", v: "Author earnings" },
+  { k: "95%", v: "Seller earnings" },
   { k: "5%", v: "UZALINK commission" },
-  { k: "M-Pesa", v: "Reader payments" },
+  { k: "M-Pesa", v: "Customer payments" },
   { k: "24/7", v: "Book link access" },
 ];
 
@@ -67,25 +67,25 @@ export function About() {
             <Eyebrow icon="info">About UZALINK</Eyebrow>
 
             <h1 className="mt-5 text-[38px] leading-[1.02] text-deep sm:text-[54px]">
-              Your book deserves
+              Your product deserves
               <br />
-              <span className="text-brand">more readers.</span>
+              <span className="text-brand">more customers.</span>
             </h1>
 
             <p className="mt-6 text-[17px] leading-relaxed text-forest/80 sm:text-[18.5px]">
-              UZALINK helps authors sell digital books online through a
-              simple book link, secure M-Pesa payments and direct access for
-              readers — without requiring readers to create an account.
+              UZALINK helps sellers sell digital products online through a
+              simple product link, secure M-Pesa payments and direct access for
+              customers — without requiring customers to create an account.
             </p>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <Link to="/sell" className={btnClass("gold", "lg")}>
-                Sell Your Book
+                Sell Today
                 <Icon name="arrowRight" className="h-5 w-5" />
               </Link>
 
               <Link to="/explore" className={btnClass("outline", "lg")}>
-                Explore Books
+                Explore Marketplace
                 <Icon name="compass" className="h-5 w-5" />
               </Link>
             </div>
@@ -123,16 +123,16 @@ export function About() {
                 </Eyebrow>
 
                 <p className="mt-6 text-[28px] font-extrabold leading-[1.15] sm:text-[40px]">
-                  “To make selling a digital book as simple as sharing a
+                  “To make selling a digital product as simple as sharing a
                   link.”
                 </p>
 
                 <p className="mt-6 text-[16px] leading-relaxed text-white/75">
-                  Authors put time, knowledge and creativity into their
-                  books. UZALINK is built to make the final step — getting
-                  those books into readers' hands — simple. Upload your
-                  digital book, set your price, share your link and let
-                  readers pay securely through M-Pesa.
+                  Sellers put time, knowledge and creativity into their
+                  products. UZALINK is built to make the final step — getting
+                  those products into customers' hands — simple. Upload your
+                  digital product, set your price, share your link and let
+                  customers pay securely through M-Pesa.
                 </p>
               </div>
             </div>
@@ -148,34 +148,34 @@ export function About() {
               <SectionHeading
                 align="left"
                 eyebrow="Why we built it"
-                title="Built for authors who want a simpler way to sell"
+                title="Built for sellers who want a simpler way to sell"
               />
 
               <div className="mt-6 space-y-4 text-[15.5px] leading-relaxed text-forest/78">
                 <p>
-                  An author may have written an eBook, study guide,
-                  devotional, novel, business book or educational resource,
+                  An seller may have written an eBook, study guide,
+                  devotional, novel, business product or educational resource,
                   but turning that work into a simple online purchase can
                   become complicated.
                 </p>
 
                 <p>
-                  UZALINK focuses on the essentials: create your author
-                  account, upload your digital book, add the book details,
+                  UZALINK focuses on the essentials: create your seller
+                  account, upload your digital product, add the product details,
                   choose your price and receive a unique link that you can
-                  share with your readers.
+                  share with your customers.
                 </p>
 
                 <p>
-                  Readers can open the book link, review the information,
+                  Customers can open the product link, review the information,
                   pay through M-Pesa and receive access after the payment is
                   verified. They do not need to create a UZALINK account
-                  simply to buy a book.
+                  simply to buy a product.
                 </p>
 
                 <p>
-                  UZALINK keeps 5% of each verified sale while the author
-                  receives 95%. The goal is to give authors a straightforward
+                  UZALINK keeps 5% of each verified sale while the seller
+                  receives 95%. The goal is to give sellers a straightforward
                   digital sales channel without forcing them to build and
                   maintain their own e-commerce system.
                 </p>
@@ -183,7 +183,7 @@ export function About() {
 
               <div className="mt-7 flex flex-wrap gap-2">
                 <Badge tone="mint" icon="checkCircle">
-                  Author-first
+                  Seller-first
                 </Badge>
 
                 <Badge tone="mint" icon="phone">
@@ -201,22 +201,22 @@ export function About() {
                 {[
                   {
                     k: "01",
-                    t: "Independent author",
-                    d: "Publishes an eBook and shares the book link directly with readers.",
+                    t: "Independent seller",
+                    d: "Publishes an eBook and shares the product link directly with customers.",
                   },
                   {
                     k: "02",
                     t: "Teacher or tutor",
-                    d: "Publishes revision books, study guides or educational resources.",
+                    d: "Publishes revision products, study guides or educational resources.",
                   },
                   {
                     k: "03",
                     t: "Writer or storyteller",
-                    d: "Turns a completed manuscript into a digital book readers can buy.",
+                    d: "Turns a completed manuscript into a digital product customers can buy.",
                   },
                   {
                     k: "04",
-                    t: "Business author",
+                    t: "Business seller",
                     d: "Sells practical guides, manuals and knowledge resources online.",
                   },
                 ].map((c) => (
@@ -250,7 +250,7 @@ export function About() {
             <SectionHeading
               tone="light"
               eyebrow="What we stand for"
-              title="Seven principles behind every UZALINK book"
+              title="Seven principles behind every UZALINK product"
             />
           </Reveal>
 
@@ -282,11 +282,11 @@ export function About() {
           <Reveal>
             <div className="overflow-hidden rounded-[36px] border border-forest/10 bg-mint/70 p-8 text-center sm:p-12">
               <h2 className="mx-auto max-w-2xl text-[30px] leading-[1.08] text-deep sm:text-[40px]">
-                Ready to put your book in front of more readers?
+                Ready to put your product in front of more customers?
               </h2>
 
               <p className="mx-auto mt-4 max-w-xl text-[16px] text-forest/75">
-                Upload your digital book, set your price and get a unique
+                Upload your digital product, set your price and get a unique
                 UZALINK link you can share with your audience.
               </p>
 
