@@ -83,7 +83,7 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             {/* Author login */}
-            {user?.role === "SELLER" && user.subscriptions?.length ? <Link to="/dashboard" className="hidden text-[14px] font-bold text-forest/75 transition-colors hover:text-brand xl:block">Seller Dashboard</Link> : null}
+            {user?.role === "SELLER" && user.premium ? <Link to="/dashboard" className="hidden text-[14px] font-bold text-forest/75 transition-colors hover:text-brand xl:block">Seller Dashboard</Link> : null}
 
             {/* Main CTA */}
             <Link
