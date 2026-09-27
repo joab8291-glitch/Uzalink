@@ -149,7 +149,7 @@ export function Explore() {
               Discover Your Next{" "}
               <span className="relative inline-block">
                 <span className="relative z-10 text-brand">
-                  Great Book.
+                  Great product.
                 </span>
                 <span className="absolute inset-x-0 bottom-1 z-0 h-3 rounded-full bg-gold/40 sm:bottom-1.5" />
               </span>
@@ -217,7 +217,7 @@ export function Explore() {
       </section>
 
       {/* =========================================================
-          BOOK DISCOVERY
+          product DISCOVERY
       ========================================================== */}
       <section className="py-12 sm:py-16">
         <Container>
@@ -341,7 +341,7 @@ export function Explore() {
       </section>
 
       {/* =========================================================
-          READER TRUST
+          customer TRUST
       ========================================================== */}
       <section className="bg-mint/60 py-16 sm:py-20">
         <Container>
@@ -372,7 +372,7 @@ export function Explore() {
               },
               {
                 icon: "eye",
-                title: "Book details first",
+                title: "product details first",
                 text: "View the product title, description, category, price and seller information before buying.",
               },
             ].map((card, index) => (
