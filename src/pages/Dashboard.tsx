@@ -340,6 +340,7 @@ export function Dashboard() {
                 <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-mint/50 p-4">
                   <div><p className="font-extrabold text-deep">{x.product?.name || "Order"}</p><p className="text-sm text-forest/60">{x._type} · {x.status} · {x.order?.publicId}</p><p className="text-xs text-forest/50">{x.order?.buyerName || "Buyer"} · {x.order?.buyerPhone || ""}</p></div>
                   {x.trackingCode && <span className="text-xs font-bold">Tracking: {x.trackingCode}</span>}
+                  <select value={x.status} onChange={async(e)=>{const status=e.target.value;if(x._type==="Delivery") await api.updateSellerDelivery(x.id,{status}); else await api.updateSellerBooking(x.id,{status}); const fresh=await api.sellerFulfillment();setFulfillmentData(fresh)}} className="rounded-xl border px-3 py-2 text-xs font-bold"><option>PENDING</option><option>PROCESSING</option><option>SHIPPED</option><option>DELIVERED</option><option>CONFIRMED</option><option>COMPLETED</option><option>CANCELLED</option></select>
                 </div>
               )}
             </div>
