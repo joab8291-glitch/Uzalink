@@ -48,6 +48,7 @@ function upsertProduct(product: Product) {
 
 export function LiveCheckout({ code }: { code: string }) {
   const [ready, setReady] = useState(false);
+  const [loadedProduct, setLoadedProduct] = useState<Product | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -63,7 +64,9 @@ export function LiveCheckout({ code }: { code: string }) {
           throw new Error("This book could not be found.");
         }
 
-        upsertProduct(mapBackendProduct(product));
+        const mapped = mapBackendProduct(product);
+        upsertProduct(mapped);
+        setLoadedProduct(mapped);
 
         if (!cancelled) setReady(true);
       } catch (err: any) {
@@ -81,7 +84,7 @@ export function LiveCheckout({ code }: { code: string }) {
   }, [code]);
 
   if (ready) {
-    return <Checkout code={code} />;
+    return <Checkout code={code} product={loadedProduct} />;
   }
 
   return (
