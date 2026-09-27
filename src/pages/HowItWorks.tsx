@@ -121,20 +121,20 @@ export function HowItWorks() {
             </Eyebrow>
 
             <h1 className="mt-5 text-[38px] leading-[1.02] sm:text-[54px]">
-              From your book
+              From your product
               <br />
-              <span className="text-gold">to more readers.</span>
+              <span className="text-gold">to more customers.</span>
             </h1>
 
             <p className="mt-5 text-[16.5px] leading-relaxed text-white/75">
-              UZALINK gives authors a simple way to publish and sell digital
-              books online. Create your author account, upload your book,
-              set your price and share your unique book link with readers.
+              UZALINK gives sellers a simple way to publish and sell digital
+              products online. Create your seller account, upload your product,
+              set your price and share your unique product link with customers.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/sell" className={btnClass("gold", "lg")}>
-                Sell Your Book
+                Sell Today
                 <Icon name="arrowRight" className="h-5 w-5" />
               </Link>
 
@@ -146,7 +146,7 @@ export function HowItWorks() {
                   "border-2 border-white/25",
                 )}
               >
-                Explore Books
+                Explore Marketplace
                 <Icon name="compass" className="h-5 w-5" />
               </Link>
             </div>
@@ -163,25 +163,25 @@ export function HowItWorks() {
             <div className="lg:sticky lg:top-28">
               <Reveal>
                 <Eyebrow tone="light" icon="bolt">
-                  For authors
+                  For sellers
                 </Eyebrow>
 
                 <h2 className="mt-5 text-[32px] leading-[1.06] sm:text-[42px]">
                   Your manuscript in.
                   <br />
-                  Your book link out.
+                  Your product link out.
                 </h2>
 
                 <p className="mt-4 text-[16px] leading-relaxed text-white/70">
-                  Turn your digital book into something readers can buy
+                  Turn your digital product into something customers can buy
                   directly from you. Upload once, choose your price and
-                  share your UZALINK book link anywhere.
+                  share your UZALINK product link anywhere.
                 </p>
 
                 <ul className="mt-7 space-y-3">
                   {[
-                    "Create a dedicated author account",
-                    "Upload your digital book and cover",
+                    "Create a dedicated seller account",
+                    "Upload your digital product and cover",
                     "You keep 95% of every verified sale",
                   ].map((t) => (
                     <li
@@ -205,7 +205,7 @@ export function HowItWorks() {
                     "mt-8 w-full sm:w-auto",
                   )}
                 >
-                  Start Selling Your Book
+                  Sell Today
                   <Icon name="arrowRight" className="h-5 w-5" />
                 </Link>
               </Reveal>
@@ -231,7 +231,7 @@ export function HowItWorks() {
             <div className="grid items-center gap-8 rounded-[32px] border-2 border-gold bg-goldsoft p-6 sm:p-10 lg:grid-cols-[1fr_1fr]">
               <div>
                 <Eyebrow icon="lock">
-                  Your author payout setup
+                  Your seller payout setup
                 </Eyebrow>
 
                 <h2 className="mt-5 text-[28px] leading-[1.08] text-deep sm:text-[36px]">
@@ -240,7 +240,7 @@ export function HowItWorks() {
 
                 <p className="mt-4 text-[15.5px] leading-relaxed text-[#6d4f00]">
                   Enter the M-Pesa/payment number you want to use for
-                  receiving your UZALINK author earnings. Where technically
+                  receiving your UZALINK seller earnings. Where technically
                   supported, UZALINK verifies ownership before the number
                   is locked.
                 </p>
@@ -253,7 +253,7 @@ export function HowItWorks() {
 
                   <p className="text-[14px] font-bold leading-relaxed text-[#6d4f00]">
                     Double-check your payment number before continuing.
-                    It is used when your verified book-sale earnings are
+                    It is used when your verified product-sale earnings are
                     settled.
                   </p>
                 </div>
@@ -261,7 +261,7 @@ export function HowItWorks() {
 
               <div className="rounded-3xl border border-forest/10 bg-white p-5 shadow-[0_25px_55px_-40px_rgba(4,40,26,0.5)]">
                 <p className="text-[11.5px] font-extrabold uppercase tracking-[0.14em] text-forest/50">
-                  Author Payment Number
+                  Seller Payment Number
                 </p>
 
                 <p className="mt-2 flex flex-wrap items-center gap-2.5 text-[26px] font-extrabold text-deep">
@@ -277,7 +277,7 @@ export function HowItWorks() {
                 </p>
 
                 <p className="mt-3 text-[13px] leading-relaxed text-forest/70">
-                  Your payment number is used for author settlements after
+                  Your payment number is used for seller settlements after
                   successful payment verification.
                 </p>
               </div>
@@ -295,7 +295,7 @@ export function HowItWorks() {
             <div className="lg:sticky lg:top-28">
               <Reveal>
                 <Eyebrow icon="compass">
-                  For readers
+                  For customers
                 </Eyebrow>
 
                 <h2 className="mt-5 text-[32px] leading-[1.06] text-deep sm:text-[42px]">
@@ -303,15 +303,15 @@ export function HowItWorks() {
                 </h2>
 
                 <p className="mt-4 text-[16px] leading-relaxed text-forest/75">
-                  Readers can open an author's UZALINK book link, review
-                  the book details, pay securely with M-Pesa and receive
+                  Customers can open an seller's UZALINK product link, review
+                  the product details, pay securely with M-Pesa and receive
                   access without creating a buyer account.
                 </p>
 
                 <div className="mt-7 grid grid-cols-2 gap-2.5">
                   {[
                     "WhatsApp",
-                    "Facebook",
+                    "Faceproduct",
                     "TikTok",
                     "Instagram",
                     "SMS",
@@ -334,7 +334,7 @@ export function HowItWorks() {
                     "mt-8 w-full sm:w-auto",
                   )}
                 >
-                  Explore Books
+                  Explore Marketplace
                   <Icon name="compass" className="h-5 w-5" />
                 </Link>
               </Reveal>
@@ -348,9 +348,9 @@ export function HowItWorks() {
         <Container>
           <Reveal>
             <SectionHeading
-              eyebrow="Author earnings & settlement"
-              title="5% UZALINK Commission. 95% Goes to the Author."
-              text="The author keeps 95% of every verified book sale, with the platform commission clearly shown."
+              eyebrow="Seller earnings & settlement"
+              title="5% UZALINK Commission. 95% Goes to the Seller."
+              text="The seller keeps 95% of every verified product sale, with the platform commission clearly shown."
             />
           </Reveal>
 
@@ -368,7 +368,7 @@ export function HowItWorks() {
                     name="clock"
                     className="h-5 w-5 text-brand"
                   />
-                  Author settlement
+                  Seller settlement
                 </p>
 
                 <p className="mt-4 text-[15.5px] leading-relaxed text-forest/80">
@@ -416,15 +416,15 @@ export function HowItWorks() {
               >
                 <div>
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
-                    Authors
+                    Sellers
                   </p>
 
                   <p className="mt-2 text-[24px] font-extrabold sm:text-[28px]">
-                    Sell Your Book
+                    Sell Today
                   </p>
 
                   <p className="mt-2 text-[13.5px] text-white/70">
-                    Publish your digital book and start reaching readers.
+                    Publish your digital product and start reaching customers.
                   </p>
                 </div>
 
@@ -443,15 +443,15 @@ export function HowItWorks() {
               >
                 <div>
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-brand">
-                    Readers
+                    Customers
                   </p>
 
                   <p className="mt-2 text-[24px] font-extrabold text-deep sm:text-[28px]">
-                    Explore Books
+                    Explore Marketplace
                   </p>
 
                   <p className="mt-2 text-[13.5px] text-forest/70">
-                    Discover digital books from UZALINK authors.
+                    Discover digital products from UZALINK sellers.
                   </p>
                 </div>
 
