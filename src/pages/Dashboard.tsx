@@ -53,6 +53,7 @@ export function Dashboard() {
 
   const [premiumPending, setPremiumPending] =
     useState(false);
+  const [analytics, setAnalytics] = useState<any>(null);
 
   const load = async () => {
     try {
@@ -83,6 +84,7 @@ export function Dashboard() {
 
     if (user) {
       void load();
+      void api.sellerAnalytics().then(setAnalytics).catch(() => {});
     }
   }, [loading, user]);
 
@@ -311,6 +313,21 @@ export function Dashboard() {
             </div>
           </div>
         </div>
+
+        {analytics && (
+          <div className="mt-6 rounded-3xl border border-forest/10 bg-white p-6">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div><p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand">Analytics</p><h2 className="mt-1 text-2xl text-deep">Last 30 days</h2></div>
+              <p className="text-sm font-bold text-forest/60">{analytics.orderCount || 0} paid/fulfilled orders</p>
+            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-3">
+              <Stat label="30-day revenue" value={`KSh ${Number(analytics.revenueKes || 0).toLocaleString()}`} icon="chart" />
+              <Stat label="Orders" value={analytics.orderCount || 0} icon="bag" />
+              <Stat label="Top product" value={analytics.products?.[0]?.name || "—"} icon="book" />
+            </div>
+            {analytics.products?.length > 0 && <div className="mt-5 space-y-2">{analytics.products.slice(0,5).map((x:any)=><div key={x.code} className="flex justify-between rounded-xl bg-mint/50 p-3 text-sm"><span className="font-bold">{x.name}</span><span className="font-extrabold text-brand">KSh {(x.revenueCents/100).toLocaleString()}</span></div>)}</div>}
+          </div>
+        )}
 
         {/* =====================================================
             YOUR BOOKS
