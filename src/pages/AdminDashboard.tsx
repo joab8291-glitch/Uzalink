@@ -1138,6 +1138,10 @@ export function AdminDashboard() {
             PAYOUTS
         ===================================================== */}
 
+        {tab === "refunds" && <RefundsPanel />}
+
+        {tab === "fraud" && <FraudPanel />}
+
         {tab === "payouts" && (
           <Panel
             title={`Payouts (${payouts.length})`}
@@ -1525,4 +1529,21 @@ function Empty({
 
     </div>
   );
+}
+
+
+function RefundsPanel() {
+  const [rows,setRows]=useState<any[]>([]);
+  const [busy,setBusy]=useState("");
+  useEffect(()=>{api.adminRefunds().then(r=>setRows(r.refunds||[])).catch(()=>{})},[]);
+  async function refund(id:string){const reason=window.prompt("Refund reason","Customer refund");if(!reason)return;setBusy(id);try{await api.adminRefundOrder(id,{reason});setRows((await api.adminRefunds()).refunds||[])}finally{setBusy("")}}
+  return <Panel title={`Refund management (${rows.length})`} className="mt-6"><div className="space-y-3">{rows.map(r=><div key={r.id} className="rounded-2xl border p-4 flex flex-wrap justify-between gap-3"><div><b>Order {r.order?.publicId}</b><p className="text-sm text-forest/60">{r.reason} · {money(r.amountCents)} · {r.status}</p></div>{r.status==="REQUESTED"&&<button disabled={busy===r.orderId} onClick={()=>refund(r.orderId)} className={btnClass("gold","sm")}>{busy===r.orderId?"Processing…":"Refund"}</button>}</div>)}</div></Panel>;
+}
+
+function FraudPanel() {
+ const [rows,setRows]=useState<any[]>([]);
+ const load=()=>api.adminFraudFlags().then(r=>setRows(r.flags||[])).catch(()=>{});
+ useEffect(()=>{load()},[]);
+ async function setStatus(id:string,status:string){await api.adminFraudStatus(id,status);load()}
+ return <Panel title={`Fraud monitoring (${rows.length})`} className="mt-6"><div className="space-y-3">{rows.map(f=><div key={f.id} className="rounded-2xl border p-4"><div className="flex flex-wrap justify-between gap-3"><div><b>{f.reason}</b><p className="text-sm text-forest/60">Score {f.score} · {f.status} · Order {f.order?.publicId||"—"}</p></div><div className="flex gap-2">{["REVIEWED","CLEARED","BLOCKED"].map(s=><button key={s} onClick={()=>setStatus(f.id,s)} className={btnClass("outline","sm")}>{s}</button>)}</div></div></div>)}</div></Panel>;
 }
