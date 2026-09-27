@@ -9,6 +9,7 @@ const NAV = [
   { label: "Explore Books", to: "/explore" },
   { label: "How It Works", to: "/how-it-works" },
   { label: "About UZALINK", to: "/about" },
+  { label: "Wishlist", to: "/wishlist" },
 ];
 
 export function Header() {
