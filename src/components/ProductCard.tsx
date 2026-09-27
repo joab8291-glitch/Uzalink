@@ -40,6 +40,10 @@ export function ProductCard({
           Digital Book
         </span>
 
+        {/* Verification / featured badges */}
+        {(product as any).sellerVerified && <span className="absolute left-3 top-12 rounded-full bg-white/95 px-2.5 py-1.5 text-[10px] font-extrabold text-brand shadow">✓ Verified seller</span>}
+        {(product as any).featured && <span className="absolute right-3 top-12 rounded-full gold-gradient px-2.5 py-1.5 text-[10px] font-extrabold text-deep shadow">Featured</span>}
+
         {/* Promotional badge */}
         {product.badge && (
           <span className="absolute right-3 top-3 rounded-full gold-gradient px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-deep shadow">
