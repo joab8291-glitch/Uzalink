@@ -3,7 +3,6 @@ import { cn } from "@/utils/cn";
 import {
   commissionOf,
   formatKsh,
-  productByCode,
   sellerOf,
   type Product,
 } from "@/lib/data";
@@ -31,10 +30,58 @@ function digitsOnly(value: string) {
   return value.replace(/\D/g, "");
 }
 
-export function Checkout({ code }: { code: string }) {
+export function Checkout({ code, product }: { code: string; product?: Product }) {
   const route = useRoute();
 
-  const book = productByCode(code);
+  const [resolvedBook, setResolvedBook] = useState<Product | null>(product ?? null);
+  const [bookLoading, setBookLoading] = useState(!product);
+
+  useEffect(() => {
+    if (product) {
+      setResolvedBook(product);
+      setBookLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const loadExactProduct = async () => {
+      setBookLoading(true);
+      try {
+        const result = await api.product(code);
+        const item = result?.product;
+        if (!item || String(item.code) !== String(code)) {
+          throw new Error("This product could not be found.");
+        }
+        const sellerName = item?.seller?.user?.name || item?.seller?.handle || "UzaLink Seller";
+        const mapped: Product = {
+          code: item.code,
+          name: item.name,
+          seller: sellerName,
+          handle: item?.seller?.handle || "",
+          sellerAvatarSeed: sellerName.split(/\\s+/).filter(Boolean).map((x: string) => x[0]).join("").slice(0, 2).toUpperCase() || "UZ",
+          type: "Digital Product",
+          category: item.category || "Other",
+          description: item.description || "",
+          longDescription: item.description || "",
+          price: Number(item.priceCents || 0) / 100,
+          image: `${(import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com").replace(/\\/$/, "")}/api/products/${encodeURIComponent(item.code)}/cover`,
+          delivery: item.deliveryText || "Digital product",
+          rating: Number(item.rating || 0),
+          sales: Number(item.salesCount || 0),
+          instant: Boolean(item.instant),
+        };
+        if (!cancelled) setResolvedBook(mapped);
+      } catch {
+        if (!cancelled) setResolvedBook(null);
+      } finally {
+        if (!cancelled) setBookLoading(false);
+      }
+    };
+    void loadExactProduct();
+    return () => { cancelled = true; };
+  }, [code, product]);
+
+  const book = resolvedBook;
 
   const [stage, setStage] = useState<
     "form" | "paying" | "verifying" | "success"
