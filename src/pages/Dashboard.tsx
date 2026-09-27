@@ -799,7 +799,7 @@ export function Dashboard() {
         {/* =====================================================
             PREMIUM SUBSCRIPTION MODAL
         ====================================================== */}
-        {premiumOpen && !premium && (
+        {!premium && !premiumOpen && user?.role === "SELLER" && (\n          <button type="button" onClick={() => setPremiumOpen(true)} className={btnClass("gold","lg","mt-5 w-full")}>Become Premium — KSh 1,000/month</button>\n        )}\n        {premiumOpen && !premium && (
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div
               className="absolute inset-0 bg-deep/60 backdrop-blur-sm"
@@ -816,7 +816,7 @@ export function Dashboard() {
                     Upgrade your seller account
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-forest/65">
-                    Enter the M-Pesa number you want to use. UzaLink will send an STK Push. Your account becomes Premium only after the payment is confirmed.
+                    Premium seller access is KSh 1,000 per month. Enter the M-Pesa number you want to use and UzaLink will send an STK Push. Your account becomes Premium only after the payment is confirmed.
                   </p>
                 </div>
 
@@ -952,7 +952,7 @@ export function Dashboard() {
                   ? "Sending STK Push…"
                   : premiumPending
                     ? "Payment Sent"
-                    : "Pay for Premium"}
+                    : "Pay KSh 1,000 for Premium"}
               </button>
 
               <p className="mt-3 text-center text-[11px] leading-relaxed text-forest/45">
