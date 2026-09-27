@@ -36,8 +36,8 @@ export function ProductCard({
 
         {/* Book type */}
         <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 text-[11px] font-extrabold uppercase tracking-wide text-forest shadow-sm">
-          <Icon name="book" className="h-3 w-3" />
-          Digital Book
+          <Icon name="product" className="h-3 w-3" />
+          Digital Product
         </span>
 
         {/* Verification / featured badges */}
@@ -61,7 +61,7 @@ export function ProductCard({
       </Link>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        {/* Author + rating */}
+        {/* Seller + rating */}
         <div className="flex items-center gap-2 text-[12px] font-semibold text-forest/60">
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mint text-[10px] font-extrabold text-forest">
             {product.sellerAvatarSeed}
@@ -131,7 +131,7 @@ export function ProductCard({
               "h-11! px-3! text-[13.5px]!",
             )}
           >
-            <Icon name="bookOpen" className="h-4 w-4" />
+            <Icon name="productOpen" className="h-4 w-4" />
             View Book
           </Link>
 
