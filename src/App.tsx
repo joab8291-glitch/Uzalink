@@ -41,6 +41,7 @@ function renderRoute(route: string) {
   switch (parts[0]) {
     case "explore": return <Explore />;
     case "sell": return <SellToday />;
+    case "seller-login": return <SellToday />;
     case "how-it-works": return <HowItWorks />;
     case "about": return <About />;
     case "dashboard": return <Dashboard />;
