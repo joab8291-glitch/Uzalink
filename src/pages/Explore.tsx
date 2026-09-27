@@ -32,13 +32,13 @@ export function Explore() {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<Sort>("popular");
   const [liveProducts, setLiveProducts] = useState<Product[]>([]);
-  const [loadingBooks, setLoadingBooks] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
-    const loadBooks = async () => {
+    const loadProducts = async () => {
       try {
         const result = await api.products();
         const products = Array.isArray(result?.products)
@@ -49,7 +49,7 @@ export function Explore() {
           const sellerName =
             product?.seller?.user?.name ||
             product?.seller?.handle ||
-            "UzaLink Author";
+            "UzaLink Seller";
           const initials = sellerName
             .split(/\\s+/)
             .filter(Boolean)
@@ -64,13 +64,13 @@ export function Explore() {
             seller: sellerName,
             handle: product?.seller?.handle || "",
             sellerAvatarSeed: initials || "AU",
-            type: "Digital Product",
+            type: product.kind || "Product",
             category: product.category,
             description: product.description,
             longDescription: product.description,
             price: Number(product.priceCents || 0) / 100,
             image: `${import.meta.env.VITE_UZALINK_API || "https://uzalink-backend.onrender.com"}/api/products/${encodeURIComponent(product.code)}/cover`,
-            delivery: product.deliveryText || "Digital book",
+            delivery: product.deliveryText || "Delivered through UzaLink",
             rating: Number(product.rating || 0),
             sales: Number(product.salesCount || 0),
             instant: Boolean(product.instant),
@@ -80,41 +80,41 @@ export function Explore() {
         if (!cancelled) setLiveProducts(mapped);
       } catch (error) {
         if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : "Could not load books.");
+          setLoadError(error instanceof Error ? error.message : "Could not load products.");
         }
       } finally {
-        if (!cancelled) setLoadingBooks(false);
+        if (!cancelled) setLoadingProducts(false);
       }
     };
 
-    void loadBooks();
+    void loadProducts();
     return () => { cancelled = true; };
   }, []);
 
-  const allBooks = liveProducts;
+  const allProducts = liveProducts;
 
   const categories = useMemo(() => {
-    const values = allBooks.map((p) => p.category).filter(Boolean);
+    const values = allProducts.map((p) => p.category).filter(Boolean);
 
     return [
       "All",
       ...Array.from(new Set(values)).sort((a, b) => a.localeCompare(b)),
     ];
-  }, [allBooks]);
+  }, [allProducts]);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let list = allBooks.filter((book) => {
+    let list = allProducts.filter((product) => {
       const matchesCategory =
-        category === "All" || book.category === category;
+        category === "All" || product.category === category;
 
       const matchesQuery =
         !q ||
-        book.name.toLowerCase().includes(q) ||
-        book.description.toLowerCase().includes(q) ||
-        book.seller.toLowerCase().includes(q) ||
-        book.category.toLowerCase().includes(q);
+        product.name.toLowerCase().includes(q) ||
+        product.description.toLowerCase().includes(q) ||
+        product.seller.toLowerCase().includes(q) ||
+        product.category.toLowerCase().includes(q);
 
       return matchesCategory && matchesQuery;
     });
@@ -128,7 +128,7 @@ export function Explore() {
     });
 
     return list;
-  }, [allBooks, category, query, sort]);
+  }, [allProducts, category, query, sort]);
 
   return (
     <>
@@ -142,7 +142,7 @@ export function Explore() {
         <Container className="relative">
           <div className="max-w-3xl">
             <Eyebrow icon="compass">
-              Explore Books · Reader experience
+              Explore Marketplace · Customer experience
             </Eyebrow>
 
             <h1 className="mt-5 text-[38px] leading-[1.02] text-deep sm:text-[54px]">
@@ -156,15 +156,15 @@ export function Explore() {
             </h1>
 
             <p className="mt-6 text-[16.5px] leading-relaxed text-forest/80 sm:text-[18px]">
-              Explore digital books from independent authors and discover
+              Explore digital products from independent sellers and discover
               stories, knowledge and ideas you can buy directly online.
-              No reader account is required — choose a book, pay with
+              No customer account is required — choose a product, pay with
               M-Pesa and get secure access.
             </p>
 
             <div className="mt-7 flex flex-wrap gap-2">
               {[
-                "No reader account",
+                "No customer account",
                 "M-Pesa checkout",
                 "Secure access",
                 "Instant digital delivery",
@@ -176,7 +176,7 @@ export function Explore() {
             </div>
           </div>
 
-          {/* Reader flow */}
+          {/* Customer flow */}
           <div className="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {BUYER_FLOW.map((step, index) => (
               <Reveal key={step.title} delay={index * 55}>
@@ -206,7 +206,7 @@ export function Explore() {
               <div className="flex h-full items-center rounded-3xl border-2 border-dashed border-brand/30 bg-white/70 p-4">
                 <p className="text-[13px] font-bold leading-snug text-forest">
                   <span className="block text-brand">
-                    No reader account required.
+                    No customer account required.
                   </span>
                   Choose → pay → read.
                 </p>
@@ -233,9 +233,9 @@ export function Explore() {
                 <input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search books, authors or categories…"
+                  placeholder="Search products, sellers or categories…"
                   className={cn(inputClass, "pl-12")}
-                  aria-label="Search books"
+                  aria-label="Search products"
                 />
               </div>
 
@@ -246,7 +246,7 @@ export function Explore() {
                     setSort(event.target.value as Sort)
                   }
                   className={cn(inputClass, "appearance-none pr-11")}
-                  aria-label="Sort books"
+                  aria-label="Sort products"
                 >
                   {SORTS.map((option) => (
                     <option key={option.key} value={option.key}>
@@ -281,8 +281,8 @@ export function Explore() {
             </div>
 
             {/* Results count */}
-            {loadingBooks && (
-              <p className="px-1 text-[13px] font-semibold text-brand">Loading published books…</p>
+            {loadingProducts && (
+              <p className="px-1 text-[13px] font-semibold text-brand">Loading published products…</p>
             )}
             {loadError && (
               <p className="px-1 text-[13px] font-semibold text-red-600">{loadError}</p>
@@ -290,7 +290,7 @@ export function Explore() {
             <p className="px-1 text-[13px] font-semibold text-forest/60">
               Showing{" "}
               <span className="text-deep">{results.length}</span>{" "}
-              {results.length === 1 ? "book" : "books"}
+              {results.length === 1 ? "product" : "products"}
               {category !== "All" && <> in {category}</>}
             </p>
           </div>
@@ -303,11 +303,11 @@ export function Explore() {
               </span>
 
               <p className="mt-4 text-[19px] font-extrabold text-deep">
-                No books found
+                No products found
               </p>
 
               <p className="mt-2 text-[14.5px] text-forest/70">
-                Try another title, author or category.
+                Try another title, seller or category.
               </p>
 
               <button
@@ -322,14 +322,14 @@ export function Explore() {
             </div>
           ) : (
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {results.map((book, index) => (
+              {results.map((product, index) => (
                 <Reveal
-                  key={book.code}
+                  key={product.code}
                   delay={Math.min(index, 6) * 60}
                 >
                   <div className="relative h-full">
                     <ProductCard
-                      product={book}
+                      product={product}
                       className="h-full"
                     />
                   </div>
@@ -347,9 +347,9 @@ export function Explore() {
         <Container>
           <Reveal>
             <SectionHeading
-              eyebrow="For readers"
-              title="A simple way to buy digital books"
-              text="Choose a book, complete your M-Pesa payment and receive secure access without creating a reader account."
+              eyebrow="For customers"
+              title="A simple way to buy digital products"
+              text="Choose a product, complete your M-Pesa payment and receive secure access without creating a customer account."
             />
           </Reveal>
 
@@ -363,7 +363,7 @@ export function Explore() {
               {
                 icon: "shield",
                 title: "Payment verified",
-                text: "Your payment is verified before access to the purchased book is released.",
+                text: "Your payment is verified before access to the purchased product is released.",
               },
               {
                 icon: "receipt",
@@ -373,7 +373,7 @@ export function Explore() {
               {
                 icon: "eye",
                 title: "Book details first",
-                text: "View the book title, description, category, price and author information before buying.",
+                text: "View the product title, description, category, price and seller information before buying.",
               },
             ].map((card, index) => (
               <Reveal key={card.title} delay={index * 80}>
@@ -394,22 +394,22 @@ export function Explore() {
             ))}
           </div>
 
-          {/* Author CTA */}
+          {/* Seller CTA */}
           <Reveal delay={100}>
             <div className="mt-12 overflow-hidden rounded-[32px] brand-gradient p-7 text-white sm:p-10">
               <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
                 <div>
                   <p className="text-[11.5px] font-extrabold uppercase tracking-[0.16em] text-gold">
-                    For authors
+                    For sellers
                   </p>
 
                   <h3 className="mt-3 text-[28px] leading-tight sm:text-[34px]">
-                    Have a book to sell?
+                    Have a product to sell?
                   </h3>
 
                   <p className="mt-3 max-w-xl text-[15px] text-white/75">
-                    Create your author account, publish your digital book,
-                    set your price and share your unique link with readers.
+                    Create your seller account, publish your digital product,
+                    set your price and share your unique link with customers.
                     Keep 95% of every sale.
                   </p>
                 </div>
@@ -422,7 +422,7 @@ export function Explore() {
                     "w-full shrink-0 lg:w-auto",
                   )}
                 >
-                  Sell Your Book
+                  Sell Today
                   <Icon
                     name="arrowRight"
                     className="h-5 w-5"
