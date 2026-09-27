@@ -53,6 +53,7 @@ export const api = {
   myReferrals: () => request<any>("/api/engagement/referrals/me"),
   referral: (code: string) => request<any>(`/api/engagement/referrals/${encodeURIComponent(code)}`),
   sellerAnalytics: () => request<any>("/api/seller/analytics"),
+  sellerFulfillment: () => request<any>("/api/seller/fulfillment"),
   messages: () => request<any>("/api/messages"),
   sendMessage: (recipientId: string, body: any) => request<any>("/api/messages", { method: "POST", body: JSON.stringify({ recipientId, ...body }) }),
   readMessage: (id: string) => request<any>(`/api/messages/${encodeURIComponent(id)}/read`, { method: "PATCH" }),
