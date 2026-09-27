@@ -79,9 +79,11 @@ export function Dashboard() {
       (!user ||
         user.role !== "SELLER")
     ) {
-      navigate("/seller-login");
+      navigate("/sell");
       return;
     }
+
+    if (user && (user.role !== "SELLER" || user.subscriptions?.[0]?.status !== "ACTIVE")) { navigate("/sell"); return; }
 
     if (user) {
       void load();
