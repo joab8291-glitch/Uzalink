@@ -195,8 +195,7 @@ export function SellToday() {
    * ======================================================
    */
   if (
-    user.role !== "SELLER" &&
-    user.role !== "ADMIN"
+    user.role !== "SELLER"
   ) {
     return (
       <section className="min-h-screen bg-mint/40 pt-32">
