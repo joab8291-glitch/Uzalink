@@ -154,7 +154,7 @@ export function HowItWorks() {
         </Container>
       </section>
 
-      {/* AUTHOR FLOW */}
+      {/* seller FLOW */}
       <section className="relative overflow-hidden bg-deep py-16 text-white sm:py-20">
         <div className="pointer-events-none absolute inset-0 grid-pattern opacity-60" />
 
@@ -286,7 +286,7 @@ export function HowItWorks() {
         </Container>
       </section>
 
-      {/* READER FLOW */}
+      {/* customer FLOW */}
       <section className="bg-mint/60 py-16 sm:py-20">
         <Container>
           <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
