@@ -51,7 +51,7 @@ const STATS = [
   { k: "95%", v: "Seller earnings" },
   { k: "5%", v: "UZALINK commission" },
   { k: "M-Pesa", v: "Customer payments" },
-  { k: "24/7", v: "Book link access" },
+  { k: "24/7", v: "product link access" },
 ];
 
 export function About() {
@@ -153,7 +153,7 @@ export function About() {
 
               <div className="mt-6 space-y-4 text-[15.5px] leading-relaxed text-forest/78">
                 <p>
-                  An seller may have written an eBook, study guide,
+                  An seller may have written an eproduct, study guide,
                   devotional, novel, business product or educational resource,
                   but turning that work into a simple online purchase can
                   become complicated.
@@ -202,7 +202,7 @@ export function About() {
                   {
                     k: "01",
                     t: "Independent seller",
-                    d: "Publishes an eBook and shares the product link directly with customers.",
+                    d: "Publishes an eproduct and shares the product link directly with customers.",
                   },
                   {
                     k: "02",
@@ -292,7 +292,7 @@ export function About() {
 
               <div className="mx-auto mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
                 <Link to="/sell" className={btnClass("gold", "xl")}>
-                  SELL YOUR BOOK
+                  SELL YOUR product
                   <Icon
                     name="arrowRight"
                     className="h-5 w-5"
@@ -301,7 +301,7 @@ export function About() {
                 </Link>
 
                 <Link to="/explore" className={btnClass("deep", "xl")}>
-                  EXPLORE BOOKS
+                  EXPLORE products
                   <Icon name="compass" className="h-5 w-5" />
                 </Link>
               </div>
