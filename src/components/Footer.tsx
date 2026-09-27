@@ -17,7 +17,7 @@ const COLS = [
     items: [
       { label: "Explore Marketplace", to: "/explore" },
       { label: "How Buying Works", to: "/how-it-works" },
-      { label: "Sample Book Link", to: "/magic/abc123" },
+      { label: "Sample product Link", to: "/magic/abc123" },
       { label: "Digital Receipts", to: "/explore" },
     ],
   },
@@ -45,7 +45,7 @@ export function Footer() {
             <Logo tone="light" />
 
             <p className="mt-4 text-[17px] font-bold text-gold">
-              Your Book. Your Customers. One Link.
+              Your product. Your Customers. One Link.
             </p>
 
             <p className="mt-3 text-[14.5px] leading-relaxed text-white/65">
