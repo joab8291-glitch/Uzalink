@@ -52,6 +52,13 @@ export const api = {
   createReferral: () => request<any>("/api/engagement/referrals", { method: "POST" }),
   myReferrals: () => request<any>("/api/engagement/referrals/me"),
   referral: (code: string) => request<any>(`/api/engagement/referrals/${encodeURIComponent(code)}`),
+  messages: () => request<any>("/api/messages"),
+  sendMessage: (recipientId: string, body: any) => request<any>("/api/messages", { method: "POST", body: JSON.stringify({ recipientId, ...body }) }),
+  readMessage: (id: string) => request<any>(`/api/messages/${encodeURIComponent(id)}/read`, { method: "PATCH" }),
+  adminRefunds: () => request<any>("/api/admin/refunds"),
+  adminRefundOrder: (id: string, body: any) => request<any>(`/api/admin/orders/${encodeURIComponent(id)}/refund`, { method: "POST", body: JSON.stringify(body) }),
+  adminFraudFlags: () => request<any>("/api/admin/fraud-flags"),
+  adminFraudStatus: (id: string, status: string) => request<any>(`/api/admin/fraud-flags/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ status }) }),
 };
 
 export { API_BASE };
