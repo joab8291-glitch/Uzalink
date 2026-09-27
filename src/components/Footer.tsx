@@ -4,18 +4,18 @@ import { Container } from "./ui";
 
 const COLS = [
   {
-    title: "For Authors",
+    title: "For Sellers",
     items: [
-      { label: "Sell Your Book", to: "/sell" },
-      { label: "Publish a Digital Book", to: "/sell" },
-      { label: "Author Earnings", to: "/how-it-works" },
-      { label: "Author Dashboard", to: "/seller-login" },
+      { label: "Sell Today", to: "/sell" },
+      { label: "Publish a Digital Product", to: "/sell" },
+      { label: "Seller Earnings", to: "/how-it-works" },
+      { label: "Seller Dashboard", to: "/seller-login" },
     ],
   },
   {
-    title: "For Readers",
+    title: "For Customers",
     items: [
-      { label: "Explore Books", to: "/explore" },
+      { label: "Explore Marketplace", to: "/explore" },
       { label: "How Buying Works", to: "/how-it-works" },
       { label: "Sample Book Link", to: "/magic/abc123" },
       { label: "Digital Receipts", to: "/explore" },
@@ -26,7 +26,7 @@ const COLS = [
     items: [
       { label: "About UZALINK", to: "/about" },
       { label: "How It Works", to: "/how-it-works" },
-      { label: "Author Login", to: "/seller-login" },
+      { label: "Seller Login", to: "/seller-login" },
       { label: "Home", to: "/" },
     ],
   },
@@ -45,12 +45,12 @@ export function Footer() {
             <Logo tone="light" />
 
             <p className="mt-4 text-[17px] font-bold text-gold">
-              Your Book. Your Readers. One Link.
+              Your Book. Your Customers. One Link.
             </p>
 
             <p className="mt-3 text-[14.5px] leading-relaxed text-white/65">
-              A simple, Kenya-first platform that helps authors sell
-              digital books online. Upload your book, set your price,
+              A simple, Kenya-first platform that helps sellers sell
+              digital products online. Upload your product, set your price,
               share your link and receive verified M-Pesa payments.
             </p>
 
@@ -58,7 +58,7 @@ export function Footer() {
               {[
                 "M-Pesa Payments",
                 "5% Commission",
-                "95% to Author",
+                "95% to Seller",
               ].map((t) => (
                 <span
                   key={t}
@@ -107,7 +107,7 @@ export function Footer() {
                 name="lock"
                 className="h-4 w-4 text-gold"
               />
-              Secure author settlements
+              Secure seller settlements
             </span>
 
             <span className="inline-flex items-center gap-2">
@@ -115,7 +115,7 @@ export function Footer() {
                 name="shield"
                 className="h-4 w-4 text-gold"
               />
-              Secure digital book delivery
+              Secure digital product delivery
             </span>
           </div>
         </div>
