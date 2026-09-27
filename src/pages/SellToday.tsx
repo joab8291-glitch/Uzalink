@@ -81,8 +81,7 @@ export function SellToday() {
     if (
       loading ||
       !user ||
-      (user.role !== "SELLER" &&
-        user.role !== "ADMIN")
+      user.role !== "SELLER"
     ) {
       return;
     }
