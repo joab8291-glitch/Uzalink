@@ -83,7 +83,7 @@ export function Dashboard() {
       return;
     }
 
-    if (user && (user.role !== "SELLER" || user.subscriptions?.[0]?.status !== "ACTIVE")) { navigate("/sell"); return; }
+    if (user && (user.role !== "SELLER" || !user.premium)) { navigate("/sell"); return; }
 
     if (user) {
       void load();
