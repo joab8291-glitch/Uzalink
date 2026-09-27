@@ -3,6 +3,7 @@ import { cn } from "@/utils/cn";
 import { Link, useRoute } from "@/lib/router";
 import { Icon, Logo } from "./Icon";
 import { Container, btnClass } from "./ui";
+import { useAuth } from "@/lib/auth";
 
 const NAV = [
   { label: "Home", to: "/" },
@@ -16,6 +17,7 @@ export function Header() {
   const route = useRoute();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -81,12 +83,7 @@ export function Header() {
 
           <div className="flex items-center gap-2">
             {/* Author login */}
-            <Link
-              to="/dashboard"
-              className="hidden text-[14px] font-bold text-forest/75 transition-colors hover:text-brand xl:block"
-            >
-              Seller Dashboard
-            </Link>
+            {user?.role === "SELLER" && user.subscriptions?.length ? <Link to="/dashboard" className="hidden text-[14px] font-bold text-forest/75 transition-colors hover:text-brand xl:block">Seller Dashboard</Link> : null}
 
             {/* Main CTA */}
             <Link
