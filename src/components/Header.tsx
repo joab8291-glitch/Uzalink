@@ -6,7 +6,7 @@ import { Container, btnClass } from "./ui";
 
 const NAV = [
   { label: "Home", to: "/" },
-  { label: "Explore Books", to: "/explore" },
+  { label: "Explore Marketplace", to: "/explore" },
   { label: "How It Works", to: "/how-it-works" },
   { label: "About UZALINK", to: "/about" },
   { label: "Wishlist", to: "/wishlist" },
@@ -82,10 +82,10 @@ export function Header() {
           <div className="flex items-center gap-2">
             {/* Author login */}
             <Link
-              to="/seller-login"
+              to="/dashboard"
               className="hidden text-[14px] font-bold text-forest/75 transition-colors hover:text-brand xl:block"
             >
-              Author Login
+              Seller Dashboard
             </Link>
 
             {/* Main CTA */}
@@ -97,7 +97,7 @@ export function Header() {
                 "hidden sm:inline-flex h-11! px-5! text-[14.5px]!",
               )}
             >
-              Sell Your Book
+              Sell Today
               <Icon name="arrowRight" className="h-4 w-4" />
             </Link>
 
@@ -175,7 +175,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className={btnClass("gold", "lg")}
             >
-              Sell Your Book
+              Sell Today
               <Icon name="arrowRight" className="h-5 w-5" />
             </Link>
 
@@ -184,17 +184,17 @@ export function Header() {
               onClick={() => setOpen(false)}
               className={btnClass("outline", "lg")}
             >
-              Explore Books
+              Explore Marketplace
               <Icon name="compass" className="h-5 w-5" />
             </Link>
 
             <Link
-              to="/seller-login"
+              to="/dashboard"
               onClick={() => setOpen(false)}
               className="flex items-center justify-center gap-2 py-3 text-[14px] font-bold text-forest/70"
             >
               <Icon name="key" className="h-4 w-4" />
-              Author Login
+              Seller Dashboard
             </Link>
           </div>
         </div>
@@ -225,7 +225,7 @@ export function MobileCtaBar() {
           )}
         >
           <Icon name="compass" className="h-4 w-4" />
-          Explore Books
+          Explore Marketplace
         </Link>
 
         <Link
@@ -236,7 +236,7 @@ export function MobileCtaBar() {
             "h-12! text-[13.5px]!",
           )}
         >
-          Sell Your Book
+          Sell Today
           <Icon name="arrowRight" className="h-4 w-4" />
         </Link>
       </div>
