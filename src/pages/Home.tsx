@@ -4,7 +4,7 @@ import {
   Check,
   ShieldCheck,
   Zap,
-  BookOpen,
+  productOpen,
   Wallet,
   LockKeyhole,
   Smartphone,
@@ -64,7 +64,7 @@ export function Home() {
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 font-bold text-white transition hover:bg-white/10"
                 >
                   Explore Marketplace
-                  <BookOpen className="h-5 w-5" />
+                  <productOpen className="h-5 w-5" />
                 </Link>
               </div>
 
@@ -112,7 +112,7 @@ export function Home() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="rounded-xl bg-indigo-500/10 p-2">
-                          <BookOpen className="h-5 w-5 text-indigo-400" />
+                          <productOpen className="h-5 w-5 text-indigo-400" />
                         </div>
 
                         <div>
@@ -180,7 +180,7 @@ export function Home() {
       </section>
 
       {/* =========================
-          AUTHOR MODEL
+          seller MODEL
       ========================== */}
       <section className="border-y border-white/5 bg-slate-900/50">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
@@ -224,7 +224,7 @@ export function Home() {
             {/* Step 2 */}
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-7">
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400">
-                <BookOpen className="h-6 w-6" />
+                <productOpen className="h-6 w-6" />
               </div>
 
               <div className="mb-2 text-sm font-bold text-cyan-400">
@@ -394,7 +394,7 @@ export function Home() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="rounded-xl bg-white/[0.04] p-4">
                     <p className="text-xs text-slate-500">
-                      Book sales
+                      product sales
                     </p>
 
                     <p className="mt-1 text-xl font-bold">
@@ -419,7 +419,7 @@ export function Home() {
       </section>
 
       {/* =========================
-          READERS
+          customers
       ========================== */}
       <section className="border-y border-white/5 bg-slate-900/40">
         <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
@@ -628,7 +628,7 @@ export function Home() {
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/5 px-7 py-3.5 font-bold text-white transition hover:bg-white/10"
             >
               Explore Marketplace
-              <BookOpen className="h-5 w-5" />
+              <productOpen className="h-5 w-5" />
             </Link>
           </div>
         </div>
