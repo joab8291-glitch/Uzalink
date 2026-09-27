@@ -68,7 +68,7 @@ export function Dashboard() {
       setError(
         e instanceof Error
           ? e.message
-          : "Could not load author dashboard."
+          : "Could not load seller dashboard."
       );
     }
   };
@@ -95,7 +95,7 @@ export function Dashboard() {
   if (loading || !user) {
     return (
       <div className="min-h-screen pt-32 text-center">
-        Loading author account…
+        Loading seller account…
       </div>
     );
   }
@@ -121,7 +121,7 @@ export function Dashboard() {
     (seller?.lifetimeSalesCents || 0) /
     100;
 
-  const totalBooks =
+  const totalProducts =
     products.length;
 
   const totalOrders =
@@ -132,7 +132,7 @@ export function Dashboard() {
       <Container className="max-w-7xl">
 
         {/* =====================================================
-            AUTHOR HEADER
+            seller HEADER
         ====================================================== */}
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-forest/10 bg-white p-5">
 
@@ -146,7 +146,7 @@ export function Dashboard() {
 
               <p className="text-xs text-forest/55">
                 @{seller?.handle ||
-                  "author"}
+                  "seller"}
               </p>
             </div>
           </div>
@@ -161,8 +161,8 @@ export function Dashboard() {
               }`}
             >
               {premium
-                ? "PREMIUM AUTHOR"
-                : "FREE AUTHOR"}
+                ? "PREMIUM seller"
+                : "FREE seller"}
             </span>
 
             <button
@@ -174,7 +174,7 @@ export function Dashboard() {
                 "md"
               )}
             >
-              Publish a Book
+              Publish a Product
             </button>
 
             {!premium && (
@@ -226,7 +226,7 @@ export function Dashboard() {
         <div className="mt-7">
 
           <p className="text-xs font-extrabold uppercase tracking-[.16em] text-brand">
-            Author dashboard
+            seller dashboard
           </p>
 
           <h1 className="mt-2 text-3xl text-deep sm:text-4xl">
@@ -234,7 +234,7 @@ export function Dashboard() {
           </h1>
 
           <p className="mt-2 max-w-2xl text-sm text-forest/65">
-            Manage your books, track your sales and
+            Manage your products, track your sales and
             monitor your earnings from one place.
           </p>
         </div>
@@ -245,9 +245,9 @@ export function Dashboard() {
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
 
           <Stat
-            label="Published books"
-            value={totalBooks}
-            icon="book"
+            label="Published products"
+            value={totalProducts}
+            icon="product"
           />
 
           <Stat
@@ -272,7 +272,7 @@ export function Dashboard() {
           />
 
           <Stat
-            label="Book sales"
+            label="Product sales"
             value={totalOrders}
             icon="bag"
           />
@@ -287,16 +287,16 @@ export function Dashboard() {
 
             <div>
               <p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand">
-                Author earnings
+                seller earnings
               </p>
 
               <h2 className="mt-2 text-2xl text-deep">
-                Keep 95% of every book sale
+                Keep 95% of every product sale
               </h2>
 
               <p className="mt-2 max-w-2xl text-sm text-forest/65">
-                When a reader successfully pays for
-                your book through UzaLink, you receive
+                When a customer successfully pays for
+                your product through UzaLink, you receive
                 95% of the sale. UzaLink retains 5%
                 as the platform commission.
               </p>
@@ -327,22 +327,22 @@ export function Dashboard() {
             <div className="mt-5 grid gap-4 sm:grid-cols-3">
               <Stat label="30-day revenue" value={`KSh ${Number(analytics.revenueKes || 0).toLocaleString()}`} icon="chart" />
               <Stat label="Orders" value={analytics.orderCount || 0} icon="bag" />
-              <Stat label="Top product" value={analytics.products?.[0]?.name || "—"} icon="book" />
+              <Stat label="Top product" value={analytics.products?.[0]?.name || "—"} icon="product" />
             </div>
             {analytics.products?.length > 0 && <div className="mt-5 space-y-2">{analytics.products.slice(0,5).map((x:any)=><div key={x.code} className="flex justify-between rounded-xl bg-mint/50 p-3 text-sm"><span className="font-bold">{x.name}</span><span className="font-extrabold text-brand">KSh {(x.revenueCents/100).toLocaleString()}</span></div>)}</div>}
           </div>
         )}
 
-        {fulfillmentData && ((fulfillmentData.deliveries?.length || 0) + (fulfillmentData.bookings?.length || 0) > 0) && (
+        {fulfillmentData && ((fulfillmentData.deliveries?.length || 0) + (fulfillmentData.productings?.length || 0) > 0) && (
           <div className="mt-6 rounded-3xl border border-forest/10 bg-white p-6">
             <p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand">Fulfillment</p>
             <h2 className="mt-1 text-2xl text-deep">Orders needing action</h2>
             <div className="mt-4 grid gap-3">
-              {[...(fulfillmentData.deliveries||[]).map((x:any)=>({...x,_type:"Delivery"})), ...(fulfillmentData.bookings||[]).map((x:any)=>({...x,_type:"Booking"}))].slice(0,8).map((x:any)=>
+              {[...(fulfillmentData.deliveries||[]).map((x:any)=>({...x,_type:"Delivery"})), ...(fulfillmentData.productings||[]).map((x:any)=>({...x,_type:"Producting"}))].slice(0,8).map((x:any)=>
                 <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-mint/50 p-4">
                   <div><p className="font-extrabold text-deep">{x.product?.name || "Order"}</p><p className="text-sm text-forest/60">{x._type} · {x.status} · {x.order?.publicId}</p><p className="text-xs text-forest/50">{x.order?.buyerName || "Buyer"} · {x.order?.buyerPhone || ""}</p></div>
                   {x.trackingCode && <span className="text-xs font-bold">Tracking: {x.trackingCode}</span>}
-                  <select value={x.status} onChange={async(e)=>{const status=e.target.value;if(x._type==="Delivery") await api.updateSellerDelivery(x.id,{status}); else await api.updateSellerBooking(x.id,{status}); const fresh=await api.sellerFulfillment();setFulfillmentData(fresh)}} className="rounded-xl border px-3 py-2 text-xs font-bold"><option>PENDING</option><option>PROCESSING</option><option>SHIPPED</option><option>DELIVERED</option><option>CONFIRMED</option><option>COMPLETED</option><option>CANCELLED</option></select>
+                  <select value={x.status} onChange={async(e)=>{const status=e.target.value;if(x._type==="Delivery") await api.updateSellerDelivery(x.id,{status}); else await api.updateSellerProducting(x.id,{status}); const fresh=await api.sellerFulfillment();setFulfillmentData(fresh)}} className="rounded-xl border px-3 py-2 text-xs font-bold"><option>PENDING</option><option>PROCESSING</option><option>SHIPPED</option><option>DELIVERED</option><option>CONFIRMED</option><option>COMPLETED</option><option>CANCELLED</option></select>
                 </div>
               )}
             </div>
@@ -350,7 +350,7 @@ export function Dashboard() {
         )}
 
         {/* =====================================================
-            YOUR BOOKS
+            YOUR productS
         ====================================================== */}
         <div className="mt-6 rounded-3xl border border-forest/10 bg-white p-6">
 
@@ -362,11 +362,11 @@ export function Dashboard() {
               </p>
 
               <h2 className="mt-1 text-2xl text-deep">
-                Your books
+                Your products
               </h2>
 
               <p className="mt-1 text-sm text-forest/60">
-                Books you have published through
+                Products you have published through
                 UzaLink.
               </p>
             </div>
@@ -380,7 +380,7 @@ export function Dashboard() {
                 "md"
               )}
             >
-              Publish another book
+              Publish another product
             </button>
           </div>
 
@@ -401,7 +401,7 @@ export function Dashboard() {
                       {product.code ? (
                         <img
                           src={`${API_BASE}/api/products/${encodeURIComponent(product.code)}/cover`}
-                          alt={`Cover of ${product.name || "book"}`}
+                          alt={`Cover of ${product.name || "product"}`}
                           loading="lazy"
                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           onError={(event) => {
@@ -416,7 +416,7 @@ export function Dashboard() {
 
                       <div className="hidden h-full w-full items-center justify-center bg-deep text-gold">
                         <Icon
-                          name="book"
+                          name="product"
                           className="h-8 w-8"
                         />
                       </div>
@@ -424,7 +424,7 @@ export function Dashboard() {
 
                     <h3 className="mt-4 line-clamp-2 text-lg font-extrabold text-deep">
                       {product.name ||
-                        "Untitled book"}
+                        "Untitled product"}
                     </h3>
 
                     {product.category && (
@@ -465,7 +465,7 @@ export function Dashboard() {
                             "flex-1"
                           )}
                         >
-                          View book
+                          View product
                         </button>
                       )}
 
@@ -495,19 +495,19 @@ export function Dashboard() {
 
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-brand shadow-sm">
                 <Icon
-                  name="book"
+                  name="product"
                   className="h-8 w-8"
                 />
               </div>
 
               <h3 className="mt-5 text-xl font-extrabold text-deep">
-                Your first book starts here
+                Your first product starts here
               </h3>
 
               <p className="mx-auto mt-2 max-w-md text-sm text-forest/60">
-                You haven't published a book yet.
-                Upload your first digital book and
-                start reaching readers.
+                You haven't published a product yet.
+                Upload your first digital product and
+                start reaching customers.
               </p>
 
               <button
@@ -520,7 +520,7 @@ export function Dashboard() {
                   "mt-5"
                 )}
               >
-                Publish My First Book
+                Publish My First Product
               </button>
             </div>
           )}
@@ -532,7 +532,7 @@ export function Dashboard() {
         <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_.6fr]">
 
           {/* ===================================================
-              BOOK SALES
+              product SALES
           ==================================================== */}
           <div className="rounded-3xl border border-forest/10 bg-white p-6">
 
@@ -544,12 +544,12 @@ export function Dashboard() {
                 </p>
 
                 <h2 className="mt-1 text-xl text-deep">
-                  Recent book sales
+                  Recent product sales
                 </h2>
               </div>
 
               <span className="rounded-full bg-mint px-3 py-1 text-xs font-bold text-brand">
-                95% author earnings
+                95% seller earnings
               </span>
             </div>
 
@@ -565,7 +565,7 @@ export function Dashboard() {
                     </th>
 
                     <th className="p-3 text-xs font-extrabold uppercase tracking-wide text-forest/50">
-                      Book
+                      Product
                     </th>
 
                     <th className="p-3 text-xs font-extrabold uppercase tracking-wide text-forest/50">
@@ -599,7 +599,7 @@ export function Dashboard() {
                           0) /
                         100;
 
-                      const authorNet =
+                      const sellerNet =
                         (order.sellerNetCents ||
                           0) /
                         100;
@@ -617,7 +617,7 @@ export function Dashboard() {
                           <td className="p-3">
                             {item?.product
                               ?.name ||
-                              "Book"}
+                              "Product"}
                           </td>
 
                           <td className="p-3">
@@ -635,7 +635,7 @@ export function Dashboard() {
 
                           <td className="p-3 font-extrabold text-brand">
                             KSh{" "}
-                            {authorNet.toLocaleString()}
+                            {sellerNet.toLocaleString()}
                           </td>
 
                           <td className="p-3">
@@ -663,11 +663,11 @@ export function Dashboard() {
                   </div>
 
                   <p className="mt-4 font-bold text-deep">
-                    No book sales yet
+                    No product sales yet
                   </p>
 
                   <p className="mt-1 text-sm text-forest/50">
-                    Your reader purchases will
+                    Your customer purchases will
                     appear here.
                   </p>
 
@@ -692,7 +692,7 @@ export function Dashboard() {
 
             <p className="mt-2 text-sm text-forest/65">
               Withdraw money from your available
-              book-sale balance.
+              product-sale balance.
             </p>
 
             <div className="mt-5 rounded-2xl bg-mint/60 p-4">
@@ -787,7 +787,7 @@ export function Dashboard() {
               {!seller?.paymentNumber && (
                 <p className="mt-1 text-xs text-forest/50">
                   Add your M-Pesa number from your
-                  author profile before requesting
+                  seller profile before requesting
                   a payout.
                 </p>
               )}
@@ -813,7 +813,7 @@ export function Dashboard() {
                     UzaLink Premium
                   </p>
                   <h2 className="mt-2 text-2xl font-extrabold text-deep">
-                    Upgrade your author account
+                    Upgrade your seller account
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-forest/65">
                     Enter the M-Pesa number you want to use. UzaLink will send an STK Push. Your account becomes Premium only after the payment is confirmed.
@@ -911,7 +911,7 @@ export function Dashboard() {
                           setPremiumPending(false);
                           setPremiumOpen(false);
                           setMessage(
-                            "Premium activated successfully. Your author account is now Premium."
+                            "Premium activated successfully. Your seller account is now Premium."
                           );
                           return;
                         }
@@ -963,7 +963,7 @@ export function Dashboard() {
         )}
 
         {/* =====================================================
-            AUTHOR CTA
+            seller CTA
         ====================================================== */}
         <div className="mt-6 overflow-hidden rounded-3xl bg-deep p-7 text-white sm:p-9">
 
@@ -975,12 +975,12 @@ export function Dashboard() {
               </p>
 
               <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">
-                Ready to publish another book?
+                Ready to publish another product?
               </h2>
 
               <p className="mt-2 max-w-xl text-sm text-white/65">
-                Give your next book a home where
-                readers can discover it, pay through
+                Give your next product a home where
+                customers can discover it, pay through
                 M-Pesa and access it securely.
               </p>
             </div>
@@ -994,7 +994,7 @@ export function Dashboard() {
                 "lg"
               )}
             >
-              Publish a Book
+              Publish a Product
             </button>
           </div>
         </div>
