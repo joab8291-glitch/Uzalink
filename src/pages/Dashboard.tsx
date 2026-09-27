@@ -799,7 +799,9 @@ export function Dashboard() {
         {/* =====================================================
             PREMIUM SUBSCRIPTION MODAL
         ====================================================== */}
-        {!premium && !premiumOpen && user?.role === "SELLER" && (\n          <button type="button" onClick={() => setPremiumOpen(true)} className={btnClass("gold","lg","mt-5 w-full")}>Become Premium — KSh 1,000/month</button>\n        )}\n        {premiumOpen && !premium && (
+        {!premium && !premiumOpen && user?.role === "SELLER" && (
+          <button type="button" onClick={() => setPremiumOpen(true)} className={btnClass("gold","lg","mt-5 w-full")}>Become Premium — KSh 1,000/month</button>
+        )}\n        {premiumOpen && !premium && (
           <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
             <div
               className="absolute inset-0 bg-deep/60 backdrop-blur-sm"
