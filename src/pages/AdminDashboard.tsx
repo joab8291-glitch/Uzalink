@@ -82,7 +82,18 @@ export function AdminDashboard() {
       const result =
         await api.adminDashboard();
 
-      setData(result);
+      // Never replace a valid dashboard snapshot with an empty 204/empty response.
+      if (
+        result &&
+        typeof result === "object" &&
+        (
+          Array.isArray(result.sellers) ||
+          Array.isArray(result.products) ||
+          Array.isArray(result.users)
+        )
+      ) {
+        setData(result);
+      }
     } catch (e: any) {
       setError(
         e?.message ||
@@ -126,8 +137,17 @@ export function AdminDashboard() {
   const books =
     data?.products || [];
 
-  const sellers =
-    data?.sellers || [];
+  // The backend is authoritative: only users whose current role is SELLER
+  // can appear as active authors/payout recipients.
+  const sellers = useMemo(
+    () =>
+      (Array.isArray(data?.sellers) ? data.sellers : [])
+        .filter(
+          (seller: any) =>
+            seller?.user?.role === "SELLER"
+        ),
+    [data?.sellers]
+  );
 
   const users =
     data?.users || [];
