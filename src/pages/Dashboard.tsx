@@ -75,9 +75,7 @@ export function Dashboard() {
     if (
       !loading &&
       (!user ||
-        !["SELLER", "ADMIN"].includes(
-          user.role
-        ))
+        user.role !== "SELLER")
     ) {
       navigate("/seller-login");
       return;
