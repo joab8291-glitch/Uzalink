@@ -6,7 +6,7 @@ import {
   sellerOf,
   type Product,
 } from "@/lib/data";
-import { Link, useRoute } from "@/lib/router";
+import { Link } from "@/lib/router";
 import { Icon } from "@/components/Icon";
 import {
   Badge,
@@ -31,21 +31,15 @@ function digitsOnly(value: string) {
 }
 
 export function Checkout({ code, product }: { code: string; product?: Product }) {
-  const route = useRoute();
-
   const [resolvedBook, setResolvedBook] = useState<Product | null>(product ?? null);
-  const [bookLoading, setBookLoading] = useState(!product);
-
   useEffect(() => {
     if (product) {
       setResolvedBook(product);
-      setBookLoading(false);
       return;
     }
 
     let cancelled = false;
     const loadExactProduct = async () => {
-      setBookLoading(true);
       try {
         const result = await api.product(code);
         const item = result?.product;
@@ -74,7 +68,6 @@ export function Checkout({ code, product }: { code: string; product?: Product })
       } catch {
         if (!cancelled) setResolvedBook(null);
       } finally {
-        if (!cancelled) setBookLoading(false);
       }
     };
     void loadExactProduct();
