@@ -54,6 +54,7 @@ export function Dashboard() {
   const [premiumPending, setPremiumPending] =
     useState(false);
   const [analytics, setAnalytics] = useState<any>(null);
+  const [fulfillmentData, setFulfillmentData] = useState<any>(null);
 
   const load = async () => {
     try {
@@ -85,6 +86,7 @@ export function Dashboard() {
     if (user) {
       void load();
       void api.sellerAnalytics().then(setAnalytics).catch(() => {});
+      void api.sellerFulfillment().then(setFulfillmentData).catch(() => {});
     }
   }, [loading, user]);
 
@@ -326,6 +328,21 @@ export function Dashboard() {
               <Stat label="Top product" value={analytics.products?.[0]?.name || "—"} icon="book" />
             </div>
             {analytics.products?.length > 0 && <div className="mt-5 space-y-2">{analytics.products.slice(0,5).map((x:any)=><div key={x.code} className="flex justify-between rounded-xl bg-mint/50 p-3 text-sm"><span className="font-bold">{x.name}</span><span className="font-extrabold text-brand">KSh {(x.revenueCents/100).toLocaleString()}</span></div>)}</div>}
+          </div>
+        )}
+
+        {fulfillmentData && ((fulfillmentData.deliveries?.length || 0) + (fulfillmentData.bookings?.length || 0) > 0) && (
+          <div className="mt-6 rounded-3xl border border-forest/10 bg-white p-6">
+            <p className="text-xs font-extrabold uppercase tracking-[.14em] text-brand">Fulfillment</p>
+            <h2 className="mt-1 text-2xl text-deep">Orders needing action</h2>
+            <div className="mt-4 grid gap-3">
+              {[...(fulfillmentData.deliveries||[]).map((x:any)=>({...x,_type:"Delivery"})), ...(fulfillmentData.bookings||[]).map((x:any)=>({...x,_type:"Booking"}))].slice(0,8).map((x:any)=>
+                <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-mint/50 p-4">
+                  <div><p className="font-extrabold text-deep">{x.product?.name || "Order"}</p><p className="text-sm text-forest/60">{x._type} · {x.status} · {x.order?.publicId}</p><p className="text-xs text-forest/50">{x.order?.buyerName || "Buyer"} · {x.order?.buyerPhone || ""}</p></div>
+                  {x.trackingCode && <span className="text-xs font-bold">Tracking: {x.trackingCode}</span>}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
