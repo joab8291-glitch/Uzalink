@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { Badge, Container, Reveal, btnClass } from "@/components/ui";
 import { ProductCard } from "@/components/ProductCard";
 import { ShareChannels } from "@/components/ShareSheet";
+import { MarketplaceEngagement } from "@/components/MarketplaceEngagement";
 
 export function MagicProduct({ code }: { code: string }) {
   const [book, setBook] = useState<Product | null>(null);
@@ -318,6 +319,8 @@ export function MagicProduct({ code }: { code: string }) {
                     />
                   </div>
                 </div>
+
+                <MarketplaceEngagement code={book.code} sellerId={(book as any).sellerId} priceCents={Math.round(book.price * 100)} />
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Badge tone="card" icon="lock">Secure checkout</Badge>

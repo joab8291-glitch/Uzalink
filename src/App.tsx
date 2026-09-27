@@ -14,6 +14,8 @@ import { About } from "@/pages/About";
 import { SellerLogin } from "@/pages/SellerLogin";
 import { Dashboard } from "@/pages/Dashboard";
 import { AdminDashboard } from "@/pages/AdminDashboard";
+import { Wishlist } from "@/pages/Wishlist";
+import { Messages } from "@/pages/Messages";
 
 function NotFound() {
   return (
@@ -45,6 +47,9 @@ function renderRoute(route: string) {
     case "seller-login": return <SellerLogin />;
     case "dashboard": return <Dashboard />;
     case "admin": return <AdminDashboard />;
+    case "wishlist": return <Wishlist />;
+    case "messages": return <Messages />;
+    case "ref": return <Wishlist />;
     case "magic":
       if (parts[1] && parts[2] === "checkout") return <LiveCheckout code={parts[1]} />;
       if (parts[1]) return <MagicProduct code={parts[1]} />;
