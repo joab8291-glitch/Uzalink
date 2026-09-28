@@ -13,8 +13,19 @@ export const PRODUCT_TYPES = [
 
 export const CATEGORIES = ["Business & Money","Design & Creative","Education","Beauty & Grooming","Fashion","Food & Drink","Events & Entertainment","Health & Fitness","Electronics","Home & Crafts","Professional Services","Technology","Other"];
 
-export type Product = {code:string;name:string;seller:string;handle:string;sellerAvatarSeed:string;type:ProductType;category:string;description:string;longDescription:string;price:number;image:string;delivery:string;rating:number;sales:number;badge?:string;instant?:boolean};
+/** Categories are intentionally synchronized with the Step 1 offer type. */
+export const CATEGORIES_BY_TYPE: Record<ProductType,string[]> = {
+ "Digital Product":["Business & Money","Design & Creative","Education","Health & Fitness","Technology","Fashion","Food & Drink","Home & Crafts","Professional Services","Other"],
+ "Service":["Business & Money","Professional Services","Design & Creative","Beauty & Grooming","Health & Fitness","Education","Technology","Home & Crafts","Other"],
+ "Booking":["Beauty & Grooming","Health & Fitness","Professional Services","Education","Events & Entertainment","Food & Drink","Home & Crafts","Other"],
+ "Event":["Events & Entertainment","Education","Business & Money","Health & Fitness","Food & Drink","Fashion","Technology","Other"],
+ "Course":["Education","Business & Money","Design & Creative","Technology","Health & Fitness","Professional Services","Other"],
+ "Subscription":["Education","Business & Money","Design & Creative","Health & Fitness","Technology","Entertainment","Professional Services","Other"],
+ "Physical Product":["Fashion","Electronics","Food & Drink","Beauty & Grooming","Home & Crafts","Health & Fitness","Technology","Business & Money","Other"],
+ "Other":[...CATEGORIES],
+};
 
+export type Product = {code:string;name:string;seller:string;handle:string;sellerAvatarSeed:string;type:ProductType;category:string;description:string;longDescription:string;price:number;image:string;delivery:string;rating:number;sales:number;badge?:string;instant?:boolean};
 export const PRODUCTS:Product[]=[];
 export const SELLER_STEPS=[{number:"01",title:"Create your seller profile",text:"Set up your seller details and payment number."},{number:"02",title:"Add your product or offer",text:"Choose what you sell and add its details."},{number:"03",title:"Set your price",text:"Choose the price customers will pay."},{number:"04",title:"Set your payment number",text:"Add the M-Pesa number for seller settlement."},{number:"05",title:"Share your Magic Link",text:"Share one link through WhatsApp, SMS or social media."}];
 export const BUYER_FLOW=[{number:"01",title:"Find an offer",text:"Explore products and services from independent sellers."},{number:"02",title:"Open the offer page",text:"Review the details, price and seller information."},{number:"03",title:"Pay with M-Pesa",text:"Complete payment securely through M-Pesa."},{number:"04",title:"Get your offer",text:"After payment confirmation, receive the product or fulfillment details."}];
