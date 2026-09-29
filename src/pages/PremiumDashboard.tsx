@@ -74,11 +74,11 @@ export function PremiumDashboard() {
       <Container className="max-w-[1400px]">
         <div className="grid gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
           <aside className="h-fit rounded-[28px] border border-forest/10 bg-white p-5 shadow-sm lg:sticky lg:top-24">
-            <div className="flex items-center gap-3 border-b border-forest/10 pb-5">
-              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="h-11 w-auto shrink-0 object-contain" />
-              <div className="min-w-0">
+            <div className="flex items-start gap-3 border-b border-forest/10 pb-5">
+              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="mt-0.5 h-11 w-11 shrink-0 object-contain" />
+              <div className="min-w-0 flex-1">
                 <p className="text-base font-black text-deep">UZALINK Kenya</p>
-                <p className="truncate text-xs font-semibold text-forest/55">{user.name} · @{seller?.handle || "premium-seller"}</p>
+                <p className="truncate text-xs font-semibold text-forest/55">{user.name || "UzaLink user"} · @{seller?.handle || "premium-seller"}</p>
               </div>
             </div>
             <span className="mt-4 inline-flex rounded-full bg-goldsoft px-3 py-1 text-xs font-black text-deep">Premium · KSh 1,000/mo</span>
