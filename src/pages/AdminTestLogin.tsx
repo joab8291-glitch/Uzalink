@@ -4,7 +4,8 @@ import {
   btnClass,
   inputClass,
 } from "@/components/ui";
-import { Icon, Logo } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
+import { BrandLogo } from "@/components/BrandLogo";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { navigate } from "@/lib/router";
@@ -145,7 +146,7 @@ export function AdminTestLogin() {
       <Container className="max-w-3xl">
         <div className="mx-auto max-w-xl rounded-[32px] bg-white p-7 text-ink shadow-2xl sm:p-9">
 
-          <Logo tone="dark" />
+          <BrandLogo />
 
           <p className="mt-6 text-xs font-extrabold uppercase tracking-[.18em] text-brand">
             UzaLink Administration
