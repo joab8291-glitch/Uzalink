@@ -1,73 +1,51 @@
 import { Link } from "@/lib/router";
-import { ArrowRight, Check, Menu } from "lucide-react";
+import { ArrowRight, Check, Menu, ShieldCheck, Smartphone, Zap } from "lucide-react";
 
-function UzaLinkLogo({ compact = false }: { compact?: boolean }) {
+function UzaLinkLogo() {
   return (
-    <div className="flex items-center gap-2" aria-label="UZALINK">
-      <svg viewBox="0 0 64 64" className={compact ? "h-9 w-9" : "h-12 w-12"} aria-hidden="true">
-        <rect width="64" height="64" rx="14" fill="#0b6248" />
-        <path d="M19 14v25c0 8 5 12 13 12s13-4 13-12V14" fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" />
-        <path d="M36 14c9 2 14 8 14 16 0 4-1 7-3 10" fill="none" stroke="#f7c91b" strokeWidth="6" strokeLinecap="round" />
-        <path d="M22 38c4-7 9-10 14-10 5 0 9 3 11 8" fill="none" stroke="#f7c91b" strokeWidth="4" strokeLinecap="round" />
-      </svg>
-      <span className="text-xl font-black tracking-tight text-forest">UZALINK</span>
+    <div className="flex items-center gap-2.5" aria-label="UZALINK">
+      <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#075a43] shadow-sm">
+        <span className="absolute left-[10px] top-[8px] h-6 w-4 rounded-b-[10px] border-[4px] border-white border-t-0" />
+        <span className="absolute right-[8px] top-[7px] h-6 w-5 rotate-[-18deg] rounded-full border-[4px] border-[#f7d21f] border-l-0 border-b-0" />
+        <span className="absolute bottom-[9px] left-[11px] h-2 w-5 rotate-[-28deg] rounded-full bg-[#f7d21f]" />
+      </div>
+      <div className="leading-none"><div className="text-[21px] font-black tracking-[-0.04em] text-[#075a43]">UZALINK</div><div className="mt-1 text-[7px] font-bold tracking-[0.16em] text-[#075a43]/70">TURN LINKS INTO SALES.</div></div>
     </div>
   );
 }
 
 export function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-[#0b6048] text-white">
-      <header className="relative z-20 bg-white shadow-sm">
-        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" aria-label="UzaLink home"><UzaLinkLogo compact /></Link>
-          <div className="flex items-center gap-3">
-            <Link to="/sell" className="rounded-xl bg-[#f7d21f] px-5 py-3 text-sm font-extrabold text-forest shadow-sm transition hover:brightness-105">Sell Today</Link>
-            <button type="button" aria-label="Open menu" className="rounded-xl p-2 text-forest hover:bg-mint/50"><Menu className="h-7 w-7" /></button>
-          </div>
+    <main className="min-h-screen bg-[#f7fbf8] text-[#073f31]">
+      <header className="sticky top-0 z-30 border-b border-[#075a43]/10 bg-white/95 shadow-sm backdrop-blur">
+        <div className="mx-auto flex h-[76px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link to="/" aria-label="UzaLink home"><UzaLinkLogo /></Link>
+          <nav className="hidden items-center gap-8 text-sm font-bold text-[#075a43]/75 lg:flex">
+            <Link to="/explore" className="transition hover:text-[#075a43]">Explore</Link>
+            <Link to="/how-it-works" className="transition hover:text-[#075a43]">How It Works</Link>
+            <Link to="/about" className="transition hover:text-[#075a43]">About</Link>
+          </nav>
+          <div className="flex items-center gap-2.5"><Link to="/sell" className="rounded-xl bg-[#f7d21f] px-5 py-3 text-sm font-extrabold text-[#073f31] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">Sell Today</Link><button type="button" aria-label="Open menu" className="rounded-xl p-2 text-[#075a43] hover:bg-[#e9f5ef] lg:hidden"><Menu className="h-6 w-6" /></button></div>
         </div>
       </header>
 
-      <section className="relative min-h-[calc(100vh-72px)] overflow-hidden bg-gradient-to-br from-[#064d3b] via-[#0b6048] to-[#52776a]">
-        <div className="pointer-events-none absolute inset-0 opacity-70">
-          <div className="absolute -right-24 -top-20 h-[520px] w-[420px] rotate-[17deg] rounded-[45%] bg-[#315f52]/60 blur-[1px]" />
-          <div className="absolute -bottom-64 -right-20 h-[720px] w-[500px] rotate-[27deg] rounded-[48%] bg-[#184d3e]/80" />
-          <div className="absolute -bottom-32 -left-36 h-[600px] w-[520px] rotate-[-18deg] rounded-[45%] bg-[#0b6a4d]/70" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_35%,rgba(255,255,255,.10),transparent_35%)]" />
-        </div>
-
-        <div className="relative mx-auto flex min-h-[calc(100vh-72px)] max-w-7xl items-start px-4 pb-16 pt-24 sm:px-6 sm:pt-28 lg:px-8 lg:pt-32">
-          <div className="w-full max-w-3xl">
-            <div className="mb-7 flex items-center gap-3 text-[11px] font-extrabold uppercase tracking-[0.22em] text-[#f7d21f] sm:text-sm">
-              <span className="h-px w-9 bg-[#f7d21f]" />
-              Kenya's link-first commerce platform
-            </div>
-
-            <div className="mb-2 text-xl font-black tracking-tight text-[#f7d21f] sm:text-2xl">UZALINK</div>
-            <h1 className="max-w-2xl text-[46px] font-black leading-[0.98] tracking-[-0.045em] sm:text-6xl lg:text-7xl">
-              One Link.<br />
-              Everything You Sell.
-            </h1>
-            <p className="mt-7 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
-              Create your product, set your price, add your payment number, get your unique Magic Link and start selling.
-            </p>
-
-            <div className="mt-8 grid max-w-xl gap-3">
-              <Link to="/sell" className="flex h-14 items-center justify-center gap-3 rounded-xl bg-[#f7d21f] px-6 text-base font-extrabold text-forest shadow-lg transition hover:brightness-105">
-                Sell Today <ArrowRight className="h-5 w-5" />
-              </Link>
-              <Link to="/explore" className="flex h-14 items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/10 px-6 text-base font-extrabold text-white backdrop-blur-sm transition hover:bg-white/15">
-                Explore Us <ArrowRight className="h-5 w-5" />
-              </Link>
-            </div>
-
-            <div className="mt-6 flex items-center gap-2 text-sm font-medium text-white/70">
-              <Check className="h-4 w-4 text-[#f7d21f]" />
-              No account needed to start selling or buying
-            </div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#064d3b] via-[#075a43] to-[#477667] text-white">
+        <div className="pointer-events-none absolute inset-0"><div className="absolute -right-24 -top-32 h-[620px] w-[520px] rotate-[20deg] rounded-[45%] bg-white/[0.06]" /><div className="absolute -bottom-80 right-0 h-[760px] w-[500px] rotate-[25deg] rounded-[48%] bg-[#063e31]/70" /><div className="absolute left-1/2 top-0 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#f7d21f]/[0.05] blur-3xl" /></div>
+        <div className="relative mx-auto grid min-h-[calc(100vh-76px)] max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-20">
+          <div className="max-w-2xl">
+            <div className="mb-6 flex items-center gap-3 text-xs font-extrabold uppercase tracking-[0.2em] text-[#f7d21f] sm:text-sm"><span className="h-px w-9 bg-[#f7d21f]" />Kenya's link-first commerce platform</div>
+            <h1 className="text-[48px] font-black leading-[.96] tracking-[-.045em] sm:text-6xl lg:text-[76px]">One Link.<span className="block text-[#f7d21f]">Everything You Sell.</span></h1>
+            <p className="mt-7 max-w-xl text-base leading-7 text-white/75 sm:text-lg">Sell digital products, services, bookings, events, courses and physical products. Get paid with M-Pesa and share one simple Magic Link.</p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row"><Link to="/sell" className="flex h-14 items-center justify-center gap-3 rounded-xl bg-[#f7d21f] px-7 font-extrabold text-[#073f31] shadow-lg transition hover:-translate-y-0.5">Sell Today <ArrowRight className="h-5 w-5" /></Link><Link to="/explore" className="flex h-14 items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/10 px-7 font-extrabold text-white backdrop-blur transition hover:bg-white/15">Explore Marketplace <ArrowRight className="h-5 w-5" /></Link></div>
+            <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/70"><span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#f7d21f]" />Free seller access</span><span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#f7d21f]" />M-Pesa payments</span><span className="flex items-center gap-2"><Check className="h-4 w-4 text-[#f7d21f]" />95% seller earnings</span></div>
           </div>
+          <div className="mx-auto w-full max-w-md lg:ml-auto"><div className="rounded-[30px] border border-white/15 bg-white/[0.09] p-5 shadow-2xl backdrop-blur-xl sm:p-7"><div className="rounded-[22px] bg-white p-6 text-[#073f31] shadow-xl"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-[#075a43]/50">Your Magic Link</p><p className="mt-2 text-2xl font-black">Ready to sell</p></div><div className="rounded-xl bg-[#e9f5ef] p-3 text-[#075a43]"><Zap className="h-6 w-6" /></div></div><div className="mt-6 rounded-xl bg-[#f3f8f5] p-4"><p className="text-xs font-semibold text-[#075a43]/50">uzalink.vercel.app/#/magic/...</p><p className="mt-2 font-bold">Share one link. Get customers.</p></div><div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl bg-[#e9f5ef] p-4"><p className="text-xs text-[#075a43]/50">Payment</p><p className="mt-1 font-black">M-Pesa</p></div><div className="rounded-xl bg-[#fff7cc] p-4"><p className="text-xs text-[#075a43]/50">You keep</p><p className="mt-1 font-black">95%</p></div></div><div className="mt-5 flex items-center gap-2 text-xs font-semibold text-[#075a43]/65"><ShieldCheck className="h-4 w-4 text-[#075a43]" />Secure, Kenya-first commerce</div></div></div></div>
         </div>
       </section>
+
+      <section className="border-b border-[#075a43]/10 bg-white"><div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 sm:grid-cols-3 sm:px-6 lg:px-8"><div className="flex items-center gap-4"><div className="rounded-xl bg-[#e9f5ef] p-3 text-[#075a43]"><Smartphone className="h-5 w-5" /></div><div><p className="font-bold text-[#073f31]">Mobile first</p><p className="text-sm text-[#075a43]/55">Built for Kenyan customers</p></div></div><div className="flex items-center gap-4"><div className="rounded-xl bg-[#fff7cc] p-3 text-[#075a43]"><Zap className="h-5 w-5" /></div><div><p className="font-bold text-[#073f31]">Simple selling</p><p className="text-sm text-[#075a43]/55">Create and share one link</p></div></div><div className="flex items-center gap-4"><div className="rounded-xl bg-[#e9f5ef] p-3 text-[#075a43]"><ShieldCheck className="h-5 w-5" /></div><div><p className="font-bold text-[#073f31]">Secure payments</p><p className="text-sm text-[#075a43]/55">M-Pesa-first checkout</p></div></div></div></section>
+
+      <section className="bg-[#f7fbf8]"><div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8 lg:py-20"><p className="text-xs font-extrabold uppercase tracking-[0.18em] text-[#075a43]">Start selling today</p><h2 className="mt-3 text-3xl font-black tracking-tight text-[#073f31] sm:text-4xl">Create. Share. Sell.</h2><p className="mx-auto mt-4 max-w-xl text-[#075a43]/60">No Premium required to sell. Create your offer, get your Magic Link on screen and share it with customers.</p><Link to="/sell" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#f7d21f] px-7 py-4 font-extrabold text-[#073f31] shadow-md transition hover:-translate-y-0.5">Sell Today <ArrowRight className="h-5 w-5" /></Link></div></section>
     </main>
   );
 }
