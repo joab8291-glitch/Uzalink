@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/BrandLogo";
 import { useEffect, useMemo, useState } from "react";
 import { Container, btnClass } from "@/components/ui";
 import { Icon } from "@/components/Icon";
@@ -75,7 +76,7 @@ export function PremiumDashboard() {
         <div className="grid gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
           <aside className="h-fit rounded-[28px] border border-forest/10 bg-white p-5 shadow-sm lg:sticky lg:top-24">
             <div className="flex items-start gap-3 border-b border-forest/10 pb-5">
-              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="mt-0.5 h-11 w-11 shrink-0 object-contain" />
+              <BrandLogo className="w-[155px] sm:w-[175px]" />
               <div className="min-w-0 flex-1">
                 <p className="text-base font-black text-deep">UZALINK Kenya</p>
                 <p className="truncate text-xs font-semibold text-forest/55">{user.name || "UzaLink user"} · @{seller?.handle || "premium-seller"}</p>
