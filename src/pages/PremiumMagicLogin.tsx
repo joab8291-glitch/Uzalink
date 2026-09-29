@@ -6,7 +6,6 @@ import {
 } from "@/components/ui";
 import {
   Icon,
-  Logo,
 } from "@/components/Icon";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -128,7 +127,7 @@ export function PremiumMagicLogin() {
       <Container className="max-w-5xl">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <Logo tone="light" />
+            <BrandLogo />
 
             <p className="mt-7 text-xs font-extrabold uppercase tracking-[.18em] text-gold">
               UzaLink Premium
