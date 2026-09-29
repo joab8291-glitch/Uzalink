@@ -42,7 +42,7 @@ export function PremiumMagicLogin() {
     user?.role === "SELLER" &&
     user.premium
   ) {
-    navigate("/dashboard");
+    navigate("/premium-dashboard");
   }
 
   const requestCode = async () => {
@@ -107,11 +107,11 @@ export function PremiumMagicLogin() {
         refreshed?.role === "SELLER" &&
         refreshed.premium
       ) {
-        navigate("/dashboard");
+        navigate("/premium-dashboard");
         return;
       }
 
-      navigate("/dashboard");
+      navigate("/premium-dashboard");
     } catch (e) {
       setError(
         e instanceof Error
