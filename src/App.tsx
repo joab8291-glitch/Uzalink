@@ -9,7 +9,6 @@ import { SellToday } from "@/pages/SellToday";
 import { SellerLogin } from "@/pages/SellerLogin";
 import { PremiumMagicLogin } from "@/pages/PremiumMagicLogin";
 import { PremiumDashboard } from "@/pages/PremiumDashboard";
-import { PremiumMagicLogin } from "@/pages/PremiumMagicLogin";
 import { MagicProduct } from "@/pages/MagicProduct";
 import { LiveCheckout } from "@/pages/LiveCheckout";
 import { HowItWorks } from "@/pages/HowItWorks";
@@ -61,6 +60,8 @@ function renderRoute(route: string) {
       return <SellerLogin />;
     case "premium-login":
       return <PremiumMagicLogin />;
+    case "premium-dashboard":
+      return <PremiumDashboard />;
     case "how-it-works":
       return <HowItWorks />;
     case "about":
