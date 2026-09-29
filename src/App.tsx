@@ -15,6 +15,7 @@ import { HowItWorks } from "@/pages/HowItWorks";
 import { About } from "@/pages/About";
 import { Dashboard } from "@/pages/Dashboard";
 import { AdminConsole } from "@/pages/AdminConsole";
+import { AdminTestLogin } from "@/pages/AdminTestLogin";
 import { Wishlist } from "@/pages/Wishlist";
 import { Messages } from "@/pages/Messages";
 
@@ -68,6 +69,8 @@ function renderRoute(route: string) {
       return <About />;
     case "dashboard":
       return <Dashboard />;
+    case "admin-login":
+      return <AdminTestLogin />;
     case "admin":
       return <AdminConsole />;
     case "wishlist":
