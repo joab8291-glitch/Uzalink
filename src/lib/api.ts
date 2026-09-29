@@ -138,17 +138,17 @@ export const api = {
     }),
 
   adminTestRequest: (phone: string) =>
-  request<any>("/api/auth/admin/test/request", {
-    method: "POST",
-    body: JSON.stringify({ phone }),
-  }),
+    request<any>("/api/auth/admin/test/request", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
 
   adminTestVerify: (phone: string, code: string) =>
-  request<any>("/api/auth/admin/test/verify", {
-    method: "POST",
-    body: JSON.stringify({ phone, code }),
-  }),
-  
+    request<any>("/api/auth/admin/test/verify", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    }),
+
   adminDashboard: () =>
     request<any>("/api/admin/dashboard"),
 
