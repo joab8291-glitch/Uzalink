@@ -70,12 +70,6 @@ export const api = {
       body: JSON.stringify({ identity, code }),
     }),
 
-  premiumRequest: (identity: string) =>
-    request<any>("/api/auth/premium/request", {
-      method: "POST",
-      body: JSON.stringify({ identity }),
-    }),
-
   premiumVerify: (identity: string, code: string) =>
     request<any>("/api/auth/premium/verify", {
       method: "POST",
@@ -149,6 +143,18 @@ export const api = {
       body: JSON.stringify({ amountCents }),
     }),
 
+  adminTestRequest: (phone: string) =>
+  request<any>("/api/auth/admin/test/request", {
+    method: "POST",
+    body: JSON.stringify({ phone }),
+  }),
+
+  adminTestVerify: (phone: string, code: string) =>
+  request<any>("/api/auth/admin/test/verify", {
+    method: "POST",
+    body: JSON.stringify({ phone, code }),
+  }),
+  
   adminDashboard: () =>
     request<any>("/api/admin/dashboard"),
 
