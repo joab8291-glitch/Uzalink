@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Container, btnClass, inputClass } from "@/components/ui";
-import { Logo, Icon } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
+import { BrandLogo } from "@/components/BrandLogo";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { navigate } from "@/lib/router";
@@ -326,7 +327,7 @@ function SellerLogin() {
       <Container className="max-w-5xl">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           <div>
-            <Logo tone="light" />
+            <BrandLogo />
 
             <p className="mt-6 text-xs font-extrabold uppercase tracking-[.16em] text-gold">
               Free seller access
