@@ -6,6 +6,7 @@ import { Link, useRoute } from "@/lib/router";
 import { Home } from "@/pages/Home";
 import { Explore } from "@/pages/Explore";
 import { SellToday } from "@/pages/SellToday";
+import { SellerLogin } from "@/pages/SellerLogin";
 import { MagicProduct } from "@/pages/MagicProduct";
 import { LiveCheckout } from "@/pages/LiveCheckout";
 import { HowItWorks } from "@/pages/HowItWorks";
@@ -26,7 +27,7 @@ function renderRoute(route: string) {
   switch (parts[0]) {
     case "explore": return <Explore />;
     case "sell": return <SellToday />;
-    case "seller-login": return <SellToday />;
+    case "seller-login": return <SellerLogin />;
     case "how-it-works": return <HowItWorks />;
     case "about": return <About />;
     case "dashboard": return <Dashboard />;
