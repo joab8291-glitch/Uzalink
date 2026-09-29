@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Container, btnClass } from "@/components/ui";
-import { Icon, Logo } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
 import { api, API_BASE } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { navigate } from "@/lib/router";
@@ -75,7 +75,7 @@ export function PremiumDashboard() {
         <header className="rounded-[28px] border border-forest/10 bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <Logo />
+              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="h-12 w-auto shrink-0 object-contain" />
               <div>
                 <p className="text-lg font-black text-deep">UZALINK Kenya</p>
                 <p className="text-sm font-semibold text-forest/55">{user.name} · @{seller?.handle || "premium-seller"}</p>
