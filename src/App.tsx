@@ -60,13 +60,15 @@ function renderRoute(route: string) {
 export function App() {
   const route = useRoute();
   const bare = route.startsWith("/dashboard") || route.startsWith("/admin");
+  const isHome = route.split("?")[0].replace(/\/+$/, "") === "";
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <Header />
+      {/* Home owns its reference-based header. Rendering the global header here as well caused the old logo and navigation to overlap it. */}
+      {!isHome && <Header />}
       <main className="flex-1">{renderRoute(route)}</main>
       {!bare && <Footer />}
-      <MobileCtaBar />
+      {!isHome && <MobileCtaBar />}
     </div>
   );
 }
