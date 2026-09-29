@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Container,
   btnClass,
@@ -36,14 +36,13 @@ export function AdminTestLogin() {
 
   /*
    * If the browser already has an ADMIN
-   * session, go directly to the dashboard.
+   * session, redirect after render.
    */
-  if (
-    !loading &&
-    user?.role === "ADMIN"
-  ) {
-    navigate("/admin");
-  }
+  useEffect(() => {
+    if (!loading && user?.role === "ADMIN") {
+      navigate("/admin");
+    }
+  }, [loading, user?.role]);
 
   const requestCode = async () => {
     setError("");
