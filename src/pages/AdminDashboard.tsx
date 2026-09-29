@@ -12,7 +12,6 @@ import {
 
 import {
   Icon,
-  Logo,
 } from "@/components/Icon";
 
 import {
@@ -444,7 +443,7 @@ export function AdminDashboard() {
 
             <div className="flex items-center gap-3">
 
-              <Logo />
+              <BrandLogo />
 
               <div>
                 <p className="font-extrabold text-deep">
