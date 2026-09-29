@@ -70,6 +70,18 @@ export const api = {
       body: JSON.stringify({ identity, code }),
     }),
 
+  premiumRequest: (identity: string) =>
+    request<any>("/api/auth/premium/request", {
+      method: "POST",
+      body: JSON.stringify({ identity }),
+    }),
+
+  premiumVerify: (identity: string, code: string) =>
+    request<any>("/api/auth/premium/verify", {
+      method: "POST",
+      body: JSON.stringify({ identity, code }),
+    }),
+
   logout: () =>
     request<any>("/api/auth/logout", {
       method: "POST",
