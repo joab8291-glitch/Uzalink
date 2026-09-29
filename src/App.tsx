@@ -8,6 +8,8 @@ import { Explore } from "@/pages/Explore";
 import { SellToday } from "@/pages/SellToday";
 import { SellerLogin } from "@/pages/SellerLogin";
 import { PremiumMagicLogin } from "@/pages/PremiumMagicLogin";
+import { PremiumDashboard } from "@/pages/PremiumDashboard";
+import { PremiumMagicLogin } from "@/pages/PremiumMagicLogin";
 import { MagicProduct } from "@/pages/MagicProduct";
 import { LiveCheckout } from "@/pages/LiveCheckout";
 import { HowItWorks } from "@/pages/HowItWorks";
