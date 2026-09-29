@@ -72,33 +72,35 @@ export function PremiumDashboard() {
   return (
     <section className="min-h-screen bg-[#f5faf7] pb-20 pt-24">
       <Container className="max-w-[1400px]">
-        <header className="rounded-[28px] border border-forest/10 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="h-12 w-auto shrink-0 object-contain" />
-              <div>
-                <p className="text-lg font-black text-deep">UZALINK Kenya</p>
-                <p className="text-sm font-semibold text-forest/55">{user.name} · @{seller?.handle || "premium-seller"}</p>
+        <div className="grid gap-6 lg:grid-cols-[270px_minmax(0,1fr)]">
+          <aside className="h-fit rounded-[28px] border border-forest/10 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+            <div className="flex items-center gap-3 border-b border-forest/10 pb-5">
+              <img src="/uzalink-logo.svg" alt="UzaLink Kenya" className="h-11 w-auto shrink-0 object-contain" />
+              <div className="min-w-0">
+                <p className="text-base font-black text-deep">UZALINK Kenya</p>
+                <p className="truncate text-xs font-semibold text-forest/55">{user.name} · @{seller?.handle || "premium-seller"}</p>
               </div>
-              <span className="rounded-full bg-goldsoft px-3 py-1 text-xs font-black text-deep">Premium · KSh 1,000/mo</span>
             </div>
-            <div className="flex gap-2">
-              <button onClick={() => void load()} className={btnClass("outline","md")}>Refresh</button>
-              <button onClick={async()=>{await logout();navigate("/")}} className={btnClass("outline","md")}>Log out</button>
+            <span className="mt-4 inline-flex rounded-full bg-goldsoft px-3 py-1 text-xs font-black text-deep">Premium · KSh 1,000/mo</span>
+
+            <nav className="mt-5 flex flex-col gap-2">
+              {NAV.map(([key,label,icon]) => (
+                <button key={key} onClick={()=>setTab(key)} className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-extrabold transition ${tab===key?"bg-deep text-white":"bg-mint text-forest hover:bg-mint/70"}`}>
+                  <Icon name={icon} className="h-4 w-4 shrink-0" />{label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="mt-5 flex gap-2 border-t border-forest/10 pt-5">
+              <button onClick={() => void load()} className={btnClass("outline","md","flex-1")}>Refresh</button>
+              <button onClick={async()=>{await logout();navigate("/")}} className={btnClass("outline","md","flex-1")}>Log out</button>
             </div>
-          </div>
-          <div className="mt-5 flex gap-2 overflow-x-auto border-t border-forest/10 pt-4">
-            {NAV.map(([key,label,icon]) => (
-              <button key={key} onClick={()=>setTab(key)} className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-extrabold ${tab===key?"bg-deep text-white":"bg-mint text-forest"}`}>
-                <Icon name={icon} className="h-4 w-4" />{label}
-              </button>
-            ))}
-          </div>
-        </header>
+          </aside>
 
-        {error && <div className="mt-5 rounded-2xl bg-red-50 p-4 font-semibold text-red-700">{error}</div>}
+          <main className="min-w-0">
+            {error && <div className="rounded-2xl bg-red-50 p-4 font-semibold text-red-700">{error}</div>}
 
-        {tab === "overview" && <>
+            {tab === "overview" && <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Metric label="Total sales" value={seller?.totalOrders || 0} change="+12.4%" icon="shoppingBag"/>
             <Metric label="Revenue" value={money(gross)} change="+8.1%" icon="chart"/>
@@ -158,11 +160,13 @@ export function PremiumDashboard() {
         {tab === "settlements" && <Panel title="Settlements" text="Your M-Pesa settlement account and balances."><div className="rounded-2xl bg-mint p-5"><p className="text-xs font-black uppercase text-forest/50">Settlement number</p><p className="mt-2 text-xl font-black">{seller?.paymentNumber||"Not set"}</p><p className="mt-2 text-sm text-forest/60">Available balance: {money(seller?.balanceCents||0)}</p></div></Panel>}
         {tab === "settings" && <Panel title="Payment Settings" text="Your verified settlement number receives your seller earnings."><div className="rounded-2xl bg-mint p-5"><p className="text-xs font-black uppercase text-forest/50">Verified Payment Number</p><p className="mt-2 text-xl font-black">{seller?.paymentNumber||"Not set"}</p><p className="mt-2 text-sm text-forest/60">{seller?.paymentVerifiedAt?"Ownership verified by SMS.":"Verification required."}</p></div></Panel>}
 
-        <div className="mt-6 overflow-hidden rounded-[28px] bg-deep p-7 text-white">
+          <div className="mt-6 overflow-hidden rounded-[28px] bg-deep p-7 text-white">
           <p className="text-xs font-black uppercase tracking-[.16em] text-gold">Keep growing</p>
           <h2 className="mt-2 text-2xl font-black sm:text-3xl">Share a Magic Link right now</h2>
           <p className="mt-2 max-w-xl text-sm text-white/65">Your link is always live while the product is active. Share it through WhatsApp, SMS or social media.</p>
           <button onClick={()=>setTab("magic")} className={btnClass("gold","lg","mt-5")}>Open Magic Links</button>
+          </div>
+          </main>
         </div>
       </Container>
     </section>
