@@ -10,7 +10,6 @@ import {
 
 import {
   Icon,
-  Logo,
 } from "@/components/Icon";
 
 import { api, API_BASE } from "@/lib/api";
@@ -137,7 +136,7 @@ export function Dashboard() {
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-forest/10 bg-white p-5">
 
           <div className="flex items-center gap-3">
-            <Logo />
+            <BrandLogo />
 
             <div>
               <p className="font-extrabold text-deep">
