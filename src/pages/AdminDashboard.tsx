@@ -15,6 +15,10 @@ import {
 } from "@/components/Icon";
 
 import {
+  BrandLogo,
+} from "@/components/BrandLogo";
+
+import {
   api,
   API_BASE,
 } from "@/lib/api";
@@ -72,6 +76,19 @@ export function AdminDashboard() {
   ] = useState("");
 
   /*
+   * IMPORTANT:
+   * This is the balance fetched from the database
+   * after the admin selects an author.
+   *
+   * null means that the selected author's balance
+   * has not been freshly loaded yet.
+   */
+  const [
+    payoutSellerBalanceCents,
+    setPayoutSellerBalanceCents,
+  ] = useState<number | null>(null);
+
+  /*
    * Load dashboard data
    */
   const load = useCallback(async () => {
@@ -93,11 +110,15 @@ export function AdminDashboard() {
       ) {
         setData(result);
       }
+
+      return result;
     } catch (e: any) {
       setError(
         e?.message ||
           "Could not load the admin dashboard."
       );
+
+      throw e;
     }
   }, []);
 
@@ -155,6 +176,15 @@ export function AdminDashboard() {
     data?.payouts || [];
 
   /*
+   * Currently selected payout seller
+   */
+  const selectedPayoutSeller =
+    sellers.find(
+      (seller: any) =>
+        seller.id === payoutSellerId
+    );
+
+  /*
    * Paid orders
    */
   const paidOrders = useMemo(
@@ -202,6 +232,94 @@ export function AdminDashboard() {
   ) {
     return null;
   }
+
+  /*
+   * ---------------------------------------------------------
+   * REFRESH SELECTED AUTHOR BALANCE
+   * ---------------------------------------------------------
+   *
+   * The seller balance shown in the initial dashboard can
+   * become stale.
+   *
+   * Whenever an author is selected, fetch the dashboard again
+   * so the selected author's balance comes directly from the
+   * current database state.
+   */
+  const refreshSelectedPayoutSeller =
+    async (
+      sellerId: string
+    ) => {
+      setPayoutSellerId(sellerId);
+      setPayoutSellerBalanceCents(null);
+      setError("");
+
+      if (!sellerId) {
+        return;
+      }
+
+      setBusy("refresh-payout-seller");
+
+      try {
+        const latest =
+          await api.adminDashboard();
+
+        const latestSellers =
+          Array.isArray(
+            latest?.sellers
+          )
+            ? latest.sellers
+            : [];
+
+        const freshSeller =
+          latestSellers.find(
+            (seller: any) =>
+              seller.id === sellerId &&
+              seller?.user?.role ===
+                "SELLER"
+          );
+
+        /*
+         * Update the entire dashboard snapshot too.
+         * This means the selected seller's option and
+         * all seller balances now reflect the database.
+         */
+        if (
+          latest &&
+          typeof latest === "object"
+        ) {
+          setData(latest);
+        }
+
+        if (!freshSeller) {
+          setPayoutSellerBalanceCents(0);
+
+          setError(
+            "The selected author could not be found. Refresh the dashboard and try again."
+          );
+
+          return;
+        }
+
+        /*
+         * This is now the authoritative balance used
+         * by the payout form.
+         */
+        setPayoutSellerBalanceCents(
+          Number(
+            freshSeller.balanceCents || 0
+          )
+        );
+      } catch (e: any) {
+        setPayoutSellerBalanceCents(null);
+
+        setError(
+          e?.message ||
+            "Could not refresh the author's current balance."
+        );
+      } finally {
+        setBusy("");
+      }
+    };
 
   /*
    * ---------------------------------------------------------
@@ -261,6 +379,19 @@ export function AdminDashboard() {
       }
 
       /*
+       * Do not allow payout while the selected
+       * author's database balance is still loading.
+       */
+      if (
+        payoutSellerBalanceCents === null
+      ) {
+        setError(
+          "Please wait for the author's current balance to load."
+        );
+        return;
+      }
+
+      /*
        * Validate amount
        */
       if (
@@ -282,11 +413,14 @@ export function AdminDashboard() {
         );
 
       /*
-       * Check available balance
+       * IMPORTANT:
+       * Use the freshly fetched database balance,
+       * NOT seller.balanceCents from the old dashboard
+       * snapshot.
        */
       const available =
         Number(
-          seller.balanceCents || 0
+          payoutSellerBalanceCents || 0
         );
 
       if (
@@ -294,7 +428,7 @@ export function AdminDashboard() {
         available
       ) {
         setError(
-          `Payout exceeds this author's available balance of ${money(
+          `Payout exceeds this author's current available balance of ${money(
             available
           )}.`
         );
@@ -343,6 +477,7 @@ export function AdminDashboard() {
          */
         setPayoutSellerId("");
         setPayoutAmount("");
+        setPayoutSellerBalanceCents(null);
 
         /*
          * Refresh live dashboard
@@ -359,6 +494,33 @@ export function AdminDashboard() {
          * have changed the payout state.
          */
         await load();
+
+        /*
+         * If the seller still exists after the
+         * refresh, update the displayed balance.
+         */
+        if (payoutSellerId) {
+          const refreshedSeller =
+            (Array.isArray(
+              data?.sellers
+            )
+              ? data.sellers
+              : []
+            ).find(
+              (seller: any) =>
+                seller.id ===
+                payoutSellerId
+            );
+
+          if (refreshedSeller) {
+            setPayoutSellerBalanceCents(
+              Number(
+                refreshedSeller.balanceCents ||
+                  0
+              )
+            );
+          }
+        }
       } finally {
         setBusy("");
       }
@@ -1180,8 +1342,12 @@ export function AdminDashboard() {
                     value={
                       payoutSellerId
                     }
+                    disabled={
+                      busy ===
+                      "refresh-payout-seller"
+                    }
                     onChange={(event) =>
-                      setPayoutSellerId(
+                      void refreshSelectedPayoutSeller(
                         event.target.value
                       )
                     }
@@ -1222,6 +1388,37 @@ export function AdminDashboard() {
 
                   </select>
 
+                  {/* Fresh database balance for selected author */}
+
+                  {payoutSellerId && (
+                    <div className="mt-2 flex items-center justify-between rounded-xl bg-white px-3 py-2 text-xs">
+
+                      <span className="font-bold text-forest/60">
+                        {
+                          selectedPayoutSeller
+                            ?.user
+                            ?.name ||
+                          selectedPayoutSeller
+                            ?.handle ||
+                          "Selected author"
+                        }
+                      </span>
+
+                      <span className="font-extrabold text-brand">
+                        {busy ===
+                        "refresh-payout-seller"
+                          ? "Checking database…"
+                          : payoutSellerBalanceCents !==
+                              null
+                          ? `${money(
+                              payoutSellerBalanceCents
+                            )} available`
+                          : "Balance unavailable"}
+                      </span>
+
+                    </div>
+                  )}
+
                 </div>
 
                 {/* Amount */}
@@ -1245,6 +1442,10 @@ export function AdminDashboard() {
                     min="1"
                     step="1"
                     placeholder="e.g. 500"
+                    disabled={
+                      busy ===
+                      "refresh-payout-seller"
+                    }
                     className="mt-2 w-full rounded-2xl border border-forest/10 bg-white px-3 py-3 text-sm"
                   />
 
@@ -1255,7 +1456,12 @@ export function AdminDashboard() {
                 <button
                   disabled={
                     busy ===
-                    "new-payout"
+                      "new-payout" ||
+                    busy ===
+                      "refresh-payout-seller" ||
+                    payoutSellerBalanceCents ===
+                      null ||
+                    !payoutSellerId
                   }
                   onClick={() =>
                     void createAndSendPayout()
@@ -1268,15 +1474,20 @@ export function AdminDashboard() {
                   {busy ===
                   "new-payout"
                     ? "Sending…"
+                    : busy ===
+                      "refresh-payout-seller"
+                    ? "Checking balance…"
                     : "Send via M-Pesa"}
                 </button>
 
               </div>
 
               <p className="mt-3 text-xs text-forest/55">
-                The amount is reserved from the
-                author's available balance before
-                the M-Pesa B2C request is sent.
+                The selected author's available
+                balance is refreshed directly from
+                the database before a payout can be
+                created. The backend also performs its
+                own atomic balance check.
               </p>
 
             </div>
@@ -1530,19 +1741,196 @@ function Empty({
   );
 }
 
-
 function RefundsPanel() {
   const [rows,setRows]=useState<any[]>([]);
   const [busy,setBusy]=useState("");
-  useEffect(()=>{api.adminRefunds().then(r=>setRows(r.refunds||[])).catch(()=>{})},[]);
-  async function refund(id:string){const reason=window.prompt("Refund reason","Customer refund");if(!reason)return;setBusy(id);try{await api.adminRefundOrder(id,{reason});setRows((await api.adminRefunds()).refunds||[])}finally{setBusy("")}}
-  return <Panel title={`Refund management (${rows.length})`} className="mt-6"><div className="space-y-3">{rows.map(r=><div key={r.id} className="rounded-2xl border p-4 flex flex-wrap justify-between gap-3"><div><b>Order {r.order?.publicId}</b><p className="text-sm text-forest/60">{r.reason} · {money(r.amountCents)} · {r.status}</p></div>{r.status==="REQUESTED"&&<button disabled={busy===r.orderId} onClick={()=>refund(r.orderId)} className={btnClass("gold","sm")}>{busy===r.orderId?"Processing…":"Refund"}</button>}</div>)}</div></Panel>;
+
+  useEffect(() => {
+    api.adminRefunds()
+      .then(r => setRows(r.refunds || []))
+      .catch(() => {});
+  }, []);
+
+  async function refund(id:string) {
+    const reason = window.prompt(
+      "Refund reason",
+      "Customer refund"
+    );
+
+    if (!reason) return;
+
+    setBusy(id);
+
+    try {
+      await api.adminRefundOrder(
+        id,
+        { reason }
+      );
+
+      setRows(
+        (await api.adminRefunds())
+          .refunds || []
+      );
+    } finally {
+      setBusy("");
+    }
+  }
+
+  return (
+    <Panel
+      title={`Refund management (${rows.length})`}
+      className="mt-6"
+    >
+      <div className="space-y-3">
+        {rows.map(r => (
+          <div
+            key={r.id}
+            className="rounded-2xl border p-4 flex flex-wrap justify-between gap-3"
+          >
+            <div>
+              <b>
+                Order {r.order?.publicId}
+              </b>
+
+              <p className="text-sm text-forest/60">
+                {r.reason} · {money(r.amountCents)} · {r.status}
+              </p>
+            </div>
+
+            {r.status === "REQUESTED" && (
+              <button
+                disabled={busy === r.orderId}
+                onClick={() =>
+                  refund(r.orderId)
+                }
+                className={btnClass(
+                  "gold",
+                  "sm"
+                )}
+              >
+                {busy === r.orderId
+                  ? "Processing…"
+                  : "Refund"}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
 }
 
 function FraudPanel() {
- const [rows,setRows]=useState<any[]>([]);
- const load=()=>api.adminFraudFlags().then(r=>setRows(r.flags||[])).catch(()=>{});
- useEffect(()=>{load()},[]);
- async function setStatus(id:string,status:string){await api.adminFraudStatus(id,status);load()}
- return <Panel title={`Fraud monitoring (${rows.length})`} className="mt-6"><div className="space-y-3">{rows.map(f=><div key={f.id} className="rounded-2xl border p-4"><div className="flex flex-wrap justify-between gap-3"><div><b>{f.reason}</b><p className="text-sm text-forest/60">Score {f.score} · {f.status} · Order {f.order?.publicId||"—"}</p></div><div className="flex gap-2">{["REVIEWED","CLEARED","BLOCKED"].map(s=><button key={s} onClick={()=>setStatus(f.id,s)} className={btnClass("outline","sm")}>{s}</button>)}</div></div></div>)}</div></Panel>;
+  const [rows,setRows]=useState<any[]>([]);
+
+  const load = () =>
+    api.adminFraudFlags()
+      .then(r => setRows(r.flags || []))
+      .catch(() => {});
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function setStatus(
+    id:string,
+    status:string
+  ) {
+    await api.adminFraudStatus(
+      id,
+      status
+    );
+
+    load();
+  }
+
+  return (
+    <Panel
+      title={`Fraud monitoring (${rows.length})`}
+      className="mt-6"
+    >
+      <div className="space-y-3">
+        {rows.map(f => (
+          <div
+            key={f.id}
+            className="rounded-2xl border p-4"
+          >
+            <div className="flex flex-wrap justify-between gap-3">
+
+              <div>
+                <b>{f.reason}</b>
+
+                <p className="text-sm text-forest/60">
+                  Score {f.score} · {f.status} · Order{" "}
+                  {f.order?.publicId || "—"}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                {[
+                  "REVIEWED",
+                  "CLEARED",
+                  "BLOCKED",
+                ].map(s => (
+                  <button
+                    key={s}
+                    onClick={() =>
+                      setStatus(
+                        f.id,
+                        s
+                      )
+                    }
+                    className={btnClass(
+                      "outline",
+                      "sm"
+                    )}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
 }
+
+What changed
+
+The important part is now:
+
+onChange={(event) =>
+  void refreshSelectedPayoutSeller(
+    event.target.value
+  )
+}
+
+When an author is selected, the dashboard makes a fresh "api.adminDashboard()" request, finds that exact seller from the returned database data, and stores:
+
+setPayoutSellerBalanceCents(
+  Number(freshSeller.balanceCents || 0)
+);
+
+The UI then explicitly shows:
+
+«Author Name — KSh X,XXX available»
+
+using that freshly fetched value.
+
+And the payout check now uses:
+
+const available =
+  Number(payoutSellerBalanceCents || 0);
+
+instead of the potentially stale:
+
+seller.balanceCents
+
+So the previous “The author's available balance has changed. Refresh and try again.” situation should no longer occur merely because the dashboard had an old balance. The backend's atomic check still remains the final protection against a balance changing between the refresh and payout creation.
+
+File to replace: "src/pages/AdminDashboard.tsx"
+
+One additional correction included: your supplied file uses "<BrandLogo />" but did not import it, so I added the "BrandLogo" import to prevent the dashboard from hitting the same kind of runtime problem we just fixed on Premium Login.
