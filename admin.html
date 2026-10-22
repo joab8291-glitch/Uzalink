@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><head><meta charset="utf8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Bunifu Admin</title>
+<style>
+:root{--ink:#06103A;--mut:#4A5480;--line:#DCE2F6;--acc:#2020D8;--bg:#F5F7FF;--deep:#040C34}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:var(--deep);color:#fff;display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 16px;position:sticky;top:0;z-index:5}
+header b{margin-right:12px;font-size:17px}header button,header a{background:none;border:0;color:#9AA6D6;font:inherit;padding:8px 12px;border-radius:6px;cursor:pointer;text-decoration:none}
+header .on{background:#1B2662;color:#fff}.sp{flex:1}
+main{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:14px}
+h2{margin:0 0 14px;font-size:22px}label{display:block;font-weight:600;font-size:13px;margin:12px 0 4px}
+input,textarea,select{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}textarea{resize:vertical}
+button.b{background:var(--acc);color:#fff;border:0;border-radius:6px;padding:10px 16px;font:600 14px system-ui;cursor:pointer}button.g{background:#fff;color:var(--ink);border:1px solid var(--line)}button.d{background:#fff;color:#A33A2B;border:1px solid #E7B9B1}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.row>*{flex:1;min-width:140px}.row>button{flex:none}
+.chip{display:inline-block;font:600 10px monospace;text-transform:uppercase;letter-spacing:.08em;background:#E6EAFF;color:var(--acc);border-radius:4px;padding:2px 6px;margin-right:6px}
+.f{border-bottom:1px solid var(--line);padding:10px 0}.f small{color:var(--mut);display:block;margin-bottom:4px;word-break:break-all}.f img{height:48px;border-radius:4px;margin-top:6px;display:block}
+.bar{position:sticky;bottom:0;background:var(--bg);padding:10px 0;display:flex;gap:10px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.grid .card{padding:8px;margin:0}.grid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--deep);color:#fff;padding:10px 16px;border-radius:8px;display:none;z-index:9}#toast.err{background:#A33A2B}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;background:#E6EAFF}.pill.pub{background:#D5F0E2;color:#1D7A4F}
+.auth{max-width:380px;margin:12vh auto}
+</style></head><body><div id="app"></div><div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const h=(t,p,...c)=>{const e=document.createElement(t);Object.assign(e,p||{});c.flat().forEach(x=>x!=null&&e.append(x));return e};
+async function api(m,u,b){const r=await fetch(u,{method:m,headers:{'Content-Type':'application/json','X-Requested-With':'admin'},body:b?JSON.stringify(b):undefined});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||r.statusText);return j}
+let tt;function toast(m,err){const t=$('#toast');t.textContent=m;t.className=err?'err':'';t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',3000)}
+const run=f=>async(...a)=>{try{await f(...a)}catch(e){toast(e.message,1)}};
+const field=(label,el)=>h('div',{},h('label',{},label),el);
+function pick(cb){const i=h('input',{type:'file',accept:'image/png,image/jpeg,image/webp,image/gif',onchange:run(async()=>{const f=i.files[0];if(!f)return;if(f.size>8e6)throw new Error('Image is over 8 MB');
+ const data=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});const j=await api('POST','/api/upload',{name:f.name,data});toast('Uploaded');cb(j.url)})});i.click()}
+
+async function boot(){const me=await api('GET','/api/me');me.auth?shell():authView(me.setup)}
+function authView(setup){const u=h('input',{autocomplete:'username'}),p=h('input',{type:'password',autocomplete:setup?'new-password':'current-password'}),k=h('input');
+ const go=run(async()=>{await api('POST',setup?'/api/setup':'/api/login',{user:u.value,password:p.value,key:k.value});boot()});
+ p.onkeydown=e=>e.key==='Enter'&&go();
+ $('#app').replaceChildren(h('div',{className:'auth card'},h('h2',{},setup?'Create your admin account':'Sign in'),field('Username',u),field(setup?'Password (8+ characters)':'Password',p),setup?field('Setup key (only if the server has SETUP_KEY set)',k):'',h('p'),h('button',{className:'b',onclick:go},setup?'Create account':'Sign in')))}
+
+const tabs={Pages:pagesView,Blog:blogView,Media:mediaView,Account:accountView};
+function shell(){const nav=h('header',{},h('b',{},'Bunifu Admin'));
+ for(const t in tabs)nav.append(h('button',{id:'t-'+t,onclick:()=>{document.querySelectorAll('header button').forEach(b=>b.classList.remove('on'));$('#t-'+t).classList.add('on');run(tabs[t])()}},t));
+ nav.append(h('span',{className:'sp'}),h('a',{href:'/',target:'_blank'},'View site ↗'),h('button',{onclick:run(async()=>{await api('POST','/api/logout');boot()})},'Sign out'));
+ $('#app').replaceChildren(nav,h('main',{id:'main'}));$('#t-Pages').click()}
+const main=(...c)=>$('#main').replaceChildren(...c);
+
+/* ---- Pages: every text, image, alt text and link ---- */
+const PG=[['site','Header & footer (every page)'],['index','Home'],['services','Services'],['how-we-work','How we work'],['work','Work'],['about','About'],['contact','Contact']];
+let curPage='index';
+async function pagesView(){const sel=h('select',{onchange:()=>{curPage=sel.value;pagesView()}},PG.map(([v,t])=>h('option',{value:v,selected:v===curPage},t)));
+ const {fields}=await api('GET','/api/fields?page='+curPage),vals={},list=h('div'),q=h('input',{placeholder:'Search text on this page…',oninput:draw});
+ fields.forEach(f=>vals[f.k]=f.val);
+ const lab={text:'Text',src:'Image',alt:'Alt text',href:'Link',meta:'SEO'};
+ function draw(){const s=q.value.toLowerCase();list.replaceChildren(...fields.filter(f=>!s||f.orig.toLowerCase().includes(s)||vals[f.k].toLowerCase().includes(s)).map(f=>{
+  const long=f.kind==='text'&&(f.orig.length>70||vals[f.k].length>70)||f.k==='meta|description';
+  const el=long?h('textarea',{rows:3,value:vals[f.k]}):h('input',{value:vals[f.k]});el.oninput=()=>vals[f.k]=el.value;
+  const row=h('div',{className:'f'},h('small',{},h('span',{className:'chip'},f.k==='meta|description'?'SEO':lab[f.kind]),f.k==='meta|description'?'Meta description for search results (about 150 characters)':f.orig.slice(0,90)),el);
+  if(f.kind==='src'){const im=h('img',{src:vals[f.k]});el.addEventListener('change',()=>im.src=el.value);row.append(im,h('button',{className:'b g',style:'margin-top:6px',onclick:()=>pick(u=>{vals[f.k]=el.value=u;im.src=u})},'Upload new image'))}
+  return row}))}
+ draw();
+ main(h('div',{className:'card'},h('h2',{},'Edit page content'),h('div',{className:'row'},sel,h('a',{href:curPage==='site'?'/':curPage==='index'?'/':'/'+curPage+'.html',target:'_blank'},'Open page ↗')),h('p',{style:'color:#4A5480;font-size:13px'},'Every piece of text, image, alt text and link on this page is listed below. Change what you need and save. Setting a value back to the original clears the change.'),q),
+  h('div',{className:'card'},list),
+  h('div',{className:'bar'},h('button',{className:'b',onclick:run(async()=>{const ov={};fields.forEach(f=>{if(vals[f.k]!==f.orig)ov[f.k]=vals[f.k]});await api('PUT','/api/fields',{page:curPage,ov});toast('Saved. The live page is updated.')})},'Save changes'),h('span',{style:'color:#4A5480;font-size:13px'},'Text shared by several places on a page (like a repeated button label) changes everywhere it appears.')))}
+
+/* ---- Blog ---- */
+async function blogView(){const [posts,bs]=await Promise.all([api('GET','/api/posts'),api('GET','/api/blog')]);
+ const t=h('input',{value:bs.title}),i=h('textarea',{rows:2,value:bs.intro});
+ main(h('div',{className:'card'},h('div',{className:'row'},h('h2',{style:'margin:0'},'Blog posts'),h('button',{className:'b',onclick:()=>editPost({})},'New post'),h('a',{href:'/blog',target:'_blank'},'View blog ↗'))),
+  ...posts.map(p=>h('div',{className:'card row'},h('div',{},h('b',{},p.title),h('br'),h('small',{},p.date+' · '+p.category)),h('span',{className:'pill'+(p.status==='published'?' pub':'')},p.status),h('button',{className:'b g',onclick:()=>editPost(p)},'Edit'))),
+  posts.length?'':h('p',{},'No posts yet. Click “New post”.'),
+  h('div',{className:'card'},h('h2',{},'Blog page heading'),field('Title',t),field('Intro',i),h('p'),h('button',{className:'b',onclick:run(async()=>{await api('PUT','/api/blog',{title:t.value,intro:i.value});toast('Saved')})},'Save heading')))}
+function editPost(p){const d=new Date().toISOString().slice(0,10);
+ const f={title:h('input',{value:p.title||''}),slug:h('input',{value:p.slug||'',placeholder:'auto from title'}),category:h('input',{value:p.category||'General'}),date:h('input',{type:'date',value:p.date||d}),
+  status:h('select',{},['draft','published'].map(s=>h('option',{value:s,selected:s===(p.status||'draft')},s))),cover:h('input',{value:p.cover||'',placeholder:'/uploads/… or https://…'}),
+  excerpt:h('textarea',{rows:2,value:p.excerpt||''}),body:h('textarea',{rows:20,value:p.body||'',style:'font-family:ui-monospace,monospace;font-size:14px'})};
+ const save=run(async()=>{const b={id:p.id};for(const k in f)b[k]=f[k].value;const r=await api('POST','/api/posts',b);p.id=r.id;toast(r.status==='published'?'Published':'Saved as draft');editPost(r)});
+ main(h('div',{className:'card'},h('h2',{},p.id?'Edit post':'New post'),field('Title',f.title),h('div',{className:'row'},field('Slug (URL)',f.slug),field('Category',f.category)),h('div',{className:'row'},field('Date',f.date),field('Status',f.status)),
+  field('Cover image',h('div',{className:'row'},f.cover,h('button',{className:'b g',onclick:()=>pick(u=>f.cover.value=u)},'Upload'))),field('Excerpt (shown in lists and search results)',f.excerpt),
+  field('Body',f.body),h('p',{style:'color:#4A5480;font-size:13px'},'Formatting: # Heading, ## Subheading, **bold**, *italic*, - bullet list, 1. numbered list, > quote, [text](https://link), ![alt](/uploads/image.jpg)'),
+  h('div',{className:'row'},h('button',{className:'b g',onclick:()=>pick(u=>{const a=f.body,s=a.selectionStart;a.value=a.value.slice(0,s)+'\n![](' +u+')\n'+a.value.slice(s)})},'Insert image into body'))),
+  h('div',{className:'bar'},h('button',{className:'b',onclick:save},'Save'),h('button',{className:'b g',onclick:run(blogView)},'Back'),p.id?h('button',{className:'b d',onclick:run(async()=>{if(confirm('Delete this post permanently?')){await api('DELETE','/api/posts?id='+p.id);toast('Deleted');blogView()}})},'Delete'):'',p.id&&p.status==='published'?h('a',{href:'/blog/'+p.slug,target:'_blank'},'View ↗'):''))}
+
+/* ---- Media & account ---- */
+async function mediaView(){const m=await api('GET','/api/media');
+ main(h('div',{className:'card row'},h('h2',{style:'margin:0'},'Media library'),h('button',{className:'b',onclick:()=>pick(mediaView)},'Upload image')),
+  h('div',{className:'grid'},m.map(u=>h('div',{className:'card'},h('img',{src:u,loading:'lazy'}),h('small',{style:'display:block;word-break:break-all;margin:6px 0'},u),h('div',{className:'row'},
+   h('button',{className:'b g',onclick:()=>navigator.clipboard.writeText(u).then(()=>toast('URL copied'))},'Copy URL'),h('button',{className:'b d',onclick:run(async()=>{if(confirm('Delete this image?')){await api('DELETE','/api/media?f='+encodeURIComponent(u.split('/').pop()));mediaView()}})},'Delete')))))),m.length?'':h('p',{},'No uploads yet. Use the upload buttons here, on pages, or in posts.'))}
+function accountView(){const o=h('input',{type:'password',autocomplete:'current-password'}),n=h('input',{type:'password',autocomplete:'new-password'});
+ main(h('div',{className:'card'},h('h2',{},'Change password'),field('Current password',o),field('New password (8+ characters)',n),h('p'),h('button',{className:'b',onclick:run(async()=>{await api('POST','/api/password',{old:o.value,new:n.value});o.value=n.value='';toast('Password changed')})},'Change password')),
+  h('div',{className:'card'},h('h2',{},'Backups'),h('p',{},'Each save of page content keeps a copy of the previous version in data/backups (last 20). Back up the whole data/ folder to protect posts and uploads.')))}
+boot();
+</script></body></html>
